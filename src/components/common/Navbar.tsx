@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronRight } from "lucide-react";
@@ -48,11 +49,16 @@ export default function Navbar() {
           >
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <div className="relative size-9 rounded-full bg-gradient-to-br from-[#ff6a00] to-[#b34a00] p-[1px] overflow-hidden">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300" />
-                <div className="w-full h-full bg-[#050505] rounded-full flex items-center justify-center">
-                  <span className="font-display font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#ff6a00] to-[#ff9b4d] text-lg">Y</span>
-                </div>
+              {/* Brand SVG icon — compact, contained in a tight frame */}
+              <div className="relative size-10 rounded-xl overflow-hidden bg-[#ff6a00]/10 border border-[#ff6a00]/20 flex items-center justify-center p-1 group-hover:border-[#ff6a00]/50 group-hover:bg-[#ff6a00]/15 transition-all duration-300">
+                <Image
+                  src="/images/navbar/hero image.svg"
+                  alt="Yafet Pro Media Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain w-full h-full"
+                  priority
+                />
               </div>
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-[#ff6a00] transition-colors duration-300 hidden sm:block">
                 Yafet<span className="text-white/50 font-normal">Pro</span>Media
@@ -90,13 +96,13 @@ export default function Navbar() {
             >
               <AnimatePresence mode="wait">
                 {isMobileMenuOpen ? (
-                  <motion.div key="close" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.2 }}>
+                  <motion.span key="close" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.2 }} className="block">
                     <X className="size-6" />
-                  </motion.div>
+                  </motion.span>
                 ) : (
-                  <motion.div key="menu" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.2 }}>
+                  <motion.span key="menu" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.2 }} className="block">
                     <Menu className="size-6" />
-                  </motion.div>
+                  </motion.span>
                 )}
               </AnimatePresence>
             </button>

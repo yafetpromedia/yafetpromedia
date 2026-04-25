@@ -18,7 +18,7 @@ export default function SectionWrapper({
       id={id}
       className={cn("py-24 md:py-32 relative overflow-hidden", className)}
     >
-      <div className={cn("container px-4 mx-auto", containerClassName)}>
+      <div className={cn("max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8", containerClassName)}>
         {children}
       </div>
     </section>
