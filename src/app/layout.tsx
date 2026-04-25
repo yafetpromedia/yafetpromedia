@@ -16,6 +16,8 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+
 export const metadata: Metadata = {
   title: "Yafet Pro Media | Digital Infrastructure & System Solutions",
   description: "We build complete digital systems, designing infrastructure that powers organizations through technology, branding, and strategic marketing.",
@@ -29,14 +31,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased bg-[#050505] text-white`}>
-        <SmoothScrollProvider>
-          <StoreProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </StoreProvider>
-        </SmoothScrollProvider>
+      <body suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SmoothScrollProvider>
+            <StoreProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </StoreProvider>
+          </SmoothScrollProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
