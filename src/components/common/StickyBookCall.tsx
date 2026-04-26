@@ -20,10 +20,12 @@ export default function StickyBookCall() {
     >
       <Link
         href="#contact"
-        className="inline-flex items-center gap-2 rounded-full h-12 px-5 bg-primary text-primary-foreground font-semibold shadow-[0_0_30px_rgba(255,106,0,0.35)] hover:shadow-[0_0_40px_rgba(255,106,0,0.5)] hover:bg-primary/90 transition-all"
+        className="group inline-flex items-center rounded-full h-12 w-12 hover:w-[156px] pr-4 pl-4 overflow-hidden bg-primary text-primary-foreground font-semibold shadow-[0_0_20px_rgba(255,106,0,0.24)] hover:shadow-[0_0_55px_rgba(255,106,0,0.55)] hover:bg-primary/90 transition-all duration-300"
       >
-        <PhoneCall className="size-4" />
-        {t("bookCall")}
+        <PhoneCall className="size-4 shrink-0" />
+        <span className="ml-2 whitespace-nowrap max-w-0 opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300">
+          {t("bookCall")}
+        </span>
       </Link>
     </motion.div>
   );

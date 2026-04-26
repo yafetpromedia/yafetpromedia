@@ -52,7 +52,7 @@ export default function AIChatWidget() {
       const response = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history: nextMessages, businessName: "Yafet Pro Media" }),
+        body: JSON.stringify({ message: text, history: nextMessages, businessName: "Yafetpromedia" }),
       });
       const data = (await response.json()) as { reply?: string };
       const reply = data.reply ?? "I can help with services, timeline, and next steps. Please share your project goals.";
@@ -143,10 +143,12 @@ export default function AIChatWidget() {
 
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="h-12 px-4 rounded-full bg-primary text-primary-foreground shadow-[0_0_30px_rgba(255,106,0,0.35)] inline-flex items-center gap-2 font-semibold"
+        className="group h-12 w-12 hover:w-[168px] rounded-full pr-4 pl-4 overflow-hidden bg-primary text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.24)] hover:shadow-[0_0_55px_rgba(255,106,0,0.55)] inline-flex items-center transition-all duration-300 font-semibold"
       >
-        <MessageCircle className="size-4" />
-        {t("aiAssistant")}
+        <MessageCircle className="size-4 shrink-0" />
+        <span className="ml-2 whitespace-nowrap max-w-0 opacity-0 group-hover:max-w-[132px] group-hover:opacity-100 transition-all duration-300">
+          {t("aiAssistant")}
+        </span>
       </button>
     </div>
   );

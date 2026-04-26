@@ -10,7 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import FadeIn from "@/components/animations/FadeIn";
-import { ArrowRight, Play, Database, Shield, Zap } from "lucide-react";
+import { ArrowRight, Play, Shield, Zap } from "lucide-react";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 
@@ -55,6 +55,7 @@ export default function Hero() {
   const { t } = useLanguage();
   const { content } = useSiteContent();
   const ref = useRef<HTMLDivElement>(null);
+  const [highlightFirstWord, ...highlightRest] = content.heroHighlight.split(" ");
   
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -70,7 +71,7 @@ export default function Hero() {
   return (
     <section 
       ref={ref}
-      className="relative min-h-screen flex flex-col pt-40 md:pt-48 pb-20 overflow-hidden bg-background"
+      className="relative min-h-screen flex flex-col pt-20 md:pt-24 lg:pt-30 pb-20 overflow-hidden bg-background"
     >
       {/* 1. Deep Background Layer (Slow Parallax) */}
       <motion.div 
@@ -117,10 +118,12 @@ export default function Hero() {
             className="flex flex-col items-start justify-center"
           >
             <FadeIn delay={0.1} distance={40}>
-              <h1 className="text-[3rem] sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] font-display font-bold mb-8 leading-[1.05] tracking-tighter text-left text-foreground">
+              <h1 className="text-[2.65rem] sm:text-[3.5rem] md:text-[4.2rem] lg:text-[4.7rem] xl:text-[5.2rem] font-display font-bold mb-8 leading-[1.05] tracking-tighter text-left text-foreground">
                 {content.heroHeadline}{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#ff9b4d]">
-                  {content.heroHighlight}
+                  {highlightFirstWord}
+                  {highlightRest.length > 0 && <br className="sm:hidden" />}
+                  {highlightRest.length > 0 ? ` ${highlightRest.join(" ")}` : ""}
                 </span>
                 <br />
                 {content.heroTail}
@@ -148,19 +151,6 @@ export default function Hero() {
               </div>
             </FadeIn>
 
-            {/* Trust Ticker — left aligned under CTAs */}
-            <FadeIn delay={0.5} distance={20} className="mt-16 w-full">
-              <p className="text-xs font-bold tracking-[0.2em] uppercase text-foreground/40 mb-6">
-                Powering infrastructure for modern organizations
-              </p>
-              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 opacity-40 grayscale contrast-125 dark:contrast-100">
-                <div className="text-sm font-bold tracking-tighter flex items-center gap-1 text-foreground"><Zap className="size-4"/> VORTEX</div>
-                <div className="text-sm font-bold tracking-tighter flex items-center gap-1 text-foreground"><Database className="size-4"/> LUMINA</div>
-                <div className="text-sm font-bold tracking-tighter flex items-center gap-1 text-foreground"><Shield className="size-4"/> AEGIS</div>
-                <div className="text-sm font-bold tracking-tighter flex items-center gap-1 text-foreground"><ArrowRight className="size-4"/> NEXUS</div>
-                <div className="text-sm font-bold tracking-tighter hidden sm:flex items-center gap-1 text-foreground"><Play className="size-4"/> SYNTH</div>
-              </div>
-            </FadeIn>
           </motion.div>
 
           {/* RIGHT COLUMN: Brand SVG with Parallax */}
@@ -176,7 +166,7 @@ export default function Hero() {
               <div className="relative w-full aspect-square max-w-[540px] mx-auto lg:ml-auto">
                 <Image
                   src="/images/hero/hero image.svg"
-                  alt="Yafet Pro Media — Digital Systems"
+                  alt="Yafetpromedia — Digital Systems"
                   fill
                   className="object-contain drop-shadow-2xl select-none dark:brightness-100 brightness-90"
                   priority

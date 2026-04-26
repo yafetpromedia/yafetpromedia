@@ -14,15 +14,25 @@ export async function GET() {
   if (!(await isAuthenticated())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const content = await readSiteContent();
-  return Response.json({ content });
+  try {
+    const content = await readSiteContent();
+    return Response.json({ content });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to read content.";
+    return Response.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function PUT(request: Request) {
   if (!(await isAuthenticated())) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const body = (await request.json()) as { content?: Record<string, unknown> };
-  const content = await writeSiteContent((body.content ?? {}) as never);
-  return Response.json({ content });
+  try {
+    const body = (await request.json()) as { content?: Record<string, unknown> };
+    const content = await writeSiteContent((body.content ?? {}) as never);
+    return Response.json({ content });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to save content.";
+    return Response.json({ error: message }, { status: 500 });
+  }
 }

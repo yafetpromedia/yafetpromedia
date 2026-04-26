@@ -48,15 +48,14 @@ export default function ContactSection() {
             <div className="flex items-center gap-2 mb-6">
               <div className="h-[1px] w-8 bg-primary" />
               <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-                Contact
+                {content.contactSectionTag}
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-tight mb-6">
-              Let&apos;s build your next growth engine.
+              {content.contactSectionTitle}
             </h2>
             <p className="text-foreground/65 text-lg leading-relaxed mb-10 max-w-xl">
-              Tell us what you are building, your timeline, and where you need support.
-              We will come back with a clear plan and next steps.
+              {content.contactSectionDescription}
             </p>
 
             <div className="space-y-4">
@@ -80,7 +79,7 @@ export default function ContactSection() {
                 className="flex items-center gap-3 text-foreground/80 hover:text-primary transition-colors"
               >
                 <PhoneCall className="size-4" />
-                WhatsApp Chat
+                {content.contactWhatsappLabel}
               </Link>
             </div>
           </div>
@@ -93,7 +92,7 @@ export default function ContactSection() {
           >
             <input
               type="text"
-              placeholder="Your Name"
+              placeholder={content.contactNamePlaceholder}
               value={formData.name}
               onChange={(event) =>
                 setFormData((prev) => ({ ...prev, name: event.target.value }))
@@ -102,7 +101,7 @@ export default function ContactSection() {
             />
             <input
               type="email"
-              placeholder="Business Email"
+              placeholder={content.contactEmailPlaceholder}
               value={formData.email}
               onChange={(event) =>
                 setFormData((prev) => ({ ...prev, email: event.target.value }))
@@ -111,7 +110,7 @@ export default function ContactSection() {
             />
             <input
               type="text"
-              placeholder="Company"
+              placeholder={content.contactCompanyPlaceholder}
               value={formData.company}
               onChange={(event) =>
                 setFormData((prev) => ({ ...prev, company: event.target.value }))
@@ -119,7 +118,7 @@ export default function ContactSection() {
               className="w-full h-12 rounded-xl border border-border bg-background px-4 outline-none focus:border-primary"
             />
             <textarea
-              placeholder="Tell us about your project..."
+              placeholder={content.contactMessagePlaceholder}
               rows={5}
               value={formData.message}
               onChange={(event) =>
@@ -132,12 +131,12 @@ export default function ContactSection() {
               disabled={isSubmitting}
               className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold inline-flex items-center justify-center gap-2 transition-colors"
             >
-              {isSubmitting ? "Submitting..." : t("send")}
+              {isSubmitting ? "Submitting..." : content.contactSubmitLabel || t("send")}
               <ArrowRight className="size-4" />
             </button>
             {status && <p className="text-sm text-foreground/70">{status}</p>}
             <p className="text-xs text-foreground/45">
-              We typically reply within one business day.
+              {content.contactReplyNote}
             </p>
           </form>
         </FadeIn>

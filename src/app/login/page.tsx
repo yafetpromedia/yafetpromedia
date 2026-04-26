@@ -22,6 +22,7 @@ export default function LoginPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
+    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
 
     if (response.ok) {
       router.push("/admin");
@@ -29,7 +30,7 @@ export default function LoginPage() {
       setIsLoading(false);
       return;
     }
-    setError("Invalid login. Check your admin credentials.");
+    setError(payload?.error ?? "Invalid login. Check your admin credentials.");
     setIsLoading(false);
   };
 

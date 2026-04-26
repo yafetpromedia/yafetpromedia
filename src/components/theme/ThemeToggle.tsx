@@ -1,13 +1,35 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const { theme, setTheme } = useTheme();
-  const isDark = (theme ?? "dark") === "dark";
+  const isDark = theme === "dark";
+
+  if (!mounted) {
+    return (
+      <button
+        className={cn(
+          "relative size-10 rounded-full border flex items-center justify-center transition-all duration-300",
+          "bg-white/5 border-white/10 text-gray-400",
+          className
+        )}
+        aria-label="Toggle theme"
+        type="button"
+      >
+        <Moon className="size-5" />
+      </button>
+    );
+  }
 
   return (
     <button
@@ -19,6 +41,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         className
       )}
       aria-label="Toggle theme"
+      type="button"
     >
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (

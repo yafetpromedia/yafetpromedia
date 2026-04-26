@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const currentPassword = String(body.currentPassword ?? "");
   const newPassword = String(body.newPassword ?? "");
 
-  if (!verifyAdminCredentials(email, currentPassword)) {
+  if (!(await verifyAdminCredentials(email, currentPassword))) {
     return Response.json({ error: "Current password is incorrect." }, { status: 400 });
   }
 
@@ -33,6 +33,6 @@ export async function POST(request: Request) {
     return Response.json({ error: "New password must be at least 8 characters." }, { status: 400 });
   }
 
-  updateAdminPassword(email, newPassword);
+  await updateAdminPassword(email, newPassword);
   return Response.json({ ok: true });
 }

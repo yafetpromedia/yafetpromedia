@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -12,23 +12,80 @@ import { useLanguage } from "@/components/i18n/LanguageProvider";
 
 export default function Navbar() {
   const { t } = useLanguage();
-  const navLinks = [
-    { name: t("navSystems"), href: "#systems" },
-    { name: t("navServices"), href: "#services" },
-    { name: t("navProducts"), href: "#products" },
-    { name: t("navCaseStudies"), href: "#case-studies" },
-    { name: t("navProcess"), href: "#process" },
-    { name: t("navFaq"), href: "#faq" },
-  ];
+  const navLinks = useMemo(
+    () => [
+      { name: t("navSystems"), href: "#systems" },
+      { name: t("navServices"), href: "#services" },
+      { name: t("navProducts"), href: "#products" },
+      { name: t("navCaseStudies"), href: "#case-studies" },
+      { name: "Trust", href: "#trust" },
+      { name: "Process & FAQ", href: "#process-faq" },
+    ],
+    [t]
+  );
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+
+      const sectionMeta = navLinks
+        .map((link) => {
+          const id = link.href.replace("#", "");
+          const section = document.getElementById(id);
+          return section ? { href: link.href, top: section.offsetTop } : null;
+        })
+        .filter((item): item is { href: string; top: number } => Boolean(item))
+        .sort((a, b) => a.top - b.top);
+
+      if (sectionMeta.length === 0) return;
+
+      const scrollPosition = window.scrollY + 140;
+      let currentSection = "";
+
+      if (scrollPosition < sectionMeta[0].top) {
+        setActiveSection("");
+        return;
+      }
+
+      for (let i = 0; i < sectionMeta.length; i += 1) {
+        const current = sectionMeta[i];
+        const next = sectionMeta[i + 1];
+        if (scrollPosition >= current.top && (!next || scrollPosition < next.top)) {
+          currentSection = current.href;
+          break;
+        }
+      }
+
+      setActiveSection(currentSection);
     };
+
+    const handleHashChange = () => {
+      if (window.location.hash) {
+        setActiveSection(window.location.hash);
+      }
+    };
+
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [navLinks]);
+
+  useEffect(() => {
+    const handleSecretShortcut = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        window.location.href = "/login";
+      }
+    };
+    window.addEventListener("keydown", handleSecretShortcut);
+    return () => window.removeEventListener("keydown", handleSecretShortcut);
   }, []);
 
   return (
@@ -56,7 +113,7 @@ export default function Navbar() {
               <div className="relative size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1 group-hover:border-primary/50 group-hover:bg-primary/15 transition-all duration-300">
                 <Image
                   src="/images/navbar/hero image.svg"
-                  alt="Yafet Pro Media Logo"
+                  alt="Yafetpromedia Logo"
                   width={32}
                   height={32}
                   className="object-contain w-full h-full"
@@ -64,7 +121,7 @@ export default function Navbar() {
                 />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 hidden sm:block">
-                Yafet<span className="text-foreground/50 font-normal">Pro</span>Media
+                Yafetpromedia
               </span>
             </Link>
 
@@ -74,7 +131,12 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-foreground/10 px-4 py-2 rounded-full transition-all duration-300"
+                  className={cn(
+                    "text-sm font-medium px-4 py-2 rounded-full transition-all duration-300",
+                    activeSection === link.href
+                      ? "text-primary-foreground bg-gradient-to-r from-primary to-[#ff9b4d] shadow-[0_8px_24px_rgba(255,106,0,0.35)]"
+                      : "text-foreground/70 hover:text-foreground hover:bg-foreground/10"
+                  )}
                 >
                   {link.name}
                 </Link>
@@ -83,11 +145,6 @@ export default function Navbar() {
 
             {/* Desktop Right Side */}
             <div className="hidden lg:flex items-center gap-4 shrink-0">
-              <Link href="#contact" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">
-                {t("contactSales")}
-              </Link>
-              <Link href="/login" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">{t("login")}</Link>
-              <Link href="/admin" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">{t("admin")}</Link>
               <LanguageToggle />
               <ThemeToggle />
               <Link
@@ -144,7 +201,10 @@ export default function Navbar() {
                 >
                   <Link
                     href={link.href}
-                    className="text-3xl font-display font-bold text-foreground/70 hover:text-foreground"
+                    className={cn(
+                      "text-3xl font-display font-bold transition-colors",
+                      activeSection === link.href ? "text-primary" : "text-foreground/70 hover:text-foreground"
+                    )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.name}
@@ -166,17 +226,6 @@ export default function Navbar() {
               >
                 {t("startProject")}
               </Link>
-              <Link
-                href="#contact"
-                className="w-full rounded-full h-14 text-lg border border-border bg-transparent text-foreground inline-flex items-center justify-center font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {t("contactSales")}
-              </Link>
-              <div className="grid grid-cols-2 gap-3">
-                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl border border-border h-12 inline-flex items-center justify-center">{t("login")}</Link>
-                <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl border border-border h-12 inline-flex items-center justify-center">{t("admin")}</Link>
-              </div>
             </motion.div>
           </motion.div>
         )}

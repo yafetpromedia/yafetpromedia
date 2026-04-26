@@ -5,31 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import FadeIn from "@/components/animations/FadeIn";
 import { TrendingUp, Users, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-
-const cases = [
-  {
-    title: "National Education System",
-    category: "Infrastructure",
-    problem: "Fragmented student data and manual administrative processes leading to high error rates.",
-    solution: "Implementation of a centralized digital infrastructure with real-time sync across 50+ institutions.",
-    result: "40% reduction in admin overhead and 100% data integrity achievement.",
-    icon: Users,
-    stat: "50+",
-    statLabel: "Institutions",
-  },
-  {
-    title: "Global Logistics Brand",
-    category: "Identity & Media",
-    problem: "Inconsistent brand representation across 12 countries affecting market authority.",
-    solution: "A unified brand identity system and media production pipeline for global marketing.",
-    result: "25% increase in brand recognition and centralized asset management.",
-    icon: TrendingUp,
-    stat: "+25%",
-    statLabel: "Growth",
-  }
-];
+import { useSiteContent } from "@/components/common/SiteContentProvider";
 
 export default function CaseStudiesPreview() {
+  const { content } = useSiteContent();
+  const icons = [Users, TrendingUp, Users];
+  const cases = content.caseStudiesCards.map((item, index) => ({
+    ...item,
+    icon: icons[index] ?? Users,
+  }));
+
   return (
     <SectionWrapper id="case-studies" className="bg-background border-t border-border relative z-10 pt-32">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-foreground">
@@ -37,19 +22,19 @@ export default function CaseStudiesPreview() {
           <FadeIn>
             <div className="flex items-center gap-2 mb-6">
               <div className="h-[1px] w-8 bg-primary" />
-              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">Proven Architecture</span>
+              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">{content.caseStudiesSectionTag}</span>
             </div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight mb-6 leading-tight">
-              Systems that deliver <br className="hidden lg:block"/> measurable scale.
+              {content.caseStudiesSectionTitle}
             </h2>
             <p className="text-foreground/60 text-lg leading-relaxed font-light">
-              Explore how our digital ecosystems have transformed enterprise workflows and driven verifiable growth.
+              {content.caseStudiesSectionDescription}
             </p>
           </FadeIn>
         </div>
         <FadeIn delay={0.2} className="shrink-0">
           <Link href="#contact" className="group inline-flex items-center gap-2 text-sm font-bold tracking-wider uppercase text-foreground hover:text-primary transition-colors pb-2 border-b border-border hover:border-primary">
-            View All Cases
+            {content.caseStudiesSectionCtaLabel}
             <ArrowUpRight className="size-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </Link>
         </FadeIn>

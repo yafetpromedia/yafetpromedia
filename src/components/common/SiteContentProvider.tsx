@@ -18,9 +18,19 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   useEffect(() => {
     let active = true;
     fetch("/api/content")
-      .then((res) => res.json())
-      .then((data: { content?: SiteContent }) => {
-        if (active && data.content) setContent(data.content);
+      .then(async (res) => {
+        if (!res.ok) return null;
+        try {
+          return (await res.json()) as { content?: SiteContent };
+        } catch {
+          return null;
+        }
+      })
+      .then((data) => {
+        if (active && data?.content) setContent(data.content);
+      })
+      .catch(() => {
+        // Keep default content when API is unavailable.
       })
       .finally(() => {
         if (active) setIsLoading(false);
@@ -31,11 +41,14 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const updateContent = async (next: SiteContent) => {
-    await fetch("/api/admin/content", {
+    const response = await fetch("/api/admin/content", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: next }),
     });
+    if (!response.ok) {
+      throw new Error("Could not update content");
+    }
     setContent(next);
   };
 

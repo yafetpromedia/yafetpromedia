@@ -1,4 +1,4 @@
-import { getDb } from "@/lib/db";
+import { query } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -20,9 +20,12 @@ export async function POST(request: Request) {
       return Response.json({ error: "All fields are required." }, { status: 400 });
     }
 
-    getDb()
-      .prepare("INSERT INTO leads (name, email, company, message) VALUES (?, ?, ?, ?)")
-      .run(name, email, company, message);
+    await query("INSERT INTO leads (name, email, company, message) VALUES ($1, $2, $3, $4)", [
+      name,
+      email,
+      company,
+      message,
+    ]);
 
     return Response.json({ ok: true });
   } catch {

@@ -5,43 +5,29 @@ import SectionWrapper from "@/components/common/SectionWrapper";
 import FadeIn from "@/components/animations/FadeIn";
 import { Database, Layout, Video, LineChart, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { useSiteContent } from "@/components/common/SiteContentProvider";
 
-const systems = [
-  {
-    title: "Core Infrastructure",
-    description: "Robust, scalable backend systems and architecture that power complex organizational workflows securely.",
-    icon: Database,
-    className: "col-span-1 md:col-span-2 lg:col-span-2 row-span-2",
-    delay: 0.1,
-    tag: "SYS_ARCH",
-  },
-  {
-    title: "Brand Ecosystems",
-    description: "System-based branding that scales infinitely across all platforms.",
-    icon: Layout,
-    className: "col-span-1 md:col-span-1 lg:col-span-2 row-span-1",
-    delay: 0.2,
-    tag: "BRAND_OS",
-  },
-  {
-    title: "Media Pipelines",
-    description: "Automated production pipelines for high-volume content.",
-    icon: Video,
-    className: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1",
-    delay: 0.3,
-    tag: "MEDIA_NET",
-  },
-  {
-    title: "Growth Engines",
-    description: "Data-driven marketing automation built for extreme scalability.",
-    icon: LineChart,
-    className: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1",
-    delay: 0.4,
-    tag: "GROWTH_LOGIC",
-  },
+const systemLayouts = [
+  { icon: Database, className: "col-span-1 md:col-span-2 lg:col-span-2 row-span-2", delay: 0.1 },
+  { icon: Layout, className: "col-span-1 md:col-span-1 lg:col-span-2 row-span-1", delay: 0.2 },
+  { icon: Video, className: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1", delay: 0.3 },
+  { icon: LineChart, className: "col-span-1 md:col-span-1 lg:col-span-1 row-span-1", delay: 0.4 },
 ];
 
 export default function SystemsOverview() {
+  const { content } = useSiteContent();
+  const systems = content.systemsCards.map((card, index) => ({
+    ...card,
+    ...systemLayouts[index],
+  }));
+  const forMatch = content.systemsSectionTitle.match(/\bfor\b/i);
+  const breakIndex = forMatch ? forMatch.index ?? -1 : -1;
+  const beforeFor =
+    breakIndex >= 0
+      ? content.systemsSectionTitle.slice(0, breakIndex + forMatch![0].length)
+      : content.systemsSectionTitle;
+  const afterFor = breakIndex >= 0 ? content.systemsSectionTitle.slice(breakIndex + forMatch![0].length) : "";
+
   return (
     <SectionWrapper id="systems" className="bg-background border-t border-border relative z-10 pt-32">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-foreground">
@@ -49,19 +35,27 @@ export default function SystemsOverview() {
           <FadeIn>
             <div className="flex items-center gap-2 mb-6">
               <div className="h-[1px] w-8 bg-primary" />
-              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">Ecosystem Architecture</span>
+              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">{content.systemsSectionTag}</span>
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight mb-6 leading-tight">
-              Integrated infrastructure <br className="hidden lg:block"/> for modern scale.
+            <h2 className="text-[clamp(2rem,4.2vw,3.75rem)] font-display font-bold tracking-tight mb-6 leading-tight">
+              {afterFor ? (
+                <>
+                  <span className="whitespace-nowrap">{beforeFor}</span>
+                  <br />
+                  {afterFor.trim()}
+                </>
+              ) : (
+                content.systemsSectionTitle
+              )}
             </h2>
             <p className="text-foreground/60 text-lg leading-relaxed font-light text-balance">
-              We don&apos;t just build websites; we engineer the underlying digital ecosystems that drive business operations and brand authority.
+              {content.systemsSectionDescription}
             </p>
           </FadeIn>
         </div>
         <FadeIn delay={0.2} className="shrink-0">
           <Link href="#contact" className="group inline-flex items-center gap-2 text-sm font-bold tracking-wider uppercase text-foreground hover:text-primary transition-colors pb-2 border-b border-border hover:border-primary">
-            Explore Architecture
+            {content.systemsExploreCtaLabel}
             <ArrowUpRight className="size-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </Link>
         </FadeIn>
@@ -106,7 +100,7 @@ export default function SystemsOverview() {
 
             <div className="flex flex-col h-full p-8 lg:p-10 z-10 relative text-foreground">
               <div className="size-14 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center mb-auto group-hover:scale-110 group-hover:bg-primary/10 group-hover:border-primary/30 transition-all duration-500">
-                <system.icon className="size-6 text-foreground/70 group-hover:text-primary transition-colors duration-500" />
+                {system.icon && <system.icon className="size-6 text-foreground/70 group-hover:text-primary transition-colors duration-500" />}
               </div>
               
               <div className="mt-12">

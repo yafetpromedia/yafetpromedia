@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { getSessionCookieName, verifySessionToken } from "@/lib/auth";
-import { getDb } from "@/lib/db";
+import { query } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -15,23 +15,21 @@ export async function GET() {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const leads = getDb()
-    .prepare(
-      `
-      SELECT id, name, email, company, message, created_at
-      FROM leads
-      ORDER BY id DESC
-      LIMIT 100
-    `
-    )
-    .all() as Array<{
+  const leads = await query<{
     id: number;
     name: string;
     email: string;
     company: string;
     message: string;
     created_at: string;
-  }>;
+  }>(
+    `
+      SELECT id, name, email, company, message, created_at
+      FROM leads
+      ORDER BY id DESC
+      LIMIT 100
+    `
+  );
 
   return Response.json({ leads });
 }
