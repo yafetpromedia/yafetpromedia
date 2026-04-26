@@ -1,9 +1,9 @@
 "use client";
 
 import SectionWrapper from "@/components/common/SectionWrapper";
-import { Button } from "@/components/ui/button";
 import FadeIn from "@/components/animations/FadeIn";
 import { ArrowRight, Terminal } from "lucide-react";
+import Link from "next/link";
 
 export default function CTASection() {
   return (
@@ -39,13 +39,19 @@ export default function CTASection() {
           
           <FadeIn delay={0.3}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.3)] hover:shadow-[0_0_60px_rgba(255,106,0,0.5)] transition-all duration-300 group/btn">
+              <Link
+                href="#contact"
+                className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.3)] hover:shadow-[0_0_60px_rgba(255,106,0,0.5)] transition-all duration-300 group/btn inline-flex items-center justify-center"
+              >
                 Start a Project
                 <ArrowRight className="ml-2 size-5 transition-transform group-hover/btn:translate-x-1" />
-              </Button>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300">
+              </Link>
+              <Link
+                href="#contact"
+                className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full border border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300 inline-flex items-center justify-center"
+              >
                 Contact Sales
-              </Button>
+              </Link>
             </div>
           </FadeIn>
         </div>

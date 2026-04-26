@@ -3,20 +3,23 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-
-const navLinks = [
-  { name: "Systems", href: "#systems" },
-  { name: "Products", href: "#products" },
-  { name: "Case Studies", href: "#case-studies" },
-  { name: "Insights", href: "#insights" },
-];
+import LanguageToggle from "@/components/i18n/LanguageToggle";
+import { useLanguage } from "@/components/i18n/LanguageProvider";
 
 export default function Navbar() {
+  const { t } = useLanguage();
+  const navLinks = [
+    { name: t("navSystems"), href: "#systems" },
+    { name: t("navServices"), href: "#services" },
+    { name: t("navProducts"), href: "#products" },
+    { name: t("navCaseStudies"), href: "#case-studies" },
+    { name: t("navProcess"), href: "#process" },
+    { name: t("navFaq"), href: "#faq" },
+  ];
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -81,17 +84,24 @@ export default function Navbar() {
             {/* Desktop Right Side */}
             <div className="hidden lg:flex items-center gap-4 shrink-0">
               <Link href="#contact" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">
-                Contact Sales
+                {t("contactSales")}
               </Link>
+              <Link href="/login" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">{t("login")}</Link>
+              <Link href="/admin" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">{t("admin")}</Link>
+              <LanguageToggle />
               <ThemeToggle />
-              <Button className="rounded-full px-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 group">
-                Start a Project
+              <Link
+                href="#contact"
+                className="rounded-full px-6 h-10 inline-flex items-center bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 group text-sm font-medium"
+              >
+                {t("startProject")}
                 <ChevronRight className="ml-1 size-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              </Link>
             </div>
 
             {/* Mobile Actions */}
             <div className="flex lg:hidden items-center gap-2">
+              <LanguageToggle className="scale-90 origin-right" />
               <ThemeToggle className="size-9" />
               <button
                 className="relative z-50 p-2 text-foreground/70 hover:text-foreground"
@@ -149,12 +159,24 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <Button className="w-full rounded-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground">
-                Start a Project
-              </Button>
-              <Button variant="outline" className="w-full rounded-full h-14 text-lg border-border bg-transparent text-foreground">
-                Contact Sales
-              </Button>
+              <Link
+                href="#contact"
+                className="w-full rounded-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground inline-flex items-center justify-center font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {t("startProject")}
+              </Link>
+              <Link
+                href="#contact"
+                className="w-full rounded-full h-14 text-lg border border-border bg-transparent text-foreground inline-flex items-center justify-center font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {t("contactSales")}
+              </Link>
+              <div className="grid grid-cols-2 gap-3">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl border border-border h-12 inline-flex items-center justify-center">{t("login")}</Link>
+                <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl border border-border h-12 inline-flex items-center justify-center">{t("admin")}</Link>
+              </div>
             </motion.div>
           </motion.div>
         )}

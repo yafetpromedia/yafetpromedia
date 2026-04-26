@@ -5,6 +5,11 @@ import StoreProvider from "@/store/StoreProvider";
 import SmoothScrollProvider from "@/components/common/SmoothScrollProvider";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import ScrollProgress from "@/components/common/ScrollProgress";
+import StickyBookCall from "@/components/common/StickyBookCall";
+import AIChatWidget from "@/components/common/AIChatWidget";
+import { LanguageProvider } from "@/components/i18n/LanguageProvider";
+import { SiteContentProvider } from "@/components/common/SiteContentProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,13 +43,20 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SmoothScrollProvider>
-            <StoreProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </StoreProvider>
-          </SmoothScrollProvider>
+          <LanguageProvider>
+            <SiteContentProvider>
+              <SmoothScrollProvider>
+                <StoreProvider>
+                  <ScrollProgress />
+                  <Navbar />
+                  {children}
+                  <Footer />
+                  <StickyBookCall />
+                  <AIChatWidget />
+                </StoreProvider>
+              </SmoothScrollProvider>
+            </SiteContentProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

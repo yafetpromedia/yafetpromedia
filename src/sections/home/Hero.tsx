@@ -1,13 +1,59 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import FadeIn from "@/components/animations/FadeIn";
 import { ArrowRight, Play, Database, Shield, Zap } from "lucide-react";
+import { useLanguage } from "@/components/i18n/LanguageProvider";
+import { useSiteContent } from "@/components/common/SiteContentProvider";
+
+function CountUp({
+  from = 0,
+  to,
+  duration = 1.4,
+  decimals = 0,
+}: {
+  from?: number;
+  to: number;
+  duration?: number;
+  decimals?: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-40px" });
+  const [value, setValue] = useState(from);
+
+  useEffect(() => {
+    if (!isInView) return;
+    const startTime = performance.now();
+    let rafId = 0;
+
+    const tick = (time: number) => {
+      const elapsed = (time - startTime) / 1000;
+      const progress = Math.min(elapsed / duration, 1);
+      const nextValue = from + (to - from) * progress;
+      setValue(nextValue);
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [duration, from, isInView, to]);
+
+  return <span ref={ref}>{value.toFixed(decimals)}</span>;
+}
 
 export default function Hero() {
+  const { t } = useLanguage();
+  const { content } = useSiteContent();
   const ref = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({
@@ -58,7 +104,7 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full size-2 bg-primary"></span>
               </span>
-              Digital Systems Infrastructure
+              {content.heroBadge}
             </div>
           </FadeIn>
         </div>
@@ -72,12 +118,12 @@ export default function Hero() {
           >
             <FadeIn delay={0.1} distance={40}>
               <h1 className="text-[3rem] sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] font-display font-bold mb-8 leading-[1.05] tracking-tighter text-left text-foreground">
-                We build{" "}
+                {content.heroHeadline}{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#ff9b4d]">
-                  complete
+                  {content.heroHighlight}
                 </span>
                 <br />
-                digital systems.
+                {content.heroTail}
               </h1>
             </FadeIn>
             
@@ -85,14 +131,20 @@ export default function Hero() {
             
             <FadeIn delay={0.3} distance={40} className="relative z-50 w-full sm:w-auto">
               <div className="flex flex-col sm:flex-row items-start gap-4 w-full">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.25)] hover:shadow-[0_0_60px_rgba(255,106,0,0.4)] transition-all duration-300 group">
-                  Start a Project
+                <Link
+                  href="#contact"
+                  className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.25)] hover:shadow-[0_0_60px_rgba(255,106,0,0.4)] transition-all duration-300 group inline-flex items-center justify-center"
+                >
+                  {t("startProject")}
                   <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-full border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300">
+                </Link>
+                <Link
+                  href="#products"
+                  className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-full border border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300 inline-flex items-center justify-center"
+                >
                   <Play className="mr-2 size-4 fill-current" />
-                  View Products
-                </Button>
+                  {t("navProducts")}
+                </Link>
               </div>
             </FadeIn>
 
@@ -143,7 +195,10 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="text-xs text-foreground/40 font-mono uppercase tracking-wider">Systems Active</p>
-                  <p className="text-foreground font-bold text-lg leading-none">99.9% <span className="text-xs text-primary font-mono">uptime</span></p>
+                  <p className="text-foreground font-bold text-lg leading-none">
+                    <CountUp to={99.9} decimals={1} />%{" "}
+                    <span className="text-xs text-primary font-mono">uptime</span>
+                  </p>
                 </div>
               </motion.div>
 
@@ -159,7 +214,10 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="text-xs text-foreground/40 font-mono uppercase tracking-wider">Clients Deployed</p>
-                  <p className="text-foreground font-bold text-lg leading-none">50+ <span className="text-xs text-primary font-mono">orgs</span></p>
+                  <p className="text-foreground font-bold text-lg leading-none">
+                    <CountUp to={50} />+{" "}
+                    <span className="text-xs text-primary font-mono">orgs</span>
+                  </p>
                 </div>
               </motion.div>
             </FadeIn>

@@ -31,14 +31,14 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-4">
               {[
-                { icon: MessageCircle, label: "Chat" },
-                { icon: Briefcase, label: "Projects" },
-                { icon: Code, label: "Systems" },
-                { icon: Mail, label: "Email" }
+                { icon: MessageCircle, label: "Chat", href: "#contact" },
+                { icon: Briefcase, label: "Projects", href: "#case-studies" },
+                { icon: Code, label: "Systems", href: "#systems" },
+                { icon: Mail, label: "Email", href: "mailto:hello@yafetpromedia.com" }
               ].map((social, i) => (
                 <Link
                   key={i}
-                  href="#"
+                  href={social.href}
                   className="group relative size-12 rounded-full border border-border flex items-center justify-center bg-foreground/[0.02] hover:border-primary/50 transition-all duration-500"
                   aria-label={social.label}
                 >
@@ -53,14 +53,14 @@ export default function Footer() {
             <h4 className="font-mono text-[10px] uppercase tracking-[0.2em] mb-10 text-primary">Systems</h4>
             <ul className="space-y-5">
               {[
-                "Digital Infrastructure",
-                "Brand Identity",
-                "Media Systems",
-                "Growth Marketing"
+                { label: "Digital Infrastructure", href: "#systems" },
+                { label: "Brand Identity", href: "#services" },
+                { label: "Media Systems", href: "#products" },
+                { label: "Growth Marketing", href: "#process" }
               ].map((item) => (
-                <li key={item}>
-                  <Link href="#" className="text-foreground/60 hover:text-foreground flex items-center gap-2 group transition-colors font-light">
-                    {item}
+                <li key={item.label}>
+                  <Link href={item.href} className="text-foreground/60 hover:text-foreground flex items-center gap-2 group transition-colors font-light">
+                    {item.label}
                     <ArrowUpRight className="size-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all text-primary" />
                   </Link>
                 </li>
@@ -72,14 +72,14 @@ export default function Footer() {
             <h4 className="font-mono text-[10px] uppercase tracking-[0.2em] mb-10 text-primary">Company</h4>
             <ul className="space-y-5">
               {[
-                "About Us",
-                "Products",
-                "Insights",
-                "Contact"
+                { label: "About Us", href: "#services" },
+                { label: "Products", href: "#products" },
+                { label: "Insights", href: "#insights" },
+                { label: "Contact", href: "#contact" }
               ].map((item) => (
-                <li key={item}>
-                  <Link href="#" className="text-foreground/60 hover:text-foreground flex items-center gap-2 group transition-colors font-light">
-                    {item}
+                <li key={item.label}>
+                  <Link href={item.href} className="text-foreground/60 hover:text-foreground flex items-center gap-2 group transition-colors font-light">
+                    {item.label}
                     <ArrowUpRight className="size-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all text-primary" />
                   </Link>
                 </li>
@@ -95,8 +95,8 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex items-center gap-10">
-            <Link href="#" className="text-[10px] font-mono text-foreground/40 hover:text-foreground uppercase tracking-widest transition-colors">Privacy Policy</Link>
-            <Link href="#" className="text-[10px] font-mono text-foreground/40 hover:text-foreground uppercase tracking-widest transition-colors">Terms of Service</Link>
+            <Link href="#faq" className="text-[10px] font-mono text-foreground/40 hover:text-foreground uppercase tracking-widest transition-colors">FAQ</Link>
+            <Link href="#contact" className="text-[10px] font-mono text-foreground/40 hover:text-foreground uppercase tracking-widest transition-colors">Contact</Link>
           </div>
         </div>
       </div>
