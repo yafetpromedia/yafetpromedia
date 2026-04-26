@@ -157,10 +157,8 @@ async function seedInitialData() {
         case_studies_section_tag, case_studies_section_title, case_studies_section_description, case_studies_section_cta_label, case_studies_cards,
         trust_section_tag, trust_section_title, trust_logo_items, trust_testimonials,
         process_faq_section_tag, process_faq_section_title, process_faq_section_description, process_steps, faq_items,
-        contact_section_tag, contact_section_title, contact_section_description, contact_whatsapp_label, contact_reply_note, contact_submit_label,
-        contact_name_placeholder, contact_email_placeholder, contact_company_placeholder, contact_message_placeholder,
         contact_email, contact_phone, social_links, ai_name, whatsapp_number
-      ) VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12::jsonb, $13, $14, $15::jsonb, $16, $17, $18, $19, $20::jsonb, $21, $22, $23::jsonb, $24::jsonb, $25, $26, $27, $28::jsonb, $29::jsonb, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42::jsonb, $43, $44)
+      ) VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12::jsonb, $13, $14, $15::jsonb, $16, $17, $18, $19, $20::jsonb, $21, $22, $23::jsonb, $24::jsonb, $25, $26, $27, $28::jsonb, $29::jsonb, $30, $31, $32::jsonb, $33, $34)
       ON CONFLICT (id) DO NOTHING
     `,
     [
@@ -193,16 +191,6 @@ async function seedInitialData() {
       defaultSiteContent.processFaqSectionDescription,
       JSON.stringify(defaultSiteContent.processSteps),
       JSON.stringify(defaultSiteContent.faqItems),
-      defaultSiteContent.contactSectionTag,
-      defaultSiteContent.contactSectionTitle,
-      defaultSiteContent.contactSectionDescription,
-      defaultSiteContent.contactWhatsappLabel,
-      defaultSiteContent.contactReplyNote,
-      defaultSiteContent.contactSubmitLabel,
-      defaultSiteContent.contactNamePlaceholder,
-      defaultSiteContent.contactEmailPlaceholder,
-      defaultSiteContent.contactCompanyPlaceholder,
-      defaultSiteContent.contactMessagePlaceholder,
       defaultSiteContent.contactEmail,
       defaultSiteContent.contactPhone,
       JSON.stringify(defaultSiteContent.socialLinks),
