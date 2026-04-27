@@ -1,0 +1,536 @@
+{
+  "exploreArchitecture": {
+    "eyebrow": "Blueprint",
+    "title": "How your full digital system runs",
+    "description": "Yafetpromedia delivers the whole loop—strategy, design, build, media, and growth—on one architecture so nothing gets lost between agencies or tools.",
+    "serviceStrip": [
+      {
+        "label": "Strategy & UX",
+        "icon": "LayoutGrid"
+      },
+      {
+        "label": "Build & integrate",
+        "icon": "Server"
+      },
+      {
+        "label": "Brand & content",
+        "icon": "Video"
+      },
+      {
+        "label": "Growth & data",
+        "icon": "LineChart"
+      }
+    ],
+    "dataFlowSectionTitle": "Data flow",
+    "stackSectionTitle": "Stack we ship on",
+    "beforeAfterSectionTitle": "Before vs after",
+    "beforeLabel": "Before",
+    "afterLabel": "After",
+    "tracks": [
+      {
+        "id": "web",
+        "tabLabel": "Web & data",
+        "stackTitle": "Websites, apps & data",
+        "flowRow1": [
+          {
+            "label": "Touchpoints",
+            "detail": "Web, social, ads, forms",
+            "icon": "Users"
+          },
+          {
+            "label": "Ingestion",
+            "detail": "APIs, webhooks, validation",
+            "icon": "Webhook"
+          },
+          {
+            "label": "Core data",
+            "detail": "Structured storage & access",
+            "icon": "Database"
+          }
+        ],
+        "flowRow2": [
+          {
+            "label": "Automation",
+            "detail": "Workflows & messaging",
+            "icon": "Zap"
+          },
+          {
+            "label": "Intelligence",
+            "detail": "Dashboards & reporting",
+            "icon": "BarChart3"
+          }
+        ],
+        "flowFooter": "Every step is instrumented: logs, alerts, and rollbacks so your live digital services stay safe in production.",
+        "terminalLines": [
+          "// yafetpromedia — product & data",
+          "type ServiceLoop = {",
+          "  touchpoints: \"web\" | \"social\" | \"ads\" | \"forms\"",
+          "  stack: { surface: \"Next.js\", runtime: \"edge\", data: \"SQL + cache\" }",
+          "  ops: { logs: true, alerts: true, rollbacks: true }",
+          "}",
+          "const status: \"instrumented\" | \"production-ready\" = \"production-ready\""
+        ],
+        "stackCards": [
+          {
+            "name": "Frontend",
+            "value": "Next.js / React",
+            "note": "Fast, SEO-friendly surfaces",
+            "icon": "LayoutGrid"
+          },
+          {
+            "name": "Runtime & APIs",
+            "value": "Node on the edge",
+            "note": "Secure routes and integrations",
+            "icon": "Server"
+          },
+          {
+            "name": "Data",
+            "value": "PostgreSQL + cache",
+            "note": "Relational truth for operations",
+            "icon": "Database"
+          },
+          {
+            "name": "Security",
+            "value": "TLS, auth, least privilege",
+            "note": "Encryption in transit & at rest",
+            "icon": "Lock"
+          }
+        ]
+      },
+      {
+        "id": "video",
+        "tabLabel": "Video & post",
+        "stackTitle": "Video, motion & post",
+        "flowRow1": [
+          {
+            "label": "Brief & creative",
+            "detail": "Story, shot list, client alignment",
+            "icon": "FileText"
+          },
+          {
+            "label": "Capture",
+            "detail": "Sets, codecs, dailies & backups",
+            "icon": "Camera"
+          },
+          {
+            "label": "Edit & comp",
+            "detail": "Timeline, VFX, sound passes",
+            "icon": "Clapperboard"
+          }
+        ],
+        "flowRow2": [
+          {
+            "label": "Color & review",
+            "detail": "Grades, sign-off, client reviews",
+            "icon": "Palette"
+          },
+          {
+            "label": "Master & deliver",
+            "detail": "Specs, handoff, all platforms",
+            "icon": "Film"
+          }
+        ],
+        "flowFooter": "Each stage is versioned and reviewed: exports match what you approved, from offline to delivery formats.",
+        "terminalLines": [
+          "// yafetpromedia — post & motion",
+          "type PostPipeline = {",
+          "  edit: \"Premiere\"",
+          "  comp: \"After Effects\"",
+          "  stills: \"Photoshop\" | \"keyArt\"",
+          "  color: \"Resolve\" | \"clientReview\"",
+          "};"
+        ],
+        "stackCards": [
+          {
+            "name": "Edit & finishing",
+            "value": "Adobe Premiere Pro",
+            "note": "Assembly, story, and delivery formats",
+            "icon": "Clapperboard"
+          },
+          {
+            "name": "Design & key art",
+            "value": "Adobe Photoshop",
+            "note": "Stills, OOH, and retouching for every channel",
+            "icon": "Image"
+          },
+          {
+            "name": "Motion & compositing",
+            "value": "After Effects",
+            "note": "Packages, lower thirds, and clean compositing",
+            "icon": "Wand2"
+          },
+          {
+            "name": "Color & review",
+            "value": "DaVinci Resolve",
+            "note": "Grades, scopes, and managed review with clients",
+            "icon": "Video"
+          }
+        ]
+      },
+      {
+        "id": "brand",
+        "tabLabel": "Brand & design",
+        "stackTitle": "Brand, UI & content",
+        "flowRow1": [
+          {
+            "label": "Strategy",
+            "detail": "Positioning, audience, KPIs",
+            "icon": "LineChart"
+          },
+          {
+            "label": "Design system",
+            "detail": "UI, print, brand rules",
+            "icon": "PencilRuler"
+          },
+          {
+            "label": "Content",
+            "detail": "Copy, key art, motion",
+            "icon": "Type"
+          }
+        ],
+        "flowRow2": [
+          {
+            "label": "Review & QA",
+            "detail": "Stakeholders, brand & legal",
+            "icon": "UserCheck"
+          },
+          {
+            "label": "Launch & handoff",
+            "detail": "Toolkits, source files, training",
+            "icon": "Layers"
+          }
+        ],
+        "flowFooter": "From brief to launch in one line: files, messaging, and guidelines stay linked to the brand you sign off on.",
+        "terminalLines": [
+          "// yafetpromedia — brand system",
+          "type BrandKit = {",
+          "  ui: \"Figma\"",
+          "  vector: \"Illustrator\"",
+          "  layout: \"InDesign\"",
+          "  sourceOfTruth: \"Notion\" | \"DAM\"",
+          "};"
+        ],
+        "stackCards": [
+          {
+            "name": "UI & handoff",
+            "value": "Figma",
+            "note": "Design systems, prototypes, and dev-ready specs",
+            "icon": "PencilRuler"
+          },
+          {
+            "name": "Vector & print",
+            "value": "Adobe Illustrator",
+            "note": "Logos, brand kits, and crisp export for print",
+            "icon": "Palette"
+          },
+          {
+            "name": "Type & layout",
+            "value": "InDesign",
+            "note": "Long-form decks, one-pagers, and campaign booklets",
+            "icon": "Type"
+          },
+          {
+            "name": "Asset & delivery",
+            "value": "Notion + DAM",
+            "note": "Single source of truth for copy, files, and approvals",
+            "icon": "Layers"
+          }
+        ]
+      }
+    ],
+    "beforeAfter": {
+      "before": [
+        "Fragmented tools and no single source of truth",
+        "Agency for ads, another for the site, spreadsheets for leads",
+        "Slow delivery and no clear ownership"
+      ],
+      "after": [
+        "One team & stack across brand, product, and media",
+        "Automations that connect marketing, ops, and reporting",
+        "Faster shipping with a roadmap you can see end-to-end"
+      ]
+    },
+    "closingLine": "One partner for your full digital service—from first workshop to live systems.",
+    "ctaLabel": "Start a project"
+  },
+  "heroHeadline": "We build",
+  "heroHighlight": "systems that scale",
+  "heroTail": "businesses.",
+  "heroBadge": "Digital Systems Infrastructure",
+  "heroCarouselSlides": [
+    {
+      "id": "hero-slide-brand",
+      "src": "/images/hero/hero image.svg",
+      "alt": "Yafetpromedia — digital systems and infrastructure"
+    },
+    {
+      "id": "hero-slide-partnership",
+      "src": "/uploads/hero/INSA-1777304151762-fw4fw0.png",
+      "alt": "Partnership, delivery, and engineering illustration"
+    },
+    {
+      "id": "hero-slide-mark",
+      "src": "/uploads/hero/Mylogo-1777304021237-pgfgcw.png",
+      "alt": "Yafetpromedia brand mark"
+    }
+  ],
+  "systemsSectionTag": "Ecosystem Architecture",
+  "systemsSectionTitle": "Integrated infrastructure for modern scale.",
+  "systemsSectionDescription": "We do not only ship code—we deliver full digital solutions: brand systems, post-production, content, and the infrastructure and workflows that run them together.",
+  "systemsExploreCtaLabel": "Explore Architecture",
+  "systemsCards": [
+    {
+      "title": "Core Infrastructure",
+      "description": "We design and ship the full stack that sits under your digital presence: data models, services, APIs, and integrations with the tools you already use, plus deployment, backups, and guardrails for security and performance as traffic grows. Alongside that engineering work, we support the rest of the program—visual identity, brand systems, post-production, editing, and content workflows—so delivery does not live in a separate silo from the systems that run it. The outcome is one coherent program: clear ownership, fewer handoffs, and infrastructure you can build on for years, not a one-off handove",
+      "tag": "SYS_ARCH",
+      "imageSrc": ""
+    },
+    {
+      "title": "Brand Ecosystems",
+      "description": "System-based branding that scales infinitely across all platforms.",
+      "tag": "BRAND_OS",
+      "imageSrc": ""
+    },
+    {
+      "title": "Media Pipelines",
+      "description": "Automated production pipelines for high-volume content.",
+      "tag": "MEDIA_NET",
+      "imageSrc": ""
+    },
+    {
+      "title": "Growth Engines",
+      "description": "Data-driven marketing automation built for extreme scalability.",
+      "tag": "GROWTH_LOGIC",
+      "imageSrc": ""
+    }
+  ],
+  "servicesSectionTag": "What We Do",
+  "servicesSectionTitle": "Modern digital systems for real business growth.",
+  "servicesCards": [
+    {
+      "title": "Website & Product Design",
+      "description": "Conversion-focused websites and interfaces designed to reflect your brand and move visitors to action.",
+      "learnMore": "We treat your site and product UI as part of a larger system: messaging, visual identity, content, and measurable outcomes. Discovery covers your goals, audiences, and constraints so the design matches how you really work.\n\nDeliverables typically include responsive layouts, design systems or style tokens, and handoff-ready specs. We prioritise clarity, speed, and accessibility so every page supports trust and conversion—not just aesthetics.\n\nEngagements can range from a focused landing or marketing site to multi-section products; we align scope, timeline, and success metrics with you up front."
+    },
+    {
+      "title": "Automation & Workflows",
+      "description": "Smart internal systems that automate repetitive operations and keep teams aligned in real time.",
+      "learnMore": "Automation should remove busywork without hiding how work gets done. We map handoffs, approvals, and data touchpoints, then recommend tools and custom glue (integrations, scripts, dashboards) that match your stack and team skills.\n\nCommon patterns include syncing CRMs and forms, scheduling and notifications, internal request queues, and lightweight reporting. Everything is documented so you can operate and extend it over time.\n\nWe stay pragmatic: start with the highest-impact loops, measure results, then iterate—so you see value before expanding scope."
+    },
+    {
+      "title": "Growth Strategy",
+      "description": "Data-backed campaigns, content systems, and funnels built to scale customer acquisition reliably.",
+      "learnMore": "Growth work ties creative, channel, and analytics into one plan. We clarify positioning and funnels, define core metrics, and set up tracking so decisions are based on evidence—not guesswork.\n\nThat can include content calendars, email or social sequences, paid experiments, and landing paths tuned for your market. Content and creative stay consistent with your brand while we test messages and offers in a controlled way.\n\nReporting is honest: we review what moved the numbers, what to double down on, and what to stop—so your spend and effort compound in the right direction."
+    },
+    {
+      "title": "Security & Reliability",
+      "description": "Stable, secure delivery standards with monitoring and performance practices for business-critical systems.",
+      "learnMore": "Security and uptime are part of delivery, not an add-on. We apply sensible baselines: HTTPS, least-privilege access, secrets handling, dependency awareness, and backups or recovery options suited to your risk profile.\n\nFor applications and sites, we care about performance budgets, error visibility, and alert paths so issues surface before customers feel them. Where needed, we coordinate reviews, checklists, and light documentation for your team or auditors.\n\nThe goal is predictable operations: less firefighting, faster recovery, and clear ownership when something needs attention."
+    }
+  ],
+  "productsSectionTag": "Flagship Systems",
+  "productsSectionTitle": "Products built for operations at scale.",
+  "productsSectionDescription": "From our signature Mr.Software platform to supporting tools for analytics, security, and automation—built for teams that outgrow spreadsheets.",
+  "productsCatalogCtaLabel": "EXPLORE ALL PRODUCTS",
+  "productsCards": [
+    {
+      "title": "Mr.Software Core",
+      "description": "Centralized operating dashboard for internal teams and business workflows.",
+      "label": "OPERATIONS",
+      "imageSrc": "/uploads/products/photo_2026-04-27_22-11-09-1777317167318-kqvfms.jpg",
+      "href": "#contact",
+      "linkLabel": "Request a walkthrough",
+      "featured": true,
+      "learnMore": "Mr.Software is built for leaders who need one honest picture of operations—not another siloed tool. Dashboards surface the metrics and tasks that matter by role, with permissions that match how your org actually works.\n\nWorkflows connect handoffs, approvals, and notifications so teams spend less time chasing status and more time delivering. We prioritize fast load times, readable layouts, and predictable behavior on mobile and desktop.\n\nImplementation is collaborative: we align on your processes first, then configure Mr.Software to match—so adoption feels natural, not forced. Ask for a walkthrough to see how it could map to your teams."
+    },
+    {
+      "title": "Performance Monitor",
+      "description": "Live analytics for uptime, speed, and performance with smart alerting.",
+      "label": "ANALYTICS",
+      "imageSrc": "/uploads/products/Screenshot2026-03-21at21-01-59Brightside-1777317289593-bebdmc.png",
+      "href": "#contact",
+      "linkLabel": "Learn more",
+      "featured": false,
+      "learnMore": "Performance Monitor gives you live visibility into uptime, latency, and error patterns—so you can spot regressions before customers do. Thresholds and alert channels are tuned to your stack and on-call habits.\n\nDashboards stay uncluttered: trend lines, simple comparisons, and drill-down when you need detail. We help map the right signals to the right owners.\n\nWhether you run a marketing site or internal services, the goal is calmer operations: fewer surprises, faster root-cause conversations."
+    },
+    {
+      "title": "Secure Vault",
+      "description": "Role-based secure document and data vault for sensitive information.",
+      "label": "SECURITY",
+      "imageSrc": "/uploads/hero/yafet-1777314285269-2qjcb8.png",
+      "href": "#contact",
+      "linkLabel": "Learn more",
+      "featured": false,
+      "learnMore": "Secure Vault is designed for documents and records that should not live in random shared drives. Role-based access, audit-friendly activity, and encryption at rest align with how security and compliance teams expect to work.\n\nYou define who sees what, with groups and expirations where needed. Uploads and previews are handled with performance in mind—no painful lag on day-to-day use.\n\nIt pairs well with wider identity and backup practices; we can outline a realistic rollout for your risk profile."
+    },
+    {
+      "title": "Automation Engine",
+      "description": "No-code automation flows to reduce manual operations across departments.",
+      "label": "AUTOMATION",
+      "imageSrc": "/uploads/hero/yafet-1777314291857-73zehn.png",
+      "href": "#contact",
+      "linkLabel": "Learn more",
+      "featured": false,
+      "learnMore": "Automation Engine turns repetitive steps into reliable flows: form intake, routing, reminders, and handoffs between tools. You stay in control with a clear visual map of each automation and who it affects.\n\nWe start with the highest-friction loops—where copy-paste and email chains slow people down—then measure time saved and iterate.\n\nIntegrations are pragmatic: connect the services you already use, with guardrails so changes are reviewable before they go live."
+    }
+  ],
+  "caseStudiesSectionTag": "Proven Architecture",
+  "caseStudiesSectionTitle": "Systems that deliver measurable scale.",
+  "caseStudiesSectionDescription": "Explore how our digital ecosystems have transformed enterprise workflows and driven verifiable growth.",
+  "caseStudiesSectionCtaLabel": "View All Cases",
+  "caseStudiesCards": [
+    {
+      "title": "National Education System",
+      "category": "Infrastructure",
+      "problem": "Fragmented student data and manual administrative processes leading to high error rates.",
+      "solution": "Implementation of a centralized digital infrastructure with real-time sync across 50+ institutions.",
+      "result": "40% reduction in admin overhead and 100% data integrity achievement.",
+      "stat": "50+",
+      "statLabel": "Institutions"
+    },
+    {
+      "title": "Global Logistics Brand",
+      "category": "Identity & Media",
+      "problem": "Inconsistent brand representation across 12 countries affecting market authority.",
+      "solution": "A unified brand identity system and media production pipeline for global marketing.",
+      "result": "25% increase in brand recognition and centralized asset management.",
+      "stat": "+25%",
+      "statLabel": "Growth"
+    }
+  ],
+  "publicationsSectionTag": "Thought Leadership",
+  "publicationsSectionTitle": "Authority & Insights.",
+  "publicationsSectionDescription": "Strategic thinking on digital infrastructure and system-level innovation from our engineering and design teams.",
+  "publicationsCatalogCtaLabel": "VIEW ALL PUBLICATIONS",
+  "publicationsCards": [
+    {
+      "title": "Why Infrastructure Matters More Than UI in 2026",
+      "category": "Architecture",
+      "dateLabel": "April 15, 2026",
+      "readTime": "5 min read",
+      "imageSrc": "",
+      "articleBody": "Pretty interfaces get attention, but infrastructure decides whether your product survives real traffic, real teams, and real compliance pressure.\n\nWe see teams outgrow dashboards that were never tied to a clear data model or permission model. The cost shows up as duplicated work, slow releases, and surprises in production.\n\nInvesting early in architecture—boundaries, observability, and sane workflows—means UI changes stay cheap and safe instead of becoming full rewrites.",
+      "href": "#contact"
+    },
+    {
+      "title": "Building Scalable Digital Identities for Global Brands",
+      "category": "Branding",
+      "dateLabel": "April 10, 2026",
+      "readTime": "4 min read",
+      "imageSrc": "",
+      "articleBody": "A global brand is not one logo file; it is a system of rules, templates, and approvals that teams can use without bottlenecks.\n\nScalable identity work connects strategy to production: naming, typography, color, motion, and partner-ready assets. The goal is consistency where it matters and flexibility where markets differ.\n\nWhen identity is treated as infrastructure, campaigns move faster and every touchpoint reinforces the same authority.",
+      "href": "#contact"
+    },
+    {
+      "title": "The Future of Integrated Institutional Management",
+      "category": "Automation",
+      "dateLabel": "April 02, 2026",
+      "readTime": "8 min read",
+      "imageSrc": "",
+      "articleBody": "Institutions do not fail from lack of tools—they fail from fragmented workflows and unclear ownership.\n\nIntegrated management means one accountable map of how work enters, gets approved, and lands in the record systems people trust.\n\nAutomation is the layer that removes pointless handoffs, not the layer that hides how decisions are made. The future belongs to teams that can see both the workflow and the outcome in the same place.",
+      "href": "#contact"
+    }
+  ],
+  "trustSectionTag": "Institutional Trust",
+  "trustSectionTitle": "Trusted by leading institutions.",
+  "trustLogoItems": [
+    {
+      "name": "INSA",
+      "imageSrc": "/uploads/trust/INSA-1777318691304-ody0xb.png"
+    },
+    {
+      "name": "BSIA",
+      "imageSrc": "/uploads/trust/BSIA-1777318715318-hz1a8c.png"
+    },
+    {
+      "name": "Apex Financial Group",
+      "imageSrc": "/uploads/trust/logo-1777318899586-4iilrz.png"
+    },
+    {
+      "name": "Yafet",
+      "imageSrc": "/uploads/trust/yafet-1777318752592-yknake.png"
+    },
+    {
+      "name": "INSA",
+      "imageSrc": "/uploads/trust/INSA-1777318691304-ody0xb.png"
+    },
+    {
+      "name": "BSIA",
+      "imageSrc": "/uploads/trust/BSIA-1777318715318-hz1a8c.png"
+    }
+  ],
+  "trustTestimonials": [],
+  "processFaqSectionTag": "Launch Framework",
+  "processFaqSectionTitle": "A clear process and transparent answers.",
+  "processFaqSectionDescription": "From first discovery to post-launch optimization, we move with structure and speed.",
+  "processSteps": [
+    {
+      "text": "Discovery call and business goals mapping"
+    },
+    {
+      "text": "UX, brand direction, and system architecture"
+    },
+    {
+      "text": "Rapid implementation with weekly checkpoints"
+    },
+    {
+      "text": "Launch, analytics setup, and optimization cycle"
+    }
+  ],
+  "faqItems": [
+    {
+      "question": "How long does a typical project take?",
+      "answer": "Most projects launch in 3-8 weeks depending on scope, integrations, and required content."
+    },
+    {
+      "question": "Can you redesign our current website?",
+      "answer": "Yes. We can modernize your existing site, preserve SEO value, and improve speed and conversion."
+    },
+    {
+      "question": "Do you provide ongoing support after launch?",
+      "answer": "Yes. We offer monthly support for updates, analytics reviews, and growth-focused improvements."
+    }
+  ],
+  "contactEmail": "hello@yafetpromedia.com",
+  "contactPhone": "+251 991 185 321",
+  "socialLinks": [
+    {
+      "label": "WhatsApp",
+      "url": "https://wa.me/251900000000",
+      "icon": "whatsapp",
+      "enabled": true
+    },
+    {
+      "label": "Email",
+      "url": "mailto:hello@yafetpromedia.com",
+      "icon": "email",
+      "enabled": true
+    },
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/company/yafetpromedia",
+      "icon": "linkedin",
+      "enabled": true
+    },
+    {
+      "label": "Instagram",
+      "url": "https://www.instagram.com/yafetpromedia",
+      "icon": "instagram",
+      "enabled": true
+    },
+    {
+      "label": "YouTube",
+      "url": "https://www.youtube.com/@yafetpromedia",
+      "icon": "youtube",
+      "enabled": true
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/yafetpromedia",
+      "icon": "github",
+      "enabled": true
+    }
+  ],
+  "aiName": "Yafet AI",
+  "whatsappNumber": "251991185321"
+}

@@ -1,19 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import SectionWrapper from "@/components/common/SectionWrapper";
 import { Badge } from "@/components/ui/badge";
 import FadeIn from "@/components/animations/FadeIn";
 import { TrendingUp, Users, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import CaseStudiesCatalogDialog from "@/components/case-studies/CaseStudiesCatalogDialog";
+
+/** Shown on the home case studies section; additional cases are only in “View all”. */
+const LANDING_CASE_STUDIES_LIMIT = 2;
 
 export default function CaseStudiesPreview() {
   const { content } = useSiteContent();
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const icons = [Users, TrendingUp, Users];
-  const cases = content.caseStudiesCards.map((item, index) => ({
+  const allCases = content.caseStudiesCards.map((item, index) => ({
     ...item,
-    icon: icons[index] ?? Users,
+    icon: icons[index % icons.length] ?? Users,
   }));
+  const cases = allCases.slice(0, LANDING_CASE_STUDIES_LIMIT);
+  const hasMoreCases = content.caseStudiesCards.length > LANDING_CASE_STUDIES_LIMIT;
 
   return (
     <SectionWrapper id="case-studies" className="bg-background border-t border-border relative z-10 pt-32">
@@ -32,12 +39,18 @@ export default function CaseStudiesPreview() {
             </p>
           </FadeIn>
         </div>
-        <FadeIn delay={0.2} className="shrink-0">
-          <Link href="#contact" className="group inline-flex items-center gap-2 text-sm font-bold tracking-wider uppercase text-foreground hover:text-primary transition-colors pb-2 border-b border-border hover:border-primary">
-            {content.caseStudiesSectionCtaLabel}
-            <ArrowUpRight className="size-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-          </Link>
-        </FadeIn>
+        {hasMoreCases && content.caseStudiesSectionCtaLabel.trim() ? (
+          <FadeIn delay={0.2} className="shrink-0">
+            <button
+              type="button"
+              onClick={() => setCatalogOpen(true)}
+              className="group inline-flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              {content.caseStudiesSectionCtaLabel}
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+            </button>
+          </FadeIn>
+        ) : null}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -93,6 +106,14 @@ export default function CaseStudiesPreview() {
           </FadeIn>
         ))}
       </div>
+
+      <CaseStudiesCatalogDialog
+        open={catalogOpen}
+        onOpenChange={setCatalogOpen}
+        title={content.caseStudiesSectionTitle}
+        subtitle={content.caseStudiesSectionDescription}
+        caseStudies={content.caseStudiesCards}
+      />
     </SectionWrapper>
   );
 }

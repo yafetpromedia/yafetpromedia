@@ -91,6 +91,18 @@ async function ensureSchema() {
       message TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS testimonial_submissions (
+      id SERIAL PRIMARY KEY,
+      quote TEXT NOT NULL,
+      author TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT '',
+      email TEXT NOT NULL DEFAULT '',
+      rating SMALLINT NOT NULL DEFAULT 5,
+      status TEXT NOT NULL DEFAULT 'pending',
+      approved_at TIMESTAMPTZ NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
   `);
 
   await getPool().query(`
@@ -130,6 +142,22 @@ async function ensureSchema() {
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS contact_company_placeholder TEXT NOT NULL DEFAULT '';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS contact_message_placeholder TEXT NOT NULL DEFAULT '';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS social_links JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS hero_carousel_slides JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS explore_architecture JSONB NOT NULL DEFAULT '{}'::jsonb;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS products_section_description TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS products_catalog_cta_label TEXT NOT NULL DEFAULT 'EXPLORE ALL PRODUCTS';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_section_tag TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_section_title TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_section_description TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_catalog_cta_label TEXT NOT NULL DEFAULT 'VIEW ALL PUBLICATIONS';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_cards JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE testimonial_submissions ADD COLUMN IF NOT EXISTS rating SMALLINT NOT NULL DEFAULT 5;
+    ALTER TABLE testimonial_submissions ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending';
+    ALTER TABLE testimonial_submissions ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ NULL;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS process_faq_process_card_label TEXT NOT NULL DEFAULT 'Process';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS process_faq_faq_card_label TEXT NOT NULL DEFAULT 'FAQ';
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS phone TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS contact_lead_phone_placeholder TEXT NOT NULL DEFAULT '';
   `);
 }
 
@@ -153,12 +181,12 @@ async function seedInitialData() {
         id, hero_headline, hero_highlight, hero_tail, hero_badge,
         systems_section_tag, systems_section_title, systems_section_description, systems_explore_cta_label, systems_cards,
         services_section_tag, services_section_title, services_cards,
-        products_section_tag, products_section_title, products_cards,
+        products_section_tag, products_section_title, products_section_description, products_catalog_cta_label, products_cards,
         case_studies_section_tag, case_studies_section_title, case_studies_section_description, case_studies_section_cta_label, case_studies_cards,
         trust_section_tag, trust_section_title, trust_logo_items, trust_testimonials,
         process_faq_section_tag, process_faq_section_title, process_faq_section_description, process_steps, faq_items,
         contact_email, contact_phone, social_links, ai_name, whatsapp_number
-      ) VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12::jsonb, $13, $14, $15::jsonb, $16, $17, $18, $19, $20::jsonb, $21, $22, $23::jsonb, $24::jsonb, $25, $26, $27, $28::jsonb, $29::jsonb, $30, $31, $32::jsonb, $33, $34)
+      ) VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12::jsonb, $13, $14, $15, $16, $17::jsonb, $18, $19, $20, $21, $22::jsonb, $23, $24, $25::jsonb, $26::jsonb, $27, $28, $29, $30::jsonb, $31::jsonb, $32, $33, $34::jsonb, $35, $36)
       ON CONFLICT (id) DO NOTHING
     `,
     [
@@ -176,6 +204,8 @@ async function seedInitialData() {
       JSON.stringify(defaultSiteContent.servicesCards),
       defaultSiteContent.productsSectionTag,
       defaultSiteContent.productsSectionTitle,
+      defaultSiteContent.productsSectionDescription,
+      defaultSiteContent.productsCatalogCtaLabel,
       JSON.stringify(defaultSiteContent.productsCards),
       defaultSiteContent.caseStudiesSectionTag,
       defaultSiteContent.caseStudiesSectionTitle,

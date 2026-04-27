@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import FadeIn from "@/components/animations/FadeIn";
 import SectionWrapper from "@/components/common/SectionWrapper";
+import ServiceLearnMoreDialog from "@/components/services/ServiceLearnMoreDialog";
 import { Globe, Layers, Rocket, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 
@@ -9,6 +11,7 @@ const serviceIcons = [Globe, Layers, Rocket, ShieldCheck];
 
 export default function ServicesGrid() {
   const { content } = useSiteContent();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const services = content.servicesCards.map((service, index) => ({
     ...service,
     icon: serviceIcons[index] ?? Globe,
@@ -40,13 +43,30 @@ export default function ServicesGrid() {
               </div>
               <h3 className="text-2xl font-display font-bold mb-4 group-hover:text-primary transition-colors">{service.title}</h3>
               <p className="text-foreground/65 leading-relaxed">{service.description}</p>
-              <div className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-foreground/55 group-hover:text-primary transition-colors">
+              <button
+                type="button"
+                onClick={() => setOpenIndex(index)}
+                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-foreground/55 group-hover:text-primary transition-colors cursor-pointer"
+              >
                 Learn more <ArrowUpRight className="size-4" />
-              </div>
+              </button>
             </article>
           </FadeIn>
         ))}
       </div>
+
+      {openIndex !== null && (
+        <ServiceLearnMoreDialog
+          open
+          onOpenChange={(o) => {
+            if (!o) setOpenIndex(null);
+          }}
+          title={services[openIndex].title}
+          description={services[openIndex].description}
+          learnMore={services[openIndex].learnMore}
+          icon={services[openIndex].icon}
+        />
+      )}
     </SectionWrapper>
   );
 }

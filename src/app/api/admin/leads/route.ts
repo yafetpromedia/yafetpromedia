@@ -20,11 +20,12 @@ export async function GET() {
     name: string;
     email: string;
     company: string;
+    phone: string;
     message: string;
     created_at: string;
   }>(
     `
-      SELECT id, name, email, company, message, created_at
+      SELECT id, name, email, company, COALESCE(phone, '') AS phone, message, created_at
       FROM leads
       ORDER BY id DESC
       LIMIT 100

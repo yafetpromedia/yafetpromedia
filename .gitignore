@@ -34,6 +34,17 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# user uploads (admin hero carousel; keep folder with .gitkeep)
+/public/uploads/hero/**
+!/public/uploads/hero/.gitkeep
+/public/uploads/systems/**
+!/public/uploads/systems/.gitkeep
+/public/uploads/trust/**
+!/public/uploads/trust/.gitkeep
+
+# testimonial queue when DB insert fails (fallback)
+.data/testimonial-submissions-pending.json
+
 # vercel
 .vercel
 

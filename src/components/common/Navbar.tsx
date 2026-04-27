@@ -18,8 +18,8 @@ export default function Navbar() {
       { name: t("navServices"), href: "#services" },
       { name: t("navProducts"), href: "#products" },
       { name: t("navCaseStudies"), href: "#case-studies" },
-      { name: "Trust", href: "#trust" },
-      { name: "Process & FAQ", href: "#process-faq" },
+      { name: t("navTrust"), href: "#trust" },
+      { name: t("navProcessFaq"), href: "#process-faq" },
     ],
     [t]
   );

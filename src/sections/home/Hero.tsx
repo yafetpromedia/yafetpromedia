@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  AnimatePresence,
   motion,
   useInView,
+  useReducedMotion,
   useScroll,
   useTransform,
 } from "framer-motion";
+import { cn } from "@/lib/utils";
 import FadeIn from "@/components/animations/FadeIn";
 import { ArrowRight, Play, Shield, Zap } from "lucide-react";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
@@ -51,12 +54,59 @@ function CountUp({
   return <span ref={ref}>{value.toFixed(decimals)}</span>;
 }
 
+const CAROUSEL_INTERVAL_MS = 6500;
+
 export default function Hero() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { content } = useSiteContent();
   const ref = useRef<HTMLDivElement>(null);
-  const [highlightFirstWord, ...highlightRest] = content.heroHighlight.split(" ");
-  
+  const heroHeadline = language === "am" ? t("heroHeadline") : content.heroHeadline;
+  const heroHighlight = language === "am" ? t("heroHighlight") : content.heroHighlight;
+  const heroTail = language === "am" ? t("heroTail") : content.heroTail;
+  const heroBadge = language === "am" ? t("heroBadge") : content.heroBadge;
+  const [highlightFirstWord, ...highlightRest] = heroHighlight.split(" ");
+  const reduceMotion = useReducedMotion();
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [carouselDir, setCarouselDir] = useState(1);
+  const [carouselPaused, setCarouselPaused] = useState(false);
+
+  const heroSlides = useMemo(
+    () =>
+      content.heroCarouselSlides.map((s) => ({
+        key: s.id,
+        src: s.src,
+        alt: s.alt,
+      })),
+    [content.heroCarouselSlides]
+  );
+
+  useEffect(() => {
+    setCarouselIndex((i) => Math.min(i, Math.max(0, heroSlides.length - 1)));
+  }, [heroSlides.length]);
+
+  const goToSlide = useCallback(
+    (wrapped: number) => {
+      const len = heroSlides.length;
+      if (len === 0 || wrapped === carouselIndex) return;
+      let d: 1 | -1;
+      if (carouselIndex === len - 1 && wrapped === 0) d = 1;
+      else if (carouselIndex === 0 && wrapped === len - 1) d = -1;
+      else d = wrapped > carouselIndex ? 1 : -1;
+      setCarouselDir(d);
+      setCarouselIndex(wrapped);
+    },
+    [carouselIndex, heroSlides.length]
+  );
+
+  useEffect(() => {
+    if (reduceMotion || carouselPaused || heroSlides.length < 2) return;
+    const id = window.setInterval(() => {
+      setCarouselDir(1);
+      setCarouselIndex((i) => (i + 1) % heroSlides.length);
+    }, CAROUSEL_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [reduceMotion, carouselPaused, heroSlides.length]);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -68,10 +118,28 @@ export default function Hero() {
   const yImage = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: reduceMotion ? 0 : direction * 44,
+      opacity: 0,
+      scale: reduceMotion ? 1 : 0.97,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+    },
+    exit: (direction: number) => ({
+      x: reduceMotion ? 0 : direction * -44,
+      opacity: 0,
+      scale: reduceMotion ? 1 : 0.97,
+    }),
+  };
+
   return (
     <section 
       ref={ref}
-      className="relative min-h-screen flex flex-col pt-20 md:pt-24 lg:pt-30 pb-20 overflow-hidden bg-background"
+      className="relative -mt-4 sm:-mt-6 md:-mt-8 flex flex-col pt-28 sm:pt-32 md:pt-36 pb-12 md:pb-16 overflow-hidden bg-background"
     >
       {/* 1. Deep Background Layer (Slow Parallax) */}
       <motion.div 
@@ -98,19 +166,19 @@ export default function Hero() {
       <div className="max-w-7xl w-full mx-auto px-6 relative z-10">
         
         {/* Top Badge — Centered as requested */}
-        <div className="w-full flex justify-center mb-12">
+        <div className="w-full flex justify-center mb-6 md:mb-8">
           <FadeIn distance={40}>
             <div className="inline-flex items-center gap-2 px-4 py-2 text-[11px] sm:text-xs font-bold tracking-[0.25em] uppercase border border-border rounded-full bg-foreground/[0.03] text-foreground/70 backdrop-blur-md">
               <span className="relative flex size-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full size-2 bg-primary"></span>
               </span>
-              {content.heroBadge}
+              {heroBadge}
             </div>
           </FadeIn>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center min-h-[calc(80vh-8rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center lg:min-h-0">
           
           {/* LEFT COLUMN: Typography & CTAs */}
           <motion.div
@@ -118,15 +186,15 @@ export default function Hero() {
             className="flex flex-col items-start justify-center"
           >
             <FadeIn delay={0.1} distance={40}>
-              <h1 className="text-[2.65rem] sm:text-[3.5rem] md:text-[4.2rem] lg:text-[4.7rem] xl:text-[5.2rem] font-display font-bold mb-8 leading-[1.05] tracking-tighter text-left text-foreground">
-                {content.heroHeadline}{" "}
+              <h1 className="text-[2.35rem] sm:text-[3.1rem] md:text-[3.7rem] lg:text-[4.1rem] xl:text-[4.5rem] font-display font-bold mb-5 md:mb-6 leading-[1.05] tracking-tighter text-left text-foreground">
+                {heroHeadline}{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-[#ff9b4d]">
                   {highlightFirstWord}
                   {highlightRest.length > 0 && <br className="sm:hidden" />}
                   {highlightRest.length > 0 ? ` ${highlightRest.join(" ")}` : ""}
                 </span>
                 <br />
-                {content.heroTail}
+                {heroTail}
               </h1>
             </FadeIn>
             
@@ -136,14 +204,14 @@ export default function Hero() {
               <div className="flex flex-col sm:flex-row items-start gap-4 w-full">
                 <Link
                   href="#contact"
-                  className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.25)] hover:shadow-[0_0_60px_rgba(255,106,0,0.4)] transition-all duration-300 group inline-flex items-center justify-center"
+                  className="w-full sm:w-auto h-12 px-7 text-sm sm:text-base font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.25)] hover:shadow-[0_0_60px_rgba(255,106,0,0.4)] transition-all duration-300 group inline-flex items-center justify-center"
                 >
                   {t("startProject")}
                   <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
                 </Link>
                 <Link
                   href="#products"
-                  className="w-full sm:w-auto h-14 px-8 text-base font-bold rounded-full border border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300 inline-flex items-center justify-center"
+                  className="w-full sm:w-auto h-12 px-7 text-sm sm:text-base font-bold rounded-full border border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300 inline-flex items-center justify-center"
                 >
                   <Play className="mr-2 size-4 fill-current" />
                   {t("navProducts")}
@@ -162,32 +230,86 @@ export default function Hero() {
               {/* Glow behind the image */}
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,106,0,0.2),transparent_70%)] blur-3xl scale-110 pointer-events-none" />
               
-              {/* The SVG brand image */}
-              <div className="relative w-full aspect-square max-w-[540px] mx-auto lg:ml-auto">
-                <Image
-                  src="/images/hero/hero image.svg"
-                  alt="Yafetpromedia — Digital Systems"
-                  fill
-                  className="object-contain drop-shadow-2xl select-none dark:brightness-100 brightness-90"
-                  priority
-                />
+              {/* Brand carousel: slides + float + depth */}
+              <div
+                className="relative w-full max-w-[420px] lg:max-w-[460px] mx-auto lg:ml-auto"
+                onMouseEnter={() => setCarouselPaused(true)}
+                onMouseLeave={() => setCarouselPaused(false)}
+              >
+                <div className="relative w-full aspect-square overflow-hidden rounded-[2rem]">
+                  <AnimatePresence custom={carouselDir} initial={false} mode="wait">
+                    <motion.div
+                      key={heroSlides[carouselIndex]?.key ?? carouselIndex}
+                      custom={carouselDir}
+                      variants={slideVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute inset-0"
+                    >
+                      {heroSlides[carouselIndex] && (
+                        <Image
+                          src={heroSlides[carouselIndex].src}
+                          alt={heroSlides[carouselIndex].alt}
+                          fill
+                          sizes="(min-width: 1024px) 460px, 85vw"
+                          unoptimized={/^https?:\/\//i.test(heroSlides[carouselIndex].src)}
+                          className="object-contain p-1 drop-shadow-2xl select-none dark:brightness-100 brightness-90"
+                          priority={carouselIndex === 0}
+                        />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  {heroSlides.map((s, i) => (
+                    <button
+                      key={s.key}
+                      type="button"
+                      onClick={() => goToSlide(i)}
+                      className={cn(
+                        "h-2 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        i === carouselIndex
+                          ? "w-8 bg-primary"
+                          : "w-2 bg-foreground/20 hover:bg-foreground/40"
+                      )}
+                      aria-label={`${i + 1} / ${heroSlides.length}`}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Floating metric badge — top left of image */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
+                animate={
+                  reduceMotion
+                    ? { opacity: 1, x: 0 }
+                    : { opacity: 1, x: 0, y: [0, -6, 0] }
+                }
+                transition={
+                  reduceMotion
+                    ? { delay: 0.8, duration: 0.6 }
+                    : {
+                        opacity: { delay: 0.8, duration: 0.6 },
+                        x: { delay: 0.8, duration: 0.6 },
+                        y: { delay: 1.1, duration: 4.2, repeat: Infinity, ease: "easeInOut" },
+                      }
+                }
                 className="absolute -left-6 top-12 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-4 shadow-2xl hidden md:flex items-center gap-3"
               >
                 <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <Shield className="size-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-foreground/40 font-mono uppercase tracking-wider">Systems Active</p>
+                  <p className="text-xs text-foreground/40 font-mono uppercase tracking-wider">
+                    {t("heroStatSystemsActive")}
+                  </p>
                   <p className="text-foreground font-bold text-lg leading-none">
                     <CountUp to={99.9} decimals={1} />%{" "}
-                    <span className="text-xs text-primary font-mono">uptime</span>
+                    <span className="text-xs text-primary font-mono">{t("heroStatUptime")}</span>
                   </p>
                 </div>
               </motion.div>
@@ -195,18 +317,32 @@ export default function Hero() {
               {/* Floating metric badge — bottom right of image */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.0, duration: 0.6 }}
+                animate={
+                  reduceMotion
+                    ? { opacity: 1, x: 0 }
+                    : { opacity: 1, x: 0, y: [0, -5, 0] }
+                }
+                transition={
+                  reduceMotion
+                    ? { delay: 1.0, duration: 0.6 }
+                    : {
+                        opacity: { delay: 1.0, duration: 0.6 },
+                        x: { delay: 1.0, duration: 0.6 },
+                        y: { delay: 1.2, duration: 5, repeat: Infinity, ease: "easeInOut" },
+                      }
+                }
                 className="absolute -right-4 bottom-16 rounded-2xl border border-border bg-card/90 backdrop-blur-xl p-4 shadow-2xl hidden md:flex items-center gap-3"
               >
                 <div className="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <Zap className="size-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-foreground/40 font-mono uppercase tracking-wider">Clients Deployed</p>
+                  <p className="text-xs text-foreground/40 font-mono uppercase tracking-wider">
+                    {t("heroStatClientsDeployed")}
+                  </p>
                   <p className="text-foreground font-bold text-lg leading-none">
                     <CountUp to={50} />+{" "}
-                    <span className="text-xs text-primary font-mono">orgs</span>
+                    <span className="text-xs text-primary font-mono">{t("heroStatOrgs")}</span>
                   </p>
                 </div>
               </motion.div>
@@ -217,7 +353,7 @@ export default function Hero() {
       </div>
 
       {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-40" />
+      <div className="absolute bottom-0 left-0 w-full h-32 md:h-40 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-40" />
     </section>
   );
 }

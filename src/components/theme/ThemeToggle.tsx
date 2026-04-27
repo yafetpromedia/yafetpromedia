@@ -21,6 +21,8 @@ export function ThemeToggle({ className }: { className?: string }) {
         className={cn(
           "relative size-10 rounded-full border flex items-center justify-center transition-all duration-300",
           "bg-white/5 border-white/10 text-gray-400",
+          "hover:text-black hover:border-black/40",
+          "dark:hover:text-white dark:hover:border-white/40",
           className
         )}
         aria-label="Toggle theme"
@@ -36,8 +38,9 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
         "relative size-10 rounded-full border flex items-center justify-center transition-all duration-300",
-        "bg-white/5 border-white/10 hover:border-primary/50 text-gray-400 hover:text-white",
-        "dark:bg-white/5 dark:border-white/10 dark:hover:border-primary/50",
+        "bg-white/5 border-white/10 text-foreground/45",
+        "hover:text-black hover:border-black/50",
+        "dark:text-gray-400 dark:hover:text-white dark:hover:border-primary/50",
         className
       )}
       aria-label="Toggle theme"

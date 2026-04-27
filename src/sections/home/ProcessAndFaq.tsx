@@ -35,12 +35,12 @@ export default function ProcessAndFaq() {
             <div className="flex items-center gap-2 mb-6">
               <div className="h-[1px] w-8 bg-primary" />
               <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-                Process
+                {content.processFaqProcessCardLabel}
               </span>
             </div>
             <ul className="space-y-5">
               {content.processSteps.map((step, index) => (
-                <li key={`${step.text}-${index}`} className="flex items-start gap-3">
+                <li key={`step-${index}`} className="flex items-start gap-3">
                   <CheckCircle2 className="size-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-foreground/70">{step.text}</span>
                 </li>
@@ -54,13 +54,13 @@ export default function ProcessAndFaq() {
             <div className="flex items-center gap-2 mb-6">
               <div className="h-[1px] w-8 bg-primary" />
               <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-                FAQ
+                {content.processFaqFaqCardLabel}
               </span>
             </div>
             <Accordion.Root className="space-y-3">
               {content.faqItems.map((faq, index) => (
                 <Accordion.Item
-                  key={faq.question}
+                  key={`faq-${index}`}
                   value={`item-${index}`}
                   className="rounded-xl border border-border bg-background/40"
                 >

@@ -7,6 +7,7 @@ export default async function AdminLeadsPage() {
     <AdminClient
       initialContent={data.content}
       initialLeads={data.leads}
+      initialTestimonialSubmissions={data.testimonialSubmissions}
       aiStatus={data.aiStatus}
       initialSection={data.initialSection}
     />

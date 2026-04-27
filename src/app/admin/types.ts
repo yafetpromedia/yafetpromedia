@@ -6,8 +6,21 @@ export type Lead = {
   name: string;
   email: string;
   company: string;
+  phone: string;
   message: string;
   created_at: string;
+};
+
+export type TestimonialSubmission = {
+  id: number;
+  quote: string;
+  author: string;
+  role: string;
+  email: string;
+  rating: number;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+  approved_at: string | null;
 };
 
 export type AIStatus = {
@@ -22,10 +35,13 @@ export type AdminSection =
   | "overview"
   | "hero"
   | "systems"
+  | "explore"
   | "services"
   | "products"
   | "caseStudies"
+  | "publications"
   | "trust"
+  | "testimonials"
   | "processFaq"
   | "contact"
   | "leads"
@@ -42,6 +58,7 @@ export type AdminNavItem = {
 export type AdminClientProps = {
   initialContent: SiteContent;
   initialLeads: Lead[];
+  initialTestimonialSubmissions: TestimonialSubmission[];
   aiStatus: AIStatus;
   initialSection: AdminSection;
 };

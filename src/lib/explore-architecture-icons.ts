@@ -1,0 +1,60 @@
+import {
+  BarChart3,
+  Camera,
+  Check,
+  Clapperboard,
+  Database,
+  FileText,
+  Film,
+  Globe2,
+  Image as ImageIcon,
+  LayoutGrid,
+  Layers,
+  LineChart,
+  Lock,
+  Palette,
+  PencilRuler,
+  Server,
+  Sparkles,
+  Type,
+  UserCheck,
+  Users,
+  Video,
+  Wand2,
+  Webhook,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import { coalesceExploreIconKey } from "@/lib/explore-architecture.shared";
+
+const LUCIDE_BY_KEY: Record<string, LucideIcon> = {
+  LayoutGrid,
+  Server,
+  Database,
+  Lock,
+  Users,
+  Webhook,
+  Zap,
+  BarChart3,
+  FileText,
+  Camera,
+  Clapperboard,
+  Palette,
+  Film,
+  LineChart,
+  PencilRuler,
+  Type,
+  UserCheck,
+  Layers,
+  Image: ImageIcon,
+  Wand2,
+  Video,
+  Globe2,
+  Sparkles,
+  Check,
+};
+
+export function getExploreLucideIcon(key: string): LucideIcon {
+  const k = coalesceExploreIconKey(key);
+  return LUCIDE_BY_KEY[k] ?? LayoutGrid;
+}

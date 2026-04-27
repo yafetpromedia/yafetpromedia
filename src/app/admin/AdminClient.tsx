@@ -1,8 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Bot, Home, LayoutDashboard, Shield, Sparkles, Users, Wrench, Package, BriefcaseBusiness, Handshake, ListChecks } from "lucide-react";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Bot,
+  Home,
+  LayoutDashboard,
+  LayoutTemplate,
+  Inbox,
+  Shield,
+  Sparkles,
+  Wrench,
+  Package,
+  BriefcaseBusiness,
+  Handshake,
+  Library,
+  ListChecks,
+  MessageSquareQuote,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import AdminSidebar from "@/app/admin/components/AdminSidebar";
 import AdminTopBar from "@/app/admin/components/AdminTopBar";
 import AdminSectionContent from "@/app/admin/components/AdminSectionContent";
@@ -11,10 +27,13 @@ import { AdminClientProps, AdminNavItem } from "@/app/admin/types";
 export default function AdminClient({
   initialContent,
   initialLeads,
+  initialTestimonialSubmissions,
   aiStatus,
   initialSection,
 }: AdminClientProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [draft, setDraft] = useState(initialContent);
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -29,13 +48,16 @@ export default function AdminClient({
     { id: "overview", label: "Overview", icon: LayoutDashboard, href: "/admin" },
     { id: "hero", label: "Hero", icon: Home, href: "/admin/hero" },
     { id: "systems", label: "Systems", icon: Sparkles, href: "/admin/systems" },
+    { id: "explore", label: "Explore dialog", icon: LayoutTemplate, href: "/admin/explore" },
     { id: "services", label: "Services", icon: Wrench, href: "/admin/services" },
     { id: "products", label: "Products", icon: Package, href: "/admin/products" },
     { id: "caseStudies", label: "Case Studies", icon: BriefcaseBusiness, href: "/admin/case-studies" },
+    { id: "publications", label: "Publications", icon: Library, href: "/admin/publications" },
     { id: "trust", label: "Trust", icon: Handshake, href: "/admin/trust" },
+    { id: "testimonials", label: "Testimonials", icon: MessageSquareQuote, href: "/admin/testimonials" },
     { id: "processFaq", label: "Process & FAQ", icon: ListChecks, href: "/admin/process-faq" },
     { id: "contact", label: "Contact & Assistant", icon: Bot, href: "/admin/contact" },
-    { id: "leads", label: "Leads", icon: Users, href: "/admin/leads" },
+    { id: "leads", label: "Messages", icon: Inbox, href: "/admin/leads" },
     { id: "security", label: "Security", icon: Shield, href: "/admin/security" },
     { id: "ai", label: "AI Provider", icon: Bot, href: "/admin/ai" },
   ];
@@ -84,41 +106,95 @@ export default function AdminClient({
     router.refresh();
   };
 
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileNavOpen]);
+
   return (
-    <main className="h-screen bg-background overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] h-screen">
-        <AdminSidebar navItems={navItems} activeSection={activeSection} />
+    <main
+      className={cn(
+        "min-h-dvh flex flex-col",
+        "bg-gradient-to-b from-background via-background to-muted/15"
+      )}
+    >
+      {mobileNavOpen && (
+        <button
+          type="button"
+          aria-label="Close menu"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
 
-        <section className="px-5 py-6 md:px-8 md:py-8 border-l border-border/50 overflow-y-auto">
-          <AdminTopBar
-            activeSection={activeSection}
-            navItems={navItems}
-            isSaving={isSaving}
-            onSave={handleSave}
-            onLogout={handleLogout}
-          />
+      <div className="flex min-h-0 w-full flex-1 min-h-dvh lg:min-h-screen">
+        <AdminSidebar
+          navItems={navItems}
+          activeSection={activeSection}
+          mobileOpen={mobileNavOpen}
+          onCloseMobile={() => setMobileNavOpen(false)}
+        />
 
-          {(saved || saveError) && (
-            <div className="mb-6">
-              {saved && <p className="text-sm text-green-500">Saved successfully.</p>}
-              {saveError && <p className="text-sm text-red-500">{saveError}</p>}
-            </div>
+        <section
+          className={cn(
+            "flex-1 min-w-0 flex flex-col border-l border-border/40",
+            "overflow-y-auto overflow-x-hidden",
+            "pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2",
+            "px-4 sm:px-5 md:px-7 lg:px-8"
           )}
+        >
+          <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col min-h-0">
+            <AdminTopBar
+              activeSection={activeSection}
+              navItems={navItems}
+              isSaving={isSaving}
+              onSave={handleSave}
+              onLogout={handleLogout}
+              onOpenMobileNav={() => setMobileNavOpen(true)}
+            />
 
-          <AdminSectionContent
-            activeSection={activeSection}
-            draft={draft}
-            setDraft={setDraft}
-            initialLeads={initialLeads}
-            aiStatus={aiStatus}
-            currentPassword={currentPassword}
-            setCurrentPassword={setCurrentPassword}
-            newPassword={newPassword}
-            setNewPassword={setNewPassword}
-            passwordStatus={passwordStatus}
-            isChangingPassword={isChangingPassword}
-            onUpdatePassword={handlePasswordUpdate}
-          />
+            {(saved || saveError) && (
+              <div
+                className={cn(
+                  "mb-5 rounded-xl border px-4 py-3 text-sm",
+                  saved && "border-emerald-500/30 bg-emerald-500/[0.06]",
+                  saveError && "border-red-500/30 bg-red-500/[0.06]"
+                )}
+                role="status"
+              >
+                {saved && (
+                  <p className="text-emerald-700 dark:text-emerald-400 font-medium">Saved successfully.</p>
+                )}
+                {saveError && <p className="text-red-700 dark:text-red-400 font-medium">{saveError}</p>}
+              </div>
+            )}
+
+            <div className="flex-1 min-h-0 pb-8">
+              <AdminSectionContent
+                activeSection={activeSection}
+                draft={draft}
+                setDraft={setDraft}
+                initialLeads={initialLeads}
+                initialTestimonialSubmissions={initialTestimonialSubmissions}
+                aiStatus={aiStatus}
+                currentPassword={currentPassword}
+                setCurrentPassword={setCurrentPassword}
+                newPassword={newPassword}
+                setNewPassword={setNewPassword}
+                passwordStatus={passwordStatus}
+                isChangingPassword={isChangingPassword}
+                onUpdatePassword={handlePasswordUpdate}
+              />
+            </div>
+          </div>
         </section>
       </div>
     </main>

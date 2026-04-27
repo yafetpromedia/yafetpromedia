@@ -7,6 +7,7 @@ async function sendLeadNotificationEmail(lead: {
   name: string;
   email: string;
   company: string;
+  phone: string;
   message: string;
 }) {
   const host = process.env.SMTP_HOST;
@@ -34,10 +35,13 @@ async function sendLeadNotificationEmail(lead: {
     `Name: ${lead.name}`,
     `Email: ${lead.email}`,
     `Company: ${lead.company}`,
+    lead.phone ? `Phone: ${lead.phone}` : "",
     "",
     "Message:",
     lead.message,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   await transporter.sendMail({
     from,
@@ -54,25 +58,28 @@ export async function POST(request: Request) {
       name?: string;
       email?: string;
       company?: string;
+      phone?: string;
       message?: string;
     };
 
     const name = String(body.name ?? "").trim().slice(0, 120);
     const email = String(body.email ?? "").trim().slice(0, 160);
     const company = String(body.company ?? "").trim().slice(0, 160);
+    const phone = String(body.phone ?? "").trim().slice(0, 80);
     const message = String(body.message ?? "").trim().slice(0, 4000);
 
-    if (!name || !email || !company || !message) {
-      return Response.json({ error: "All fields are required." }, { status: 400 });
+    if (!name || !email || !company || !phone || !message) {
+      return Response.json(
+        { error: "Name, email, company, phone, and message are required." },
+        { status: 400 }
+      );
     }
 
-    await query("INSERT INTO leads (name, email, company, message) VALUES ($1, $2, $3, $4)", [
-      name,
-      email,
-      company,
-      message,
-    ]);
-    sendLeadNotificationEmail({ name, email, company, message }).catch(() => {
+    await query(
+      "INSERT INTO leads (name, email, company, phone, message) VALUES ($1, $2, $3, $4, $5)",
+      [name, email, company, phone, message]
+    );
+    sendLeadNotificationEmail({ name, email, company, phone, message }).catch(() => {
       // Lead is already saved in DB; notification failure should not fail the form submit.
     });
 

@@ -92,10 +92,17 @@ export default function Footer() {
                   {content.contactEmail}
                 </a>
               </p>
-              <p className="inline-flex items-center gap-2">
-                <Phone className="size-4 text-primary/80" />
-                <span>{content.contactPhone}</span>
-              </p>
+              {content.contactPhone.trim() !== "" && (
+                <p className="inline-flex items-center gap-2">
+                  <Phone className="size-4 text-primary/80" />
+                  <a
+                    href={`tel:${content.contactPhone.replace(/\s+/g, "")}`}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {content.contactPhone}
+                  </a>
+                </p>
+              )}
             </div>
           </div>
 
