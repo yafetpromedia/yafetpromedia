@@ -4,7 +4,7 @@ import {
   getSessionCookieName,
   updateAdminPassword,
   verifyAdminCredentials,
-} from "@/lib/auth";
+} from "@/server/auth";
 
 export const runtime = "nodejs";
 

@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- admin previews: arbitrary image URLs from content */
+
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import { ArrowDown, ArrowUp, ImageOff, Mail, PhoneCall, Plus, Trash2 } from "lucide-react";

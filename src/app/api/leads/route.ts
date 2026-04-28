@@ -1,4 +1,4 @@
-import { query } from "@/lib/db";
+import { query } from "@/database";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";

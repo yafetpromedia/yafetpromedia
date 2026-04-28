@@ -1,5 +1,5 @@
-import { query } from "@/lib/db";
-import { appendTestimonialSubmissionToFile } from "@/lib/testimonial-submissions-file";
+import { query } from "@/database";
+import { appendTestimonialSubmissionToFile } from "@/server/testimonial-submissions-file";
 
 export const runtime = "nodejs";
 

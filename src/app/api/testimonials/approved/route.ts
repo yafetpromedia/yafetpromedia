@@ -1,4 +1,4 @@
-import { getApprovedTestimonialsForPublic } from "@/lib/testimonials-approved";
+import { getApprovedTestimonialsForPublic } from "@/server/testimonials-approved";
 
 export const runtime = "nodejs";
 

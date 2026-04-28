@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { getSessionCookieName, verifySessionToken } from "@/lib/auth";
-import { readSiteContent, writeSiteContent } from "@/lib/site-content";
+import { getSessionCookieName, verifySessionToken } from "@/server/auth";
+import { readSiteContent, writeSiteContent } from "@/server/site-content";
 
 export const runtime = "nodejs";
 

@@ -1,4 +1,4 @@
-import { readSiteContent } from "@/lib/site-content";
+import { readSiteContent } from "@/server/site-content";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

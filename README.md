@@ -16,9 +16,18 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This app uses a **Next.js App Router** split into three conceptual layers:
+
+| Layer | Location | Role |
+|--------|-----------|------|
+| **Frontend (UI)** | `src/app/` (pages, layouts), `src/components/`, `src/sections/` | React components, marketing sections, admin screens. Client and server components as marked. |
+| **Backend (server logic)** | `src/server/` | Auth/session helpers, CMS read/write (`site-content.ts`), testimonial file queue, approved-testimonial merge logic. Consumed by `src/app/api/**` and server-only imports. |
+| **Database** | `src/database/` | PostgreSQL pool, schema bootstrap (`CREATE` / `ALTER`), seed row for `site_content` / `admin_users`. Requires `DATABASE_URL` in `.env.local`. |
+| **Shared** | `src/lib/*.shared.ts`, `src/lib/utils.ts` | Types and defaults used by both UI and server (e.g. `site-content.shared.ts`). |
+
+Legacy **stable import paths** `import … from "@/lib/db"` (and `auth`, `site-content`, testimonial helpers) still work; they re-export the new `src/database` and `src/server` modules.
 
 ## Learn More
 

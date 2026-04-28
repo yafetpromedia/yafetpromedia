@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createSessionToken, getSessionCookieName, verifyAdminCredentials } from "@/lib/auth";
+import { createSessionToken, getSessionCookieName, verifyAdminCredentials } from "@/server/auth";
 
 export const runtime = "nodejs";
 

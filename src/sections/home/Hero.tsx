@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -81,7 +81,9 @@ export default function Hero() {
   );
 
   useEffect(() => {
-    setCarouselIndex((i) => Math.min(i, Math.max(0, heroSlides.length - 1)));
+    startTransition(() => {
+      setCarouselIndex((i) => Math.min(i, Math.max(0, heroSlides.length - 1)));
+    });
   }, [heroSlides.length]);
 
   const goToSlide = useCallback(

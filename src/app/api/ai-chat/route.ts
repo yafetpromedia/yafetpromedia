@@ -1,5 +1,5 @@
-import { readSiteContent } from "@/lib/site-content";
-import { query } from "@/lib/db";
+import { readSiteContent } from "@/server/site-content";
+import { query } from "@/database";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 export const runtime = "nodejs";

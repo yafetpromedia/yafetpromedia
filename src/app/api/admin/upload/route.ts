@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { getSessionCookieName, verifySessionToken } from "@/lib/auth";
+import { getSessionCookieName, verifySessionToken } from "@/server/auth";
 
 export const runtime = "nodejs";
 

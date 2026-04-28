@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { getSessionCookieName, verifySessionToken } from "@/lib/auth";
-import { query } from "@/lib/db";
+import { getSessionCookieName, verifySessionToken } from "@/server/auth";
+import { query } from "@/database";
 
 export const runtime = "nodejs";
 

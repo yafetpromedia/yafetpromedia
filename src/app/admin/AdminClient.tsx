@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, startTransition, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bot,
@@ -107,7 +107,9 @@ export default function AdminClient({
   };
 
   useEffect(() => {
-    setMobileNavOpen(false);
+    startTransition(() => {
+      setMobileNavOpen(false);
+    });
   }, [pathname]);
 
   useEffect(() => {

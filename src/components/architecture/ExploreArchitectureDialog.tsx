@@ -1,6 +1,15 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  startTransition,
+} from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLenis } from "lenis/react";
@@ -46,15 +55,19 @@ function BlueprintTerminal({
     }
     posRef.current = { line: 0, char: 0 };
     if (!open) {
-      setLineIdx(0);
-      setCharIdx(0);
-      setDone(false);
+      startTransition(() => {
+        setLineIdx(0);
+        setCharIdx(0);
+        setDone(false);
+      });
       return;
     }
     if (reduce) {
-      setLineIdx(lines.length);
-      setCharIdx(0);
-      setDone(true);
+      startTransition(() => {
+        setLineIdx(lines.length);
+        setCharIdx(0);
+        setDone(true);
+      });
       return;
     }
 
@@ -144,7 +157,9 @@ export default function ExploreArchitectureDialog({
   const reduce = useReducedMotion() === true;
   const lenis = useLenis();
   const lenisRef = useRef(lenis);
-  lenisRef.current = lenis;
+  useLayoutEffect(() => {
+    lenisRef.current = lenis;
+  }, [lenis]);
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogScrollRef = useRef<HTMLDivElement | null>(null);
@@ -166,7 +181,9 @@ export default function ExploreArchitectureDialog({
   }, [stackTrack, open]);
 
   useEffect(() => {
-    setMounted(true);
+    startTransition(() => {
+      setMounted(true);
+    });
   }, []);
 
   const onKeyDown = useCallback(

@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getSessionCookieName, verifySessionToken } from "@/lib/auth";
+import { getSessionCookieName, verifySessionToken } from "@/server/auth";
 import { defaultSiteContent } from "@/lib/site-content.shared";
-import { readSiteContent } from "@/lib/site-content";
-import { query } from "@/lib/db";
-import { readTestimonialSubmissionsFromFile } from "@/lib/testimonial-submissions-file";
+import { readSiteContent } from "@/server/site-content";
+import { query } from "@/database";
+import { readTestimonialSubmissionsFromFile } from "@/server/testimonial-submissions-file";
 import { AdminSection, TestimonialSubmission } from "@/app/admin/types";
 
 function sortSubmissions(a: TestimonialSubmission, b: TestimonialSubmission): number {
