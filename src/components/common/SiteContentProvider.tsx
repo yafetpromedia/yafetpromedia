@@ -17,26 +17,30 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     let active = true;
-    fetch("/api/content")
-      .then(async (res) => {
-        if (!res.ok) return null;
-        try {
-          return (await res.json()) as { content?: SiteContent };
-        } catch {
-          return null;
-        }
-      })
-      .then((data) => {
+
+    async function loadContent() {
+      try {
+        const res = await fetch("/api/content", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as { content?: SiteContent };
         if (active && data?.content) setContent(data.content);
-      })
-      .catch(() => {
+      } catch {
         // Keep default content when API is unavailable.
-      })
-      .finally(() => {
+      } finally {
         if (active) setIsLoading(false);
-      });
+      }
+    }
+
+    void loadContent();
+
+    function onVisible() {
+      if (document.visibilityState === "visible") void loadContent();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
       active = false;
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 

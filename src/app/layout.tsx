@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import StoreProvider from "@/store/StoreProvider";
 import SmoothScrollProvider from "@/components/common/SmoothScrollProvider";
 import GlobalChrome from "@/components/common/GlobalChrome";
 import { LanguageProvider } from "@/components/i18n/LanguageProvider";
@@ -39,9 +38,7 @@ export default function RootLayout({
           <LanguageProvider>
             <SiteContentProvider>
               <SmoothScrollProvider>
-                <StoreProvider>
-                  <GlobalChrome>{children}</GlobalChrome>
-                </StoreProvider>
+                <GlobalChrome>{children}</GlobalChrome>
               </SmoothScrollProvider>
             </SiteContentProvider>
           </LanguageProvider>
