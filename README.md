@@ -2,17 +2,17 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies at the repo root (`npm install`), then run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+
+This runs Next.js with the **working directory set to `frontend/`** (via `scripts/run-in-frontend.mjs`), so `next.config.ts` and `public/` always resolve. You can still run from that folder directly: `cd frontend && npx next dev`.
+
+Put **`.env.local` at the repository root** (same folder as `frontend/`, `backend/`, `db/`). If anything still misses env vars, copy it into `frontend/` as well.
+
+If the app won’t start or you see a blank/old error page, **free port 3000**: Task Manager → end stray **Node.js** processes, or run `netstat -ano | findstr ":3000"` and end that PID, then run `npm run dev` again.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -22,12 +22,12 @@ This app uses a **Next.js App Router** split into three conceptual layers:
 
 | Layer | Location | Role |
 |--------|-----------|------|
-| **Frontend (UI)** | `src/app/` (pages, layouts), `src/components/`, `src/sections/` | React components, marketing sections, admin screens. Client and server components as marked. |
-| **Backend (server logic)** | `src/server/` | Auth/session helpers, CMS read/write (`site-content.ts`), testimonial file queue, approved-testimonial merge logic. Consumed by `src/app/api/**` and server-only imports. |
-| **Database** | `src/database/` | PostgreSQL pool, schema bootstrap (`CREATE` / `ALTER`), seed row for `site_content` / `admin_users`. Requires `DATABASE_URL` in `.env.local`. |
-| **Shared** | `src/lib/*.shared.ts`, `src/lib/utils.ts` | Types and defaults used by both UI and server (e.g. `site-content.shared.ts`). |
+| **Frontend (UI)** | `frontend/src/app/`, `frontend/src/components/`, `frontend/src/sections/`, `frontend/public/` | Next.js App Router, React UI, API route handlers, admin. From repo root run `npm run dev` (uses `scripts/run-in-frontend.mjs`). |
+| **Backend (server logic)** | `backend/` | Auth/session helpers, CMS read/write (`site-content.ts`), testimonial file queue, approved-testimonial merge. Imported as `@backend/…` from the frontend app. |
+| **Database** | `db/` | PostgreSQL pool, schema bootstrap (`CREATE` / `ALTER`), seed row for `site_content` / `admin_users`. Requires `DATABASE_URL` in `.env.local`. Import as `@db`. |
+| **Shared types** | `frontend/src/lib/*.shared.ts`, `frontend/src/lib/utils.ts` | Types and defaults used by both UI and server (e.g. `site-content.shared.ts`). |
 
-Legacy **stable import paths** `import … from "@/lib/db"` (and `auth`, `site-content`, testimonial helpers) still work; they re-export the new `src/database` and `src/server` modules.
+Legacy **stable import paths** `import … from "@/lib/db"` (and `auth`, `site-content`, testimonial helpers) still work from the frontend package; they re-export `@db` and `@backend/*`.
 
 ## Learn More
 

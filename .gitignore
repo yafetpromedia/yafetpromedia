@@ -16,6 +16,7 @@
 # next.js
 /.next/
 /out/
+frontend/.next/
 
 # production
 /build
@@ -35,12 +36,15 @@ yarn-error.log*
 .env*
 
 # user uploads (admin hero carousel; keep folder with .gitkeep)
-/public/uploads/hero/**
-!/public/uploads/hero/.gitkeep
-/public/uploads/systems/**
-!/public/uploads/systems/.gitkeep
-/public/uploads/trust/**
-!/public/uploads/trust/.gitkeep
+/frontend/public/uploads/hero/**
+!/frontend/public/uploads/hero/.gitkeep
+/frontend/public/uploads/systems/**
+!/frontend/public/uploads/systems/.gitkeep
+/frontend/public/uploads/trust/**
+!/frontend/public/uploads/trust/.gitkeep
+
+# Orphan root public/uploads if created by mistake (app serves frontend/public)
+/public/uploads/
 
 # testimonial queue when DB insert fails (fallback)
 .data/testimonial-submissions-pending.json
@@ -50,4 +54,4 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+/frontend/next-env.d.ts
