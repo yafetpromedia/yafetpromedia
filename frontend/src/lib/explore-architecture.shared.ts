@@ -225,20 +225,31 @@ export function coalesceExploreIconKey(value: unknown): string {
   return "LayoutGrid";
 }
 
+/** Variable-length lists; defaults fill missing slots on save. */
+const FLOW_ROW_MIN = 1;
+const FLOW_ROW_MAX = 6;
+const STACK_CARD_MIN = 1;
+const STACK_CARD_MAX = 8;
+const SERVICE_STRIP_MIN = 1;
+const SERVICE_STRIP_MAX = 8;
+
 function mergeFlowSteps(
   raw: unknown,
   defaults: ExploreFlowStep[],
-  max: number
+  minLen: number,
+  maxLen: number
 ): ExploreFlowStep[] {
   const arr = Array.isArray(raw) ? (raw as Partial<ExploreFlowStep>[]) : [];
+  const baseLen = arr.length > 0 ? arr.length : defaults.length;
+  const len = Math.min(Math.max(baseLen, minLen), maxLen);
   const out: ExploreFlowStep[] = [];
-  for (let i = 0; i < max; i += 1) {
+  for (let i = 0; i < len; i += 1) {
     const r = arr[i];
-    const d = defaults[i] ?? defaults[0];
+    const d = defaults[i] ?? defaults[defaults.length - 1] ?? defaults[0];
     out.push({
-      label: String(r?.label ?? d.label).slice(0, 100),
-      detail: String(r?.detail ?? d.detail).slice(0, 180),
-      icon: coalesceExploreIconKey(r?.icon),
+      label: String(r?.label ?? d?.label ?? "").slice(0, 100),
+      detail: String(r?.detail ?? d?.detail ?? "").slice(0, 180),
+      icon: coalesceExploreIconKey(r?.icon ?? d?.icon),
     });
   }
   return out;
@@ -246,15 +257,17 @@ function mergeFlowSteps(
 
 function mergeStackCards(raw: unknown, defaults: ExploreStackCard[]): ExploreStackCard[] {
   const arr = Array.isArray(raw) ? (raw as Partial<ExploreStackCard>[]) : [];
+  const baseLen = arr.length > 0 ? arr.length : defaults.length;
+  const len = Math.min(Math.max(baseLen, STACK_CARD_MIN), STACK_CARD_MAX);
   const out: ExploreStackCard[] = [];
-  for (let i = 0; i < 4; i += 1) {
+  for (let i = 0; i < len; i += 1) {
     const r = arr[i];
-    const d = defaults[i] ?? defaults[0];
+    const d = defaults[i] ?? defaults[defaults.length - 1] ?? defaults[0];
     out.push({
-      name: String(r?.name ?? d.name).slice(0, 80),
-      value: String(r?.value ?? d.value).slice(0, 120),
-      note: String(r?.note ?? d.note).slice(0, 200),
-      icon: coalesceExploreIconKey(r?.icon),
+      name: String(r?.name ?? d?.name ?? "").slice(0, 80),
+      value: String(r?.value ?? d?.value ?? "").slice(0, 120),
+      note: String(r?.note ?? d?.note ?? "").slice(0, 200),
+      icon: coalesceExploreIconKey(r?.icon ?? d?.icon),
     });
   }
   return out;
@@ -274,8 +287,8 @@ function mergeTrack(
     id,
     tabLabel: String(t.tabLabel ?? def.tabLabel).slice(0, 40),
     stackTitle: String(t.stackTitle ?? def.stackTitle).slice(0, 120),
-    flowRow1: mergeFlowSteps(t.flowRow1, def.flowRow1, 3),
-    flowRow2: mergeFlowSteps(t.flowRow2, def.flowRow2, 2),
+    flowRow1: mergeFlowSteps(t.flowRow1, def.flowRow1, FLOW_ROW_MIN, FLOW_ROW_MAX),
+    flowRow2: mergeFlowSteps(t.flowRow2, def.flowRow2, FLOW_ROW_MIN, FLOW_ROW_MAX),
     flowFooter: String(t.flowFooter ?? def.flowFooter).slice(0, 400),
     terminalLines: termOut,
     stackCards: mergeStackCards(t.stackCards, def.stackCards),
@@ -293,20 +306,17 @@ export function sanitizeExploreArchitecture(input: unknown): ExploreArchitecture
   };
   const tracks: ExploreArchitectureTrack[] = ["web", "video", "brand"].map((id) => byId(id as ExploreTrackId));
 
-  const strip = Array.isArray(raw.serviceStrip) ? raw.serviceStrip : def.serviceStrip;
-  const serviceStrip = (strip.length > 0 ? strip : def.serviceStrip)
-    .slice(0, 4)
-    .map((s, i) => ({
-      label: String(s?.label ?? def.serviceStrip[i]?.label).slice(0, 64),
-      icon: coalesceExploreIconKey(s?.icon ?? def.serviceStrip[i]?.icon),
-    }));
-  while (serviceStrip.length < 4) {
-    const i = serviceStrip.length;
-    serviceStrip.push({
-      label: def.serviceStrip[i]!.label,
-      icon: def.serviceStrip[i]!.icon,
-    });
-  }
+  const stripRaw = Array.isArray(raw.serviceStrip) ? raw.serviceStrip : [];
+  const baseStripLen = stripRaw.length > 0 ? stripRaw.length : def.serviceStrip.length;
+  const stripLen = Math.min(Math.max(baseStripLen, SERVICE_STRIP_MIN), SERVICE_STRIP_MAX);
+  const serviceStrip = Array.from({ length: stripLen }, (_, i) => {
+    const s = stripRaw[i];
+    const d = def.serviceStrip[i % def.serviceStrip.length]!;
+    return {
+      label: String(s?.label ?? d.label).slice(0, 64),
+      icon: coalesceExploreIconKey(s?.icon ?? d.icon),
+    };
+  });
 
   const before = Array.isArray(raw.beforeAfter?.before) ? raw.beforeAfter!.before! : def.beforeAfter.before;
   const after = Array.isArray(raw.beforeAfter?.after) ? raw.beforeAfter!.after! : def.beforeAfter.after;

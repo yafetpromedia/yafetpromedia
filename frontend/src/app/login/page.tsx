@@ -1,17 +1,79 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Lock, Mail } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Loader2, Lock, Mail, Shield } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { defaultSiteContent } from "@/lib/site-content.shared";
 
 export default function LoginPage() {
+  const { content } = useSiteContent();
+  const logoSrc = content.siteLogoSrc || defaultSiteContent.siteLogoSrc;
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const [recoveryConfigured, setRecoveryConfigured] = useState<boolean | null>(null);
+  const [helpText, setHelpText] = useState("");
+
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [recoverySecret, setRecoverySecret] = useState("");
+  const [resetNew, setResetNew] = useState("");
+  const [resetConfirm, setResetConfirm] = useState("");
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetError, setResetError] = useState("");
+  const [resetDone, setResetDone] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showResetNewPassword, setShowResetNewPassword] = useState(false);
+  const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/password-reset");
+        const data = (await res.json()) as { recoveryConfigured?: boolean; helpText?: string };
+        if (cancelled) return;
+        setRecoveryConfigured(Boolean(data.recoveryConfigured));
+        setHelpText(typeof data.helpText === "string" ? data.helpText : "");
+      } catch {
+        if (!cancelled) {
+          setRecoveryConfigured(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleResetDialogChange = (open: boolean) => {
+    setResetOpen(open);
+    if (!open) {
+      setResetError("");
+      setResetBusy(false);
+      setRecoverySecret("");
+      setResetNew("");
+      setResetConfirm("");
+      setResetDone(false);
+    } else {
+      setResetEmail(email.trim());
+    }
+  };
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
@@ -35,92 +97,401 @@ export default function LoginPage() {
     setIsLoading(false);
   };
 
-  return (
-    <main
-      className={cn(
-        "min-h-dvh w-full",
-        "bg-gradient-to-b from-background via-background to-muted/20",
-        "px-4 py-10 sm:px-6 sm:py-14 md:px-8 md:py-20",
-        "pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]"
-      )}
-    >
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 items-stretch lg:grid-cols-2 lg:gap-8">
-        <section
-          className={cn(
-            "order-2 flex flex-col justify-between rounded-3xl border border-border/80 bg-card/60 p-8 shadow-sm backdrop-blur-sm sm:p-10",
-            "lg:order-1"
-          )}
-        >
-          <div>
-            <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary">Secure portal</p>
-            <h1 className="mt-4 text-3xl font-display font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
-              Welcome back to your admin workspace.
-            </h1>
-            <p className="mt-4 max-w-md text-foreground/65 leading-relaxed">
-              Manage landing page content, review leads, and keep your brand experience up to date.
-            </p>
-          </div>
-          <p className="mt-8 text-sm text-foreground/45">Use your configured admin credentials.</p>
-        </section>
+  const submitPasswordReset = async (event: FormEvent) => {
+    event.preventDefault();
+    setResetError("");
+    if (resetNew !== resetConfirm) {
+      setResetError("New password fields do not match.");
+      return;
+    }
+    if (resetNew.length < 8) {
+      setResetError("New password must be at least 8 characters.");
+      return;
+    }
+    setResetBusy(true);
+    const response = await fetch("/api/auth/password-reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: resetEmail,
+        recoverySecret,
+        newPassword: resetNew,
+      }),
+    });
+    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+    setResetBusy(false);
+    if (response.ok) {
+      setResetDone(true);
+      setRecoverySecret("");
+      setResetNew("");
+      setResetConfirm("");
+      return;
+    }
+    setResetError(payload?.error ?? "Could not reset password.");
+  };
 
-        <section
+  const inputWrap =
+    "group relative flex items-center gap-3 rounded-2xl border border-border/80 bg-background/60 px-4 transition-[border-color,box-shadow] focus-within:border-primary/55 focus-within:shadow-[0_0_0_3px_rgba(255,106,0,0.12)] dark:bg-white/[0.03] dark:focus-within:shadow-[0_0_0_3px_rgba(255,106,0,0.18)]";
+
+  const helpParagraphs =
+    helpText.trim().length > 0 ? (
+      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 text-left text-[13px] leading-relaxed text-foreground/65 dark:bg-white/[0.02]">
+        {helpText.trim()}
+      </div>
+    ) : null;
+
+  return (
+    <>
+      <Dialog open={resetOpen} onOpenChange={handleResetDialogChange}>
+        <DialogContent
+          showCloseButton
+          overlayClassName="bg-foreground/25 backdrop-blur-[8px]"
           className={cn(
-            "order-1 rounded-3xl border border-border/80 bg-card p-6 shadow-sm sm:p-8 md:p-10",
-            "lg:order-2"
+            "max-h-[min(90dvh,720px)] gap-0 overflow-y-auto rounded-2xl border border-border/60 p-0 sm:max-w-md",
+            "bg-card shadow-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
           )}
         >
-          <h2 className="text-lg font-semibold sm:text-xl">Sign in</h2>
-          <p className="mt-1 text-sm text-foreground/55">Access the dashboard for this site only.</p>
-          <form onSubmit={handleLogin} className="mt-6 space-y-4 sm:mt-8 sm:space-y-5">
-            <div>
-              <label className="mb-1.5 block text-sm text-foreground/70">Email</label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-foreground/40" />
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="h-12 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-[16px] outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-sm"
-                />
-              </div>
+          <DialogHeader className="border-b border-border/50 px-6 pb-4 pt-6 text-left">
+            <div className="mb-3 inline-flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <KeyRound className="size-5" aria-hidden />
             </div>
-            <div>
-              <label className="mb-1.5 block text-sm text-foreground/70">Password</label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-foreground/40" />
-                <input
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="h-12 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-[16px] outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-sm"
-                />
+            <DialogTitle className="font-display text-lg font-bold tracking-tight">Reset admin password</DialogTitle>
+            <DialogDescription className="text-sm leading-relaxed text-foreground/60">
+              {recoveryConfigured === null
+                ? "Loading options…"
+                : recoveryConfigured
+                  ? "Enter your admin email, the recovery secret from hosting env, and your new password."
+                  : "Self-service reset is not enabled on this deployment. Use the notes below or ask another admin."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 pb-6">
+            {resetDone ? (
+              <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] px-4 py-4 text-sm text-emerald-900 dark:text-emerald-300">
+                <div className="flex gap-3">
+                  <CheckCircle2 className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
+                  <p>
+                    Password updated. You can close this dialog and sign in with your new password.
+                  </p>
+                </div>
+                <Button type="button" className="mt-4 w-full rounded-xl" onClick={() => handleResetDialogChange(false)}>
+                  Close
+                </Button>
               </div>
-            </div>
-            {error && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2 text-sm text-red-600 dark:text-red-400">
-                {error}
+            ) : recoveryConfigured === null ? (
+              <div className="flex items-center justify-center gap-2 py-10 text-sm text-foreground/55">
+                <Loader2 className="size-5 animate-spin" aria-hidden />
+                Loading…
+              </div>
+            ) : recoveryConfigured ? (
+              <form onSubmit={submitPasswordReset} className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <label htmlFor="reset-email" className="text-[13px] font-medium text-foreground/75">
+                    Admin email
+                  </label>
+                  <div className={inputWrap}>
+                    <Mail className="size-[18px] shrink-0 text-foreground/35" aria-hidden />
+                    <input
+                      id="reset-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="h-12 min-w-0 flex-1 bg-transparent text-[16px] outline-none sm:text-[15px]"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="reset-secret" className="text-[13px] font-medium text-foreground/75">
+                    Recovery secret
+                  </label>
+                  <div className={inputWrap}>
+                    <KeyRound className="size-[18px] shrink-0 text-foreground/35" aria-hidden />
+                    <input
+                      id="reset-secret"
+                      type="password"
+                      required
+                      autoComplete="off"
+                      value={recoverySecret}
+                      onChange={(e) => setRecoverySecret(e.target.value)}
+                      placeholder="From ADMIN_PASSWORD_RECOVERY_SECRET"
+                      className="h-12 min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-foreground/28 sm:text-[15px]"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="reset-new" className="text-[13px] font-medium text-foreground/75">
+                    New password
+                  </label>
+                  <div className={inputWrap}>
+                    <Lock className="size-[18px] shrink-0 text-foreground/35" aria-hidden />
+                    <input
+                      id="reset-new"
+                      type={showResetNewPassword ? "text" : "password"}
+                      required
+                      autoComplete="new-password"
+                      value={resetNew}
+                      onChange={(e) => setResetNew(e.target.value)}
+                      className="h-12 min-w-0 flex-1 bg-transparent text-[16px] outline-none sm:text-[15px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowResetNewPassword((prev) => !prev)}
+                      className="rounded-md p-1.5 text-foreground/45 transition hover:text-foreground/70"
+                      aria-label={showResetNewPassword ? "Hide new password" : "Show new password"}
+                    >
+                      {showResetNewPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="reset-confirm" className="text-[13px] font-medium text-foreground/75">
+                    Confirm new password
+                  </label>
+                  <div className={inputWrap}>
+                    <Lock className="size-[18px] shrink-0 text-foreground/35" aria-hidden />
+                    <input
+                      id="reset-confirm"
+                      type={showResetConfirmPassword ? "text" : "password"}
+                      required
+                      autoComplete="new-password"
+                      value={resetConfirm}
+                      onChange={(e) => setResetConfirm(e.target.value)}
+                      className="h-12 min-w-0 flex-1 bg-transparent text-[16px] outline-none sm:text-[15px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowResetConfirmPassword((prev) => !prev)}
+                      className="rounded-md p-1.5 text-foreground/45 transition hover:text-foreground/70"
+                      aria-label={showResetConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                    >
+                      {showResetConfirmPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+                    </button>
+                  </div>
+                </div>
+
+                {resetError ? (
+                  <p
+                    role="alert"
+                    className="rounded-xl border border-red-500/35 bg-red-500/[0.07] px-3 py-2 text-[13px] text-red-700 dark:text-red-400"
+                  >
+                    {resetError}
+                  </p>
+                ) : null}
+
+                <Button
+                  type="submit"
+                  disabled={resetBusy}
+                  className="h-12 w-full rounded-2xl font-semibold shadow-lg shadow-primary/20"
+                >
+                  {resetBusy ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                      Updating…
+                    </span>
+                  ) : (
+                    "Save new password"
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <p className="py-2 text-sm leading-relaxed text-foreground/65">
+                Ask your team to add{" "}
+                <span className="font-mono text-[11px] text-foreground/75">ADMIN_PASSWORD_RECOVERY_SECRET</span> to
+                hosting secrets, or sign in with credentials from your deployment environment.
               </p>
             )}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60"
-            >
-              {isLoading ? "Logging in…" : "Log in"}
-            </button>
-          </form>
-          <Link
-            href="/"
-            className="mt-6 inline-block text-sm text-foreground/60 transition hover:text-foreground"
-          >
-            Back to website
-          </Link>
-        </section>
-      </div>
-    </main>
+
+            {!resetDone && helpParagraphs}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <main className="relative min-h-dvh overflow-hidden bg-background text-foreground antialiased">
+        {/* Atmosphere */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/[0.35]" />
+          <div className="absolute -left-[18%] top-[-12%] h-[min(52vmin,480px)] w-[min(52vmin,480px)] rounded-full bg-primary/[0.09] blur-[110px]" />
+          <div className="absolute -right-[12%] bottom-[-8%] h-[min(48vmin,420px)] w-[min(48vmin,420px)] rounded-full bg-violet-500/[0.07] blur-[100px]" />
+          <div className="absolute left-1/2 top-1/3 h-px w-[120%] -translate-x-1/2 rotate-[12deg] bg-gradient-to-r from-transparent via-primary/15 to-transparent opacity-60" />
+        </div>
+
+        <div
+          className={cn(
+            "relative z-10 mx-auto flex min-h-dvh max-w-6xl flex-col justify-center",
+            "px-4 py-10 sm:px-6 lg:px-12",
+            "pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]"
+          )}
+        >
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_minmax(0,420px)] lg:gap-16 xl:gap-24">
+            {/* Copy column */}
+            <section className="hidden lg:block">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                <Shield className="size-3.5 opacity-90" aria-hidden />
+                Secure portal
+              </div>
+              <h1 className="mt-8 font-display text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.06] tracking-tight">
+                Welcome back to your workspace.
+              </h1>
+              <p className="mt-5 max-w-lg text-lg leading-relaxed text-foreground/55">
+                Manage landing content, review leads, and keep your brand experience aligned — all in one dashboard.
+              </p>
+              <ul className="mt-10 flex flex-wrap gap-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/38">
+                <li className="rounded-full border border-border/70 bg-background/40 px-3 py-1.5 backdrop-blur-sm">
+                  Session cookie
+                </li>
+                <li className="rounded-full border border-border/70 bg-background/40 px-3 py-1.5 backdrop-blur-sm">
+                  HTTPS recommended
+                </li>
+                <li className="rounded-full border border-border/70 bg-background/40 px-3 py-1.5 backdrop-blur-sm">
+                  Admin only
+                </li>
+              </ul>
+            </section>
+
+            {/* Form card */}
+            <section className="mx-auto w-full max-w-[420px] lg:mx-0 lg:justify-self-end">
+              <div
+                className={cn(
+                  "rounded-[1.75rem] border border-white/[0.07] bg-card/75 p-8 shadow-[0_28px_90px_-36px_rgba(0,0,0,0.55)] backdrop-blur-2xl",
+                  "dark:border-white/[0.06] dark:bg-card/[0.55] dark:shadow-[0_28px_90px_-36px_rgba(0,0,0,0.75)]",
+                  "ring-1 ring-black/[0.04] dark:ring-white/[0.05]"
+                )}
+              >
+                <div className="mb-8 flex flex-col gap-5">
+                  <div className="flex items-center gap-3.5">
+                    <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-background/90 to-muted/30 p-1.5 shadow-inner ring-1 ring-white/[0.04]">
+                      <Image
+                        src={logoSrc}
+                        alt="Yafetpromedia"
+                        width={36}
+                        height={36}
+                        className="object-contain"
+                        priority
+                        unoptimized={/^https?:\/\//i.test(logoSrc)}
+                      />
+                    </div>
+                    <div>
+                      <p className="font-display text-lg font-semibold tracking-tight">Yafetpromedia</p>
+                      <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-foreground/45">Dashboard</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[1.65rem]">Sign in</h2>
+                    <p className="mt-1.5 text-sm text-foreground/50">
+                      Use your admin email and password for this site.
+                    </p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleLogin} className="space-y-5">
+                  <div className="space-y-2">
+                    <label htmlFor="login-email" className="text-[13px] font-medium text-foreground/75">
+                      Email
+                    </label>
+                    <div className={inputWrap}>
+                      <Mail className="size-[18px] shrink-0 text-foreground/35" aria-hidden />
+                      <input
+                        id="login-email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        placeholder="you@company.com"
+                        className="h-12 min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-foreground/28 sm:text-[15px]"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="login-password" className="text-[13px] font-medium text-foreground/75">
+                      Password
+                    </label>
+                    <div className={inputWrap}>
+                      <Lock className="size-[18px] shrink-0 text-foreground/35" aria-hidden />
+                      <input
+                        id="login-password"
+                        type={showLoginPassword ? "text" : "password"}
+                        required
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder="••••••••"
+                        className="h-12 min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-foreground/28 sm:text-[15px]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword((prev) => !prev)}
+                        className="rounded-md p-1.5 text-foreground/45 transition hover:text-foreground/70"
+                        aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                      >
+                        {showLoginPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {error ? (
+                    <p
+                      role="alert"
+                      className="rounded-xl border border-red-500/35 bg-red-500/[0.07] px-3.5 py-2.5 text-[13px] leading-snug text-red-700 dark:text-red-400"
+                    >
+                      {error}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={cn(
+                      "relative flex h-12 w-full items-center justify-center gap-2 rounded-2xl font-semibold transition",
+                      "bg-primary text-primary-foreground shadow-lg shadow-primary/25",
+                      "hover:bg-primary/92 active:scale-[0.99]",
+                      "disabled:pointer-events-none disabled:opacity-55"
+                    )}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="size-[18px] animate-spin" aria-hidden />
+                        Signing in…
+                      </>
+                    ) : (
+                      "Continue"
+                    )}
+                  </button>
+                </form>
+
+                <div className="mt-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <Link
+                    href="/"
+                    className={cn(
+                      "inline-flex items-center gap-2 text-sm font-medium text-foreground/50 transition",
+                      "hover:text-foreground"
+                    )}
+                  >
+                    <ArrowLeft className="size-4 opacity-70" aria-hidden />
+                    Back to website
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setResetOpen(true)}
+                    className="text-sm font-semibold text-primary transition hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-6 text-center text-[12px] leading-relaxed text-foreground/38 lg:text-left">
+                Edit visitor-facing reset notes under <span className="text-foreground/55">Admin → Security</span>.
+                Self-service reset needs{" "}
+                <span className="font-mono text-[11px] text-foreground/50">ADMIN_PASSWORD_RECOVERY_SECRET</span> in
+                hosting env.
+              </p>
+            </section>
+          </div>
+        </div>
+      </main>
+    </>
   );
 }

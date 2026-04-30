@@ -9,7 +9,10 @@ export default async function AdminAIPage() {
       initialLeads={data.leads}
       initialTestimonialSubmissions={data.testimonialSubmissions}
       aiStatus={data.aiStatus}
+      analytics={data.analytics}
       initialSection={data.initialSection}
+      viewerRole={data.viewerRole}
+      viewerPermissions={data.viewerPermissions}
     />
   );
 }

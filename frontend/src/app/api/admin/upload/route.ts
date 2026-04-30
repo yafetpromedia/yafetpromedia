@@ -1,24 +1,16 @@
-import { cookies } from "next/headers";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getPublicDir } from "@backend/repo-root";
-import { getSessionCookieName, verifySessionToken } from "@backend/auth";
+import { jsonForbiddenUnlessPermission } from "@/lib/admin-access";
 
 export const runtime = "nodejs";
 
 const ALLOWED = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/svg+xml", "image/gif"]);
 const MAX_BYTES = 4 * 1024 * 1024;
 
-async function isAuthenticated() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get(getSessionCookieName())?.value;
-  return verifySessionToken(session);
-}
-
 export async function POST(request: Request) {
-  if (!(await isAuthenticated())) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = await jsonForbiddenUnlessPermission("upload.add");
+  if (denied) return denied;
 
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");

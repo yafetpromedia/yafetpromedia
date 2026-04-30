@@ -5,10 +5,14 @@ import {
   updateAdminPassword,
   verifyAdminCredentials,
 } from "@backend/auth";
+import { jsonForbiddenUnlessPermission } from "@/lib/admin-access";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const denied = await jsonForbiddenUnlessPermission("security.edit");
+  if (denied) return denied;
+
   const cookieStore = await cookies();
   const session = cookieStore.get(getSessionCookieName())?.value;
   const email = getEmailFromSessionToken(session);

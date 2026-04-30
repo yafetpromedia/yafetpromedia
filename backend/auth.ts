@@ -38,6 +38,102 @@ export function getEmailFromSessionToken(token?: string | null) {
   return email || null;
 }
 
+export function hashAdminPassword(plain: string): string {
+  return hashText(plain);
+}
+
+export type AdminRole = "owner" | "messages";
+export type AdminPermission = string;
+
+const DEFAULT_MESSAGES_PERMISSIONS: AdminPermission[] = [
+  "leads.view",
+  "leads.edit",
+  "security.view",
+  "security.edit",
+];
+
+const OWNER_PERMISSIONS: AdminPermission[] = ["*"];
+
+function normalizeRole(value: unknown): AdminRole {
+  return value === "messages" ? "messages" : "owner";
+}
+
+function normalizePermissionList(value: unknown): AdminPermission[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter((item) => item.length > 0);
+  }
+  if (typeof value === "string" && value.trim()) {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => (typeof item === "string" ? item.trim() : ""))
+          .filter((item) => item.length > 0);
+      }
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function defaultsForRole(role: AdminRole): AdminPermission[] {
+  return role === "owner" ? OWNER_PERMISSIONS : DEFAULT_MESSAGES_PERMISSIONS;
+}
+
+export async function getAdminAccessForEmail(
+  email: string | null | undefined
+): Promise<{ role: AdminRole; permissions: AdminPermission[]; isPrimary: boolean }> {
+  const normalized = String(email ?? "").trim().toLowerCase();
+  const envEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  const isPrimary = normalized !== "" && normalized === envEmail;
+  if (!normalized) {
+    return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: false };
+  }
+  try {
+    const rows = await query<{ role: string; permissions: unknown }>(
+      `SELECT role, permissions FROM admin_users WHERE LOWER(TRIM(email)) = $1 LIMIT 1`,
+      [normalized]
+    );
+    const row = rows[0];
+    if (row) {
+      const role = normalizeRole(row.role);
+      const fromDb = normalizePermissionList(row.permissions);
+      const permissions =
+        role === "owner" ? OWNER_PERMISSIONS : fromDb.length > 0 ? fromDb : defaultsForRole(role);
+      if (isPrimary) {
+        return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: true };
+      }
+      return { role, permissions, isPrimary: false };
+    }
+  } catch {
+    // DB unavailable — fallback below.
+  }
+  if (isPrimary) {
+    return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: true };
+  }
+  return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: false };
+}
+
+/** Resolve dashboard permissions for an admin email. Env bootstrap account is always owner. */
+export async function getAdminRoleForEmail(email: string | null | undefined): Promise<AdminRole> {
+  const access = await getAdminAccessForEmail(email);
+  return access.role;
+}
+
+export async function getAdminPermissionsForEmail(email: string | null | undefined): Promise<AdminPermission[]> {
+  const access = await getAdminAccessForEmail(email);
+  return access.permissions;
+}
+
+export async function getAdminRoleFromSession(sessionToken?: string | null): Promise<AdminRole | null> {
+  if (!verifySessionToken(sessionToken)) return null;
+  const email = getEmailFromSessionToken(sessionToken);
+  return getAdminRoleForEmail(email);
+}
+
 function hashText(text: string) {
   return createHash("sha256").update(text).digest("hex");
 }
@@ -65,12 +161,90 @@ export async function verifyAdminCredentials(email: string, password: string) {
   }
 }
 
+/** Timing-safe comparison for ADMIN_PASSWORD_RECOVERY_SECRET vs submitted recovery passphrase. */
+function verifyRecoverySecret(submitted: string): boolean {
+  const configured = process.env.ADMIN_PASSWORD_RECOVERY_SECRET?.trim();
+  if (!configured || !submitted.trim()) return false;
+  const aHex = hashText(submitted.trim());
+  const bHex = hashText(configured);
+  try {
+    const a = Buffer.from(aHex, "hex");
+    const b = Buffer.from(bHex, "hex");
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+
+async function setAdminPasswordForEmail(emailRaw: string, newPasswordPlain: string): Promise<void> {
+  const hash = hashText(newPasswordPlain);
+  const normalized = emailRaw.trim().toLowerCase();
+  const updated = await query<{ id: number }>(
+    `UPDATE admin_users SET password_hash = $1 WHERE LOWER(TRIM(email)) = $2 RETURNING id`,
+    [hash, normalized]
+  );
+  if (updated.length > 0) return;
+  const envEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  if (normalized !== envEmail) {
+    throw new Error("Unknown admin email.");
+  }
+  const canonical = process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com";
+  await query(
+    `INSERT INTO admin_users (email, password_hash) VALUES ($1, $2)
+     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash`,
+    [canonical, hash]
+  );
+}
+
+async function isAuthorizedAdminEmail(emailRaw: string): Promise<boolean> {
+  const normalized = emailRaw.trim().toLowerCase();
+  const envEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  if (normalized === envEmail) return true;
+  try {
+    const rows = await query<{ id: number }>(
+      `SELECT id FROM admin_users WHERE LOWER(TRIM(email)) = $1 LIMIT 1`,
+      [normalized]
+    );
+    return rows.length > 0;
+  } catch {
+    return normalized === envEmail;
+  }
+}
+
+/**
+ * Reset password using ADMIN_PASSWORD_RECOVERY_SECRET — intended when logged-out admins lose access.
+ * Keeps timing-stable responses via hashed comparison on recovery inputs.
+ */
+export async function resetAdminPasswordWithRecovery(
+  emailRaw: string,
+  recoverySecret: string,
+  newPassword: string
+): Promise<{ ok: true } | { error: string }> {
+  if (!process.env.ADMIN_PASSWORD_RECOVERY_SECRET?.trim()) {
+    return { error: "Password recovery is not configured." };
+  }
+  if (!verifyRecoverySecret(recoverySecret)) {
+    return { error: "Invalid recovery secret." };
+  }
+  if (newPassword.length < 8) {
+    return { error: "New password must be at least 8 characters." };
+  }
+  const email = emailRaw.trim();
+  if (!(await isAuthorizedAdminEmail(email))) {
+    return { error: "Unknown admin email." };
+  }
+  try {
+    await setAdminPasswordForEmail(email, newPassword);
+  } catch {
+    return { error: "Could not update password. Check database connection." };
+  }
+  return { ok: true };
+}
+
 export async function updateAdminPassword(email: string, newPassword: string) {
   try {
-    await query("UPDATE admin_users SET password_hash = $1 WHERE email = $2", [
-      hashText(newPassword),
-      email,
-    ]);
+    await setAdminPasswordForEmail(email, newPassword);
   } catch {
     // DB unavailable; password can still be controlled via env variables.
   }

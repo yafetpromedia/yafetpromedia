@@ -1,3 +1,4 @@
+import { appendLeadToFile } from "@backend/leads-file";
 import { query } from "@db";
 import nodemailer from "nodemailer";
 
@@ -75,16 +76,28 @@ export async function POST(request: Request) {
       );
     }
 
-    await query(
-      "INSERT INTO leads (name, email, company, phone, message) VALUES ($1, $2, $3, $4, $5)",
-      [name, email, company, phone, message]
-    );
+    const dbUrl = process.env.DATABASE_URL?.trim();
+    if (!dbUrl) {
+      await appendLeadToFile({ name, email, company, phone, message });
+    } else {
+      try {
+        await query(
+          "INSERT INTO leads (name, email, company, phone, message) VALUES ($1, $2, $3, $4, $5)",
+          [name, email, company, phone, message]
+        );
+      } catch (dbErr) {
+        console.error("[leads] database insert failed, using file fallback:", dbErr);
+        await appendLeadToFile({ name, email, company, phone, message });
+      }
+    }
+
     sendLeadNotificationEmail({ name, email, company, phone, message }).catch(() => {
       // Lead is already saved in DB; notification failure should not fail the form submit.
     });
 
     return Response.json({ ok: true });
-  } catch {
+  } catch (err) {
+    console.error("[leads] submit failed:", err);
     return Response.json({ error: "Could not save lead." }, { status: 500 });
   }
 }

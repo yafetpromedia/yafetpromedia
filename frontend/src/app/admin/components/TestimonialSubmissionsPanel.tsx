@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Star, Trash2, X } from "lucide-react";
+import AdminListFilter from "@/app/admin/components/AdminListFilter";
 import type { TestimonialSubmission } from "@/app/admin/types";
+import { matchesAdminFilter } from "@/lib/admin-filter";
 import { cn } from "@/lib/utils";
 
 function StarRow({ rating }: { rating: number }) {
@@ -23,6 +25,22 @@ function StarRow({ rating }: { rating: number }) {
 export default function TestimonialSubmissionsPanel({ submissions }: { submissions: TestimonialSubmission[] }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [submissionFilter, setSubmissionFilter] = useState("");
+  const filteredSubmissions = useMemo(() => {
+    if (!submissionFilter.trim()) return submissions;
+    return submissions.filter((row) =>
+      matchesAdminFilter(
+        submissionFilter,
+        row.quote,
+        row.author,
+        row.role,
+        row.email,
+        row.status,
+        String(row.id),
+        String(row.rating)
+      )
+    );
+  }, [submissions, submissionFilter]);
 
   const patch = async (id: number, action: "approve" | "reject") => {
     setBusyId(id);
@@ -37,7 +55,9 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
 
   const remove = async (id: number) => {
     if (
-      !confirm("Permanently delete this record? Use Reject to hide from the site without deleting.")
+      !confirm(
+        "Permanently delete this testimonial? Unpublish keeps it in this list until you delete it."
+      )
     ) {
       return;
     }
@@ -49,18 +69,38 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
 
   if (submissions.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-background p-6 text-sm text-foreground/60">
-        No pending or live testimonials. New submissions appear here after visitors use the homepage form.
+      <div className="rounded-2xl border border-dashed border-border/80 bg-muted/15 px-5 py-8 text-center text-sm text-foreground/55 dark:bg-white/[0.03]">
+        <p className="mx-auto max-w-md leading-relaxed">
+          No pending or live testimonials yet. New submissions appear here after visitors use the homepage form.
+        </p>
       </div>
     );
   }
 
   return (
-    <ul className="space-y-3">
-      {submissions.map((row) => (
+    <>
+      <AdminListFilter
+        id="admin-testimonial-submissions-filter"
+        value={submissionFilter}
+        onChange={setSubmissionFilter}
+        placeholder="Filter by quote, author, email, status…"
+        resultHint={
+          submissionFilter.trim()
+            ? `${filteredSubmissions.length} of ${submissions.length} shown`
+            : undefined
+        }
+        className="mb-4"
+      />
+      <ul className="space-y-4">
+        {filteredSubmissions.length === 0 ? (
+          <li className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            No submissions match this filter.
+          </li>
+        ) : null}
+        {filteredSubmissions.map((row) => (
         <li
           key={row.id}
-          className="rounded-xl border border-border bg-card p-4 text-sm shadow-sm"
+          className="rounded-3xl border border-white/[0.07] bg-gradient-to-b from-card/98 to-card/78 p-5 text-sm shadow-[0_16px_48px_-28px_rgba(0,0,0,0.45)] ring-1 ring-black/[0.04] dark:from-card/[0.94] dark:to-card/60"
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
@@ -75,10 +115,16 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider",
                     row.status === "pending" && "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-                    row.status === "approved" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                    row.status === "approved" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+                    row.status === "rejected" &&
+                      "bg-slate-500/15 text-slate-800 dark:text-slate-300"
                   )}
                 >
-                  {row.status === "pending" ? "Pending" : "Live on site"}
+                  {row.status === "pending"
+                    ? "Pending"
+                    : row.status === "approved"
+                      ? "Live on site"
+                      : "Unpublished"}
                 </span>
               </div>
               <StarRow rating={row.rating} />
@@ -90,7 +136,7 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
                     type="button"
                     disabled={busyId === row.id}
                     onClick={() => patch(row.id, "approve")}
-                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-800 transition hover:bg-emerald-500/15 disabled:opacity-50 dark:text-emerald-400"
+                    className="inline-flex items-center gap-1 rounded-xl border border-emerald-500/35 bg-emerald-500/12 px-3 py-1.5 text-xs font-semibold text-emerald-900 transition hover:bg-emerald-500/18 disabled:opacity-50 dark:text-emerald-300"
                   >
                     <Check className="size-3.5" />
                     Approve
@@ -99,27 +145,37 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
                     type="button"
                     disabled={busyId === row.id}
                     onClick={() => patch(row.id, "reject")}
-                    className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-foreground/75 transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-600 disabled:opacity-50 dark:hover:text-red-400"
+                    className="inline-flex items-center gap-1 rounded-xl border border-border/90 bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/80 transition hover:border-red-500/45 hover:bg-red-500/10 hover:text-red-700 disabled:opacity-50 dark:hover:text-red-400"
                   >
                     <X className="size-3.5" />
                     Reject
                   </button>
                 </>
-              ) : (
+              ) : row.status === "approved" ? (
                 <button
                   type="button"
                   disabled={busyId === row.id}
                   onClick={() => patch(row.id, "reject")}
-                  className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-foreground/75 transition hover:border-amber-500/40 hover:bg-amber-500/10 disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-xl border border-border/90 bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/75 transition hover:border-amber-500/45 hover:bg-amber-500/12 disabled:opacity-50"
                 >
                   Unpublish
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={busyId === row.id}
+                  onClick={() => patch(row.id, "approve")}
+                  className="inline-flex items-center gap-1 rounded-xl border border-emerald-500/35 bg-emerald-500/12 px-3 py-1.5 text-xs font-semibold text-emerald-900 transition hover:bg-emerald-500/18 disabled:opacity-50 dark:text-emerald-300"
+                >
+                  <Check className="size-3.5" />
+                  Publish again
                 </button>
               )}
               <button
                 type="button"
                 disabled={busyId === row.id}
                 onClick={() => remove(row.id)}
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-xs font-medium text-foreground/75 transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-600 disabled:opacity-50 dark:hover:text-red-400"
+                className="inline-flex items-center gap-1 rounded-xl border border-border/90 bg-background/80 px-3 py-1.5 text-xs font-semibold text-foreground/75 transition hover:border-red-500/45 hover:bg-red-500/10 hover:text-red-700 disabled:opacity-50 dark:hover:text-red-400"
               >
                 <Trash2 className="size-3.5" />
                 Delete
@@ -137,5 +193,6 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
         </li>
       ))}
     </ul>
+    </>
   );
 }

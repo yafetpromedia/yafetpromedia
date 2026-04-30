@@ -14,9 +14,26 @@ import {
   Phone,
 } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { defaultSiteContent } from "@/lib/site-content.shared";
+
+function digitsToDisplayPhone(digits: string): string {
+  const d = digits.replace(/\D/g, "");
+  if (d.length < 9) return "";
+  if (d.startsWith("251") && d.length >= 12) {
+    return `+251 ${d.slice(3, 6)} ${d.slice(6, 9)} ${d.slice(9)}`.trim();
+  }
+  return d.startsWith("+") ? d : `+${d}`;
+}
 
 export default function Footer() {
+  const year = new Date().getFullYear();
   const { content } = useSiteContent();
+  const logoSrc = content.siteLogoSrc || defaultSiteContent.siteLogoSrc;
+  const phoneFromWhatsApp = digitsToDisplayPhone(content.whatsappNumber);
+  const phoneDisplay =
+    content.contactPhone.trim() ||
+    phoneFromWhatsApp ||
+    defaultSiteContent.contactPhone.trim();
   const iconMap = {
     whatsapp: MessageCircle,
     email: Mail,
@@ -37,78 +54,66 @@ export default function Footer() {
       };
     });
 
+  const linkCls =
+    "group inline-flex items-center gap-1.5 text-[15px] text-foreground/65 transition-colors hover:text-foreground";
+
+  const hasSocials = socials.length > 0;
+  const trioSpan = hasSocials ? "lg:col-span-3" : "lg:col-span-4";
+
   return (
-    <footer className="bg-background border-t border-border pt-24 pb-10 relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[920px] h-[360px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-7xl w-full mx-auto px-6 relative z-10 text-foreground">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr_1fr] gap-12 lg:gap-16 mb-14">
-          <div>
-            <Link href="/" className="flex items-center gap-3 mb-6 group">
-              <div className="relative size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1 group-hover:border-primary/50 transition-all duration-300">
+    <footer className="relative overflow-hidden border-t border-border/40 bg-gradient-to-b from-muted/[0.45] via-background to-muted/55 pb-12 pt-16 dark:from-muted/[0.22] dark:via-background dark:to-muted/[0.38] md:pb-14 md:pt-20">
+      {/* Ambient — warm primary glow, no cool blue */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-45 dark:opacity-35"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 90% 55% at 50% -12%, rgba(255, 106, 0, 0.09), transparent 58%), radial-gradient(ellipse 55% 42% at 92% 96%, rgba(255, 106, 0, 0.045), transparent 52%), radial-gradient(ellipse 40% 35% at 8% 88%, rgba(249, 115, 22, 0.04), transparent 55%)",
+        }}
+      />
+      {/* Fine neutral dot texture */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:radial-gradient(rgba(148,163,184,0.55)_1px,transparent_1px)] [background-size:22px_22px] dark:opacity-[0.055] dark:[background-image:radial-gradient(rgba(255,255,255,0.12)_1px,transparent_1px)]" />
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-7 lg:px-10">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-10 xl:gap-12">
+          {/* Brand + contact */}
+          <div className={trioSpan}>
+            <Link href="/" className="group mb-7 inline-flex items-center gap-3">
+              <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.08] to-transparent p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ring-1 ring-black/[0.04] transition-all duration-300 group-hover:border-primary/35 dark:ring-white/[0.06]">
                 <Image
-                  src="/images/navbar/hero image.svg"
+                  src={logoSrc}
                   alt="Yafetpromedia Logo"
-                  width={32}
-                  height={32}
-                  className="object-contain w-full h-full"
+                  width={30}
+                  height={30}
+                  className="size-full object-contain"
+                  unoptimized={/^https?:\/\//i.test(logoSrc)}
                 />
               </div>
-              <span className="text-2xl font-bold tracking-tight text-foreground">
+              <span className="text-xl font-semibold tracking-tight text-foreground md:text-[1.35rem]">
                 Yafetpromedia
               </span>
             </Link>
 
-            <p className="text-foreground/60 max-w-md text-base md:text-lg leading-relaxed mb-8 font-light text-balance">
-              Designing and engineering the underlying digital ecosystems that drive 
-              modern business operations and brand authority.
+            <p className="mb-8 max-w-[26rem] text-[15px] leading-relaxed text-foreground/58 md:text-base">
+              Designing and engineering the underlying digital ecosystems that drive modern business operations and brand
+              authority.
             </p>
 
-            <div className="rounded-2xl border border-border/80 bg-gradient-to-b from-card/85 to-card/40 p-4 sm:p-5 max-w-xl">
-              <p className="text-[11px] uppercase tracking-[0.16em] text-foreground/50 mb-3">Follow us</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {socials.map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.url}
-                  target={social.external ? "_blank" : undefined}
-                  rel={social.external ? "noreferrer noopener" : undefined}
-                  className="group rounded-xl border border-border/80 bg-background/70 hover:bg-background hover:border-primary/40 h-10.5 px-3 inline-flex items-center gap-2 transition-all duration-300"
-                  aria-label={social.label}
-                >
-                  <social.icon className="size-4 text-foreground/50 group-hover:text-primary transition-colors" />
-                  <span className="text-xs font-medium text-foreground/70 group-hover:text-foreground transition-colors">
-                    {social.label}
-                  </span>
-                </Link>
-              ))}
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-2 text-sm text-foreground/60">
-              <p className="inline-flex items-center gap-2">
-                <Mail className="size-4 text-primary/80" />
-                <a href={`mailto:${content.contactEmail}`} className="hover:text-foreground transition-colors">
-                  {content.contactEmail}
-                </a>
-              </p>
-              {content.contactPhone.trim() !== "" && (
-                <p className="inline-flex items-center gap-2">
-                  <Phone className="size-4 text-primary/80" />
-                  <a
-                    href={`tel:${content.contactPhone.replace(/\s+/g, "")}`}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    {content.contactPhone}
-                  </a>
-                </p>
-              )}
-            </div>
+            <a
+              href={`mailto:${content.contactEmail}`}
+              className="inline-flex w-fit max-w-full items-center gap-2.5 text-[15px] text-foreground/75 transition-colors hover:text-foreground"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card/50 text-primary shadow-sm backdrop-blur-sm">
+                <Mail className="size-[17px]" strokeWidth={1.75} />
+              </span>
+              <span className="break-all sm:break-normal">{content.contactEmail}</span>
+            </a>
           </div>
 
-          <div>
-            <h4 className="font-mono text-[10px] uppercase tracking-[0.2em] mb-6 text-primary">Solutions</h4>
-            <ul className="space-y-3">
+          {/* Solutions */}
+          <nav className={`${trioSpan} lg:border-l lg:border-border/40 lg:pl-8 xl:pl-10`} aria-label="Solutions">
+            <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Solutions</h2>
+            <ul className="flex flex-col gap-1">
               {[
                 { label: "Digital Infrastructure", href: "#systems" },
                 { label: "Services", href: "#services" },
@@ -117,41 +122,87 @@ export default function Footer() {
                 { label: "Trust", href: "#trust" },
               ].map((item) => (
                 <li key={item.label}>
-                  <Link href={item.href} className="text-foreground/60 hover:text-foreground inline-flex items-center gap-2 group transition-colors font-light">
-                    {item.label}
-                    <ArrowUpRight className="size-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all text-primary" />
+                  <Link href={item.href} className={linkCls}>
+                    <span>{item.label}</span>
+                    <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:-translate-y-0.5 text-primary" />
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+            {phoneDisplay !== "" && (
+              <a
+                href={`tel:${phoneDisplay.replace(/\s+/g, "")}`}
+                className="mt-8 inline-flex w-full max-w-[26rem] items-center gap-2.5 text-[15px] text-foreground/75 transition-colors hover:text-foreground"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card/50 text-primary shadow-sm backdrop-blur-sm">
+                  <Phone className="size-[17px]" strokeWidth={1.75} />
+                </span>
+                {phoneDisplay}
+              </a>
+            )}
+          </nav>
 
-          <div>
-            <h4 className="font-mono text-[10px] uppercase tracking-[0.2em] mb-6 text-primary">Company</h4>
-            <ul className="space-y-3">
+          {/* Company */}
+          <nav className={`${trioSpan} lg:border-l lg:border-border/40 lg:pl-8 xl:pl-10`} aria-label="Company">
+            <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Company</h2>
+            <ul className="flex flex-col gap-1">
               {[
                 { label: "About", href: "#services" },
                 { label: "Process & FAQ", href: "#process-faq" },
-                { label: "Contact", href: "#contact" }
+                { label: "Contact", href: "#contact" },
               ].map((item) => (
                 <li key={item.label}>
-                  <Link href={item.href} className="text-foreground/60 hover:text-foreground inline-flex items-center gap-2 group transition-colors font-light">
-                    {item.label}
-                    <ArrowUpRight className="size-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all text-primary" />
+                  <Link href={item.href} className={linkCls}>
+                    <span>{item.label}</span>
+                    <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:-translate-y-0.5 text-primary" />
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
+
+          {/* Connect — right column */}
+          {socials.length > 0 && (
+            <div className="flex min-w-0 flex-col items-center lg:col-span-3 lg:border-l lg:border-border/40 lg:pl-8 xl:pl-10">
+              <h2 className="mb-5 w-full text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                Connect
+              </h2>
+              <div className="grid w-full grid-cols-2 gap-x-2 gap-y-2 justify-items-center">
+                {socials.map((social) => (
+                  <Link
+                    key={social.label}
+                    href={social.url}
+                    target={social.external ? "_blank" : undefined}
+                    rel={social.external ? "noreferrer noopener" : undefined}
+                    className="inline-flex min-w-0 max-w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border/55 bg-card/[0.35] px-2.5 py-1.5 text-[11px] font-medium text-foreground/75 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-primary/35 hover:bg-card/80 hover:text-foreground hover:shadow-md dark:bg-white/[0.03] sm:gap-2 sm:px-3 sm:text-[12px] md:text-[13px]"
+                    aria-label={social.label}
+                  >
+                    <social.icon className="size-[14px] shrink-0 text-primary/85 sm:size-[15px]" strokeWidth={2} />
+                    <span>{social.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="pt-7 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-foreground/35 text-xs font-mono tracking-wider">
-            © 2026 YAFETPROMEDIA. ALL RIGHTS RESERVED.
+        <div className="mt-14 flex flex-row flex-nowrap items-center justify-between gap-4 border-t border-border/60 pt-8">
+          <p className="min-w-0 flex-1 truncate text-[12px] text-foreground/45 sm:overflow-visible sm:flex-none sm:whitespace-normal sm:text-[13px]">
+            © {year} Yafetpromedia. All rights reserved.
           </p>
-          <div className="flex items-center gap-8">
-            <Link href="#process-faq" className="text-[10px] font-mono text-foreground/40 hover:text-foreground uppercase tracking-widest transition-colors">PROCESS & FAQ</Link>
-            <Link href="#contact" className="text-[10px] font-mono text-foreground/40 hover:text-foreground uppercase tracking-widest transition-colors">CONTACT</Link>
+          <div className="flex shrink-0 flex-row flex-nowrap items-center gap-5 sm:gap-8">
+            <Link
+              href="#process-faq"
+              className="text-[12px] font-medium uppercase tracking-[0.14em] text-foreground/45 transition-colors hover:text-foreground"
+            >
+              Process & FAQ
+            </Link>
+            <Link
+              href="#contact"
+              className="text-[12px] font-medium uppercase tracking-[0.14em] text-foreground/45 transition-colors hover:text-foreground"
+            >
+              Contact
+            </Link>
           </div>
         </div>
       </div>

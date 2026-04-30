@@ -8,6 +8,8 @@ export type Lead = {
   company: string;
   phone: string;
   message: string;
+  /** When true, you marked this thread handled (replied or closed). */
+  handled: boolean;
   created_at: string;
 };
 
@@ -31,6 +33,30 @@ export type AIStatus = {
   openAIModel: string;
 };
 
+export type DashboardAnalytics = {
+  totals: {
+    leads: number;
+    /** Includes DB + file-backed submissions */
+    testimonialsPending: number;
+    testimonialsApproved: number;
+    testimonialsRejected: number;
+    chatTurns: number;
+    adminUsers: number;
+  };
+  /** Last 30 calendar days, ISO date → counts */
+  series: { date: string; leads: number; chats: number }[];
+  recentLeads: {
+    id: number;
+    name: string;
+    email: string;
+    company: string;
+    handled: boolean;
+    created_at: string;
+  }[];
+  recentChats: { id: number; preview: string; created_at: string }[];
+  siteContentUpdatedAt: string | null;
+};
+
 export type AdminSection =
   | "overview"
   | "hero"
@@ -44,9 +70,30 @@ export type AdminSection =
   | "testimonials"
   | "processFaq"
   | "contact"
+  | "team"
   | "leads"
   | "security"
   | "ai";
+
+/** Primary dashboard account vs delegated inbox-only access. */
+export type ViewerRole = "owner" | "messages";
+export type AdminPermission =
+  | "*"
+  | "content.view"
+  | "content.edit"
+  | "leads.view"
+  | "leads.edit"
+  | "leads.delete"
+  | "testimonials.view"
+  | "testimonials.edit"
+  | "testimonials.delete"
+  | "team.view"
+  | "team.add"
+  | "team.delete"
+  | "security.view"
+  | "security.edit"
+  | "ai.view"
+  | "upload.add";
 
 export type AdminNavItem = {
   id: AdminSection;
@@ -60,5 +107,8 @@ export type AdminClientProps = {
   initialLeads: Lead[];
   initialTestimonialSubmissions: TestimonialSubmission[];
   aiStatus: AIStatus;
+  analytics: DashboardAnalytics;
   initialSection: AdminSection;
+  viewerRole: ViewerRole;
+  viewerPermissions: AdminPermission[];
 };

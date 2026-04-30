@@ -7,10 +7,14 @@ import { cn } from "@/lib/utils";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import LanguageToggle from "@/components/i18n/LanguageToggle";
+import GoogleTranslateWidget from "@/components/i18n/GoogleTranslateWidget";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
+import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { defaultSiteContent } from "@/lib/site-content.shared";
 
 export default function Navbar() {
+  const { content } = useSiteContent();
+  const logoSrc = content.siteLogoSrc || defaultSiteContent.siteLogoSrc;
   const { t } = useLanguage();
   const navLinks = useMemo(
     () => [
@@ -112,12 +116,13 @@ export default function Navbar() {
             <Link href="/" className="flex items-center gap-3 group shrink-0">
               <div className="relative size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1 group-hover:border-primary/50 group-hover:bg-primary/15 transition-all duration-300">
                 <Image
-                  src="/images/navbar/hero image.svg"
+                  src={logoSrc}
                   alt="Yafetpromedia Logo"
                   width={32}
                   height={32}
                   className="object-contain w-full h-full"
                   priority
+                  unoptimized={/^https?:\/\//i.test(logoSrc)}
                 />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 hidden sm:block">
@@ -145,7 +150,7 @@ export default function Navbar() {
 
             {/* Desktop Right Side */}
             <div className="hidden lg:flex items-center gap-4 shrink-0">
-              <LanguageToggle />
+              <GoogleTranslateWidget />
               <ThemeToggle />
               <Link
                 href="#contact"
@@ -158,7 +163,7 @@ export default function Navbar() {
 
             {/* Mobile Actions */}
             <div className="flex lg:hidden items-center gap-2">
-              <LanguageToggle className="scale-90 origin-right" />
+              <GoogleTranslateWidget className="scale-90 origin-right" />
               <ThemeToggle className="size-9" />
               <button
                 className="relative z-50 p-2 text-foreground/70 hover:text-foreground"

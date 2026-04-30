@@ -1,34 +1,50 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import ScrollProgress from "@/components/common/ScrollProgress";
-import StickyBookCall from "@/components/common/StickyBookCall";
-import AIChatWidget from "@/components/common/AIChatWidget";
+import FloatingActionCluster from "@/components/common/FloatingActionCluster";
 
-export default function GlobalChrome({ children }: { children: React.ReactNode }) {
+function ChromeTop() {
   const pathname = usePathname();
-  const hidePublicChrome = pathname.startsWith("/admin") || pathname.startsWith("/login");
-
+  const hidePublicChrome =
+    pathname.startsWith("/admin") || pathname.startsWith("/login");
+  if (hidePublicChrome) return null;
   return (
     <>
-      {!hidePublicChrome && (
-        <>
-          <ScrollProgress />
-          <Navbar />
-        </>
-      )}
+      <ScrollProgress />
+      <Navbar />
+    </>
+  );
+}
+
+function ChromeBottom() {
+  const pathname = usePathname();
+  const hidePublicChrome =
+    pathname.startsWith("/admin") || pathname.startsWith("/login");
+  if (hidePublicChrome) return null;
+  return (
+    <>
+      <Footer />
+      <FloatingActionCluster />
+    </>
+  );
+}
+
+export default function GlobalChrome({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <ChromeTop />
+      </Suspense>
 
       {children}
 
-      {!hidePublicChrome && (
-        <>
-          <Footer />
-          <StickyBookCall />
-          <AIChatWidget />
-        </>
-      )}
+      <Suspense fallback={null}>
+        <ChromeBottom />
+      </Suspense>
     </>
   );
 }

@@ -251,11 +251,11 @@
       ]
     },
     "closingLine": "One partner for your full digital service—from first workshop to live systems.",
-    "ctaLabel": "Start a project"
+    "ctaLabel": "Send a Request"
   },
-  "heroHeadline": "We build",
-  "heroHighlight": "systems that scale",
-  "heroTail": "businesses.",
+  "heroHeadline": "We deliver ",
+  "heroHighlight": "full digital solutions",
+  "heroTail": "for your brand,team, and operations.",
   "heroBadge": "Digital Systems Infrastructure",
   "heroCarouselSlides": [
     {
@@ -357,7 +357,7 @@
       "title": "Secure Vault",
       "description": "Role-based secure document and data vault for sensitive information.",
       "label": "SECURITY",
-      "imageSrc": "/uploads/hero/yafet-1777314285269-2qjcb8.png",
+      "imageSrc": "",
       "href": "#contact",
       "linkLabel": "Learn more",
       "featured": false,
@@ -367,7 +367,7 @@
       "title": "Automation Engine",
       "description": "No-code automation flows to reduce manual operations across departments.",
       "label": "AUTOMATION",
-      "imageSrc": "/uploads/hero/yafet-1777314291857-73zehn.png",
+      "imageSrc": "",
       "href": "#contact",
       "linkLabel": "Learn more",
       "featured": false,
@@ -463,6 +463,8 @@
   "processFaqSectionTag": "Launch Framework",
   "processFaqSectionTitle": "A clear process and transparent answers.",
   "processFaqSectionDescription": "From first discovery to post-launch optimization, we move with structure and speed.",
+  "processFaqProcessCardLabel": "Process",
+  "processFaqFaqCardLabel": "FAQ",
   "processSteps": [
     {
       "text": "Discovery call and business goals mapping"
@@ -491,8 +493,20 @@
       "answer": "Yes. We offer monthly support for updates, analytics reviews, and growth-focused improvements."
     }
   ],
+  "contactSectionTag": "Contact",
+  "contactSectionTitle": "Let's build your next growth engine.",
+  "contactSectionDescription": "Tell us what you are building, your timeline, and where you need support. We will come back with a clear plan and next steps.",
   "contactEmail": "hello@yafetpromedia.com",
   "contactPhone": "+251 991 185 321",
+  "contactWhatsappLabel": "WhatsApp Chat",
+  "contactNamePlaceholder": "Your Name",
+  "contactEmailPlaceholder": "Business Email",
+  "contactCompanyPlaceholder": "Company",
+  "contactLeadPhonePlaceholder": "Phone number",
+  "contactMessagePlaceholder": "Tell us about your project...",
+  "contactSubmitLabel": "Send",
+  "contactReplyNote": "We typically reply within one business day.",
+  "loginPasswordResetHelp": "",
   "socialLinks": [
     {
       "label": "WhatsApp",

@@ -19,6 +19,25 @@ export { defaultSiteContent } from "@/lib/site-content.shared";
 
 const fallbackPath = path.join(getRepoRoot(), ".data", "site-content.fallback.json");
 
+/** Minimum one card; homepage grid supports up to this many tiles. */
+const SERVICE_CARDS_MAX = 8;
+
+function sanitizeServicesCards(raw: unknown): SiteContent["servicesCards"] {
+  const def = defaultSiteContent.servicesCards;
+  const arr = Array.isArray(raw) ? raw : [];
+  const baseLen = arr.length > 0 ? arr.length : def.length;
+  const len = Math.min(Math.max(baseLen, 1), SERVICE_CARDS_MAX);
+  return Array.from({ length: len }, (_, index) => {
+    const card = arr[index] as Partial<{ title: unknown; description: unknown; learnMore: unknown }> | undefined;
+    const d = def[index % def.length]!;
+    return {
+      title: String(card?.title ?? d.title ?? "").slice(0, 120),
+      description: String(card?.description ?? d.description ?? "").slice(0, 300),
+      learnMore: String(card?.learnMore ?? d.learnMore ?? "").slice(0, 2500),
+    };
+  });
+}
+
 async function readFallbackContent(): Promise<SiteContent> {
   try {
     const file = await readFile(fallbackPath, "utf-8");
@@ -138,7 +157,6 @@ function sanitizeHeroCarouselSlides(input: unknown): HeroCarouselSlide[] {
 
 export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
   const cards = Array.isArray(input.systemsCards) ? input.systemsCards : defaultSiteContent.systemsCards;
-  const serviceCards = Array.isArray(input.servicesCards) ? input.servicesCards : defaultSiteContent.servicesCards;
   const productCards = Array.isArray(input.productsCards) ? input.productsCards : defaultSiteContent.productsCards;
   const caseStudyCards = Array.isArray(input.caseStudiesCards)
     ? input.caseStudiesCards
@@ -153,10 +171,12 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
   const processSteps = Array.isArray(input.processSteps) ? input.processSteps : defaultSiteContent.processSteps;
   const faqItems = Array.isArray(input.faqItems) ? input.faqItems : defaultSiteContent.faqItems;
   const socialLinks = Array.isArray(input.socialLinks) ? input.socialLinks : defaultSiteContent.socialLinks;
+  const siteLogoSanitized = sanitizeOptionalImageUrl(input.siteLogoSrc);
   return {
     exploreArchitecture: sanitizeExploreArchitecture(
       (input as Partial<SiteContent>).exploreArchitecture
     ),
+    siteLogoSrc: siteLogoSanitized || defaultSiteContent.siteLogoSrc,
     heroHeadline: String(input.heroHeadline ?? defaultSiteContent.heroHeadline).slice(0, 120),
     heroHighlight: String(input.heroHighlight ?? defaultSiteContent.heroHighlight).slice(0, 80),
     heroTail: String(input.heroTail ?? defaultSiteContent.heroTail).slice(0, 120),
@@ -182,15 +202,7 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     })),
     servicesSectionTag: String(input.servicesSectionTag ?? defaultSiteContent.servicesSectionTag).slice(0, 120),
     servicesSectionTitle: String(input.servicesSectionTitle ?? defaultSiteContent.servicesSectionTitle).slice(0, 180),
-    servicesCards: serviceCards.slice(0, 4).map((card, index) => ({
-      title: String(card?.title ?? defaultSiteContent.servicesCards[index]?.title ?? "").slice(0, 120),
-      description: String(
-        card?.description ?? defaultSiteContent.servicesCards[index]?.description ?? ""
-      ).slice(0, 300),
-      learnMore: String(
-        card?.learnMore ?? defaultSiteContent.servicesCards[index]?.learnMore ?? ""
-      ).slice(0, 2500),
-    })),
+    servicesCards: sanitizeServicesCards((input as Partial<SiteContent>).servicesCards),
     productsSectionTag: String(input.productsSectionTag ?? defaultSiteContent.productsSectionTag).slice(0, 120),
     productsSectionTitle: String(input.productsSectionTitle ?? defaultSiteContent.productsSectionTitle).slice(0, 180),
     productsSectionDescription: String(
@@ -309,7 +321,11 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
       input.contactSectionDescription ?? defaultSiteContent.contactSectionDescription
     ).slice(0, 500),
     contactEmail: String(input.contactEmail ?? defaultSiteContent.contactEmail).slice(0, 120),
-    contactPhone: String(input.contactPhone ?? defaultSiteContent.contactPhone).slice(0, 60),
+    contactPhone: String(
+      input.contactPhone != null && String(input.contactPhone).trim() !== ""
+        ? input.contactPhone
+        : defaultSiteContent.contactPhone
+    ).slice(0, 60),
     contactWhatsappLabel: String(
       input.contactWhatsappLabel ?? defaultSiteContent.contactWhatsappLabel
     ).slice(0, 80),
@@ -330,6 +346,9 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     ).slice(0, 200),
     contactSubmitLabel: String(input.contactSubmitLabel ?? defaultSiteContent.contactSubmitLabel).slice(0, 80),
     contactReplyNote: String(input.contactReplyNote ?? defaultSiteContent.contactReplyNote).slice(0, 200),
+    loginPasswordResetHelp: String(
+      input.loginPasswordResetHelp ?? defaultSiteContent.loginPasswordResetHelp
+    ).slice(0, 2500),
     socialLinks: socialLinks.slice(0, 8).map((item, index) => ({
       label: String(item?.label ?? defaultSiteContent.socialLinks[index]?.label ?? "").slice(0, 40),
       url: String(item?.url ?? defaultSiteContent.socialLinks[index]?.url ?? "").slice(0, 260),
@@ -398,11 +417,13 @@ export async function readSiteContent(): Promise<SiteContent> {
       contact_company_placeholder?: string | null;
       contact_lead_phone_placeholder?: string | null;
       contact_message_placeholder?: string | null;
+      login_password_reset_help?: string | null;
       contact_email: string;
       contact_phone: string;
       social_links: unknown;
       ai_name: string;
       whatsapp_number: string;
+      site_logo_src: string;
       explore_architecture: unknown;
     }>(
       `
@@ -419,7 +440,8 @@ export async function readSiteContent(): Promise<SiteContent> {
                contact_section_tag, contact_section_title, contact_section_description,
                contact_whatsapp_label, contact_reply_note, contact_submit_label,
                contact_name_placeholder, contact_email_placeholder, contact_company_placeholder, contact_lead_phone_placeholder, contact_message_placeholder,
-               contact_email, contact_phone, social_links, ai_name, whatsapp_number, explore_architecture
+               login_password_reset_help,
+               contact_email, contact_phone, social_links, ai_name, whatsapp_number, site_logo_src, explore_architecture
         FROM site_content WHERE id = 1
       `
     );
@@ -427,6 +449,7 @@ export async function readSiteContent(): Promise<SiteContent> {
     if (!row) return readFallbackContent();
 
     return sanitizeSiteContent({
+      siteLogoSrc: row.site_logo_src,
       heroHeadline: row.hero_headline,
       heroHighlight: row.hero_highlight,
       heroTail: row.hero_tail,
@@ -511,8 +534,13 @@ export async function readSiteContent(): Promise<SiteContent> {
       contactLeadPhonePlaceholder:
         row.contact_lead_phone_placeholder || defaultSiteContent.contactLeadPhonePlaceholder,
       contactMessagePlaceholder: row.contact_message_placeholder || defaultSiteContent.contactMessagePlaceholder,
+      loginPasswordResetHelp:
+        row.login_password_reset_help ?? defaultSiteContent.loginPasswordResetHelp,
       contactEmail: row.contact_email,
-      contactPhone: row.contact_phone,
+      contactPhone:
+        row.contact_phone != null && String(row.contact_phone).trim() !== ""
+          ? String(row.contact_phone)
+          : defaultSiteContent.contactPhone,
       socialLinks: Array.isArray(row.social_links) && row.social_links.length > 0
         ? (row.social_links as SiteContent["socialLinks"])
         : defaultSiteContent.socialLinks,
@@ -545,6 +573,8 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
             contact_whatsapp_label = $49, contact_reply_note = $50, contact_submit_label = $51,
             contact_name_placeholder = $52, contact_email_placeholder = $53, contact_company_placeholder = $54, contact_message_placeholder = $55,
             contact_lead_phone_placeholder = $56,
+            login_password_reset_help = $57,
+            site_logo_src = $58,
             updated_at = NOW()
         WHERE id = 1
       `,
@@ -605,6 +635,8 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
         content.contactCompanyPlaceholder,
         content.contactMessagePlaceholder,
         content.contactLeadPhonePlaceholder,
+        content.loginPasswordResetHelp,
+        content.siteLogoSrc,
       ]
     );
   } catch {

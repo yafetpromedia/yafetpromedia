@@ -17,7 +17,7 @@ const messages: Record<Language, Dictionary> = {
     navProcess: "Process",
     navFaq: "FAQ",
     contactSales: "Contact Sales",
-    startProject: "Start a Project",
+    startProject: "Send a request",
     bookCall: "Book Call",
     login: "Login",
     admin: "Admin",
@@ -28,14 +28,6 @@ const messages: Record<Language, Dictionary> = {
     stop: "Stop",
     greeting:
       "Hi! I am your AI assistant. Ask me about services, pricing, timelines, or the best setup for your business.",
-    heroHeadline: "We",
-    heroHighlight: "deliver full digital solutions",
-    heroTail: "for your brand, team, and operations.",
-    heroBadge: "End-to-end digital",
-    heroStatSystemsActive: "Systems Active",
-    heroStatUptime: "uptime",
-    heroStatClientsDeployed: "Clients Deployed",
-    heroStatOrgs: "orgs",
   },
   am: {
     navSystems: "ሲስተሞች",
@@ -47,7 +39,7 @@ const messages: Record<Language, Dictionary> = {
     navProcess: "ሂደት",
     navFaq: "ጥያቄዎች",
     contactSales: "ሽያጭ ያነጋግሩ",
-    startProject: "ፕሮጀክት ጀምር",
+    startProject: "ጥያቄ ላክ",
     bookCall: "ጥሪ ያዙ",
     login: "ግባ",
     admin: "አስተዳዳሪ",
@@ -58,14 +50,6 @@ const messages: Record<Language, Dictionary> = {
     stop: "አቁም",
     greeting:
       "ሰላም! እኔ የእርስዎ AI ረዳት ነኝ። ስለ አገልግሎቶች፣ ዋጋ፣ ጊዜ እና ለቢዝነስዎ የሚመች መፍትሄ ይጠይቁኝ።",
-    heroHeadline: "እኛ ",
-    heroHighlight: "ሙሉ ዲጂታል መፍትሄዎች",
-    heroTail: "ለምርት ስምህ እና ስራዎ ።",
-    heroBadge: "ከመጀመሪያ እስከ መድረሻ ዲጂታል",
-    heroStatSystemsActive: "ሲስተሞች ንቁ",
-    heroStatUptime: "ሥራ ሰዓት",
-    heroStatClientsDeployed: "የተግብሩ ደንበኞች",
-    heroStatOrgs: "ድርጅቶች",
   },
 };
 

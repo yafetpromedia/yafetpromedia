@@ -157,7 +157,12 @@ async function ensureSchema() {
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS process_faq_process_card_label TEXT NOT NULL DEFAULT 'Process';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS process_faq_faq_card_label TEXT NOT NULL DEFAULT 'FAQ';
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS phone TEXT NOT NULL DEFAULT '';
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS handled BOOLEAN NOT NULL DEFAULT false;
+    ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'owner';
+    ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS permissions JSONB NOT NULL DEFAULT '[]'::jsonb;
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS contact_lead_phone_placeholder TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS login_password_reset_help TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS site_logo_src TEXT NOT NULL DEFAULT '';
   `);
 }
 

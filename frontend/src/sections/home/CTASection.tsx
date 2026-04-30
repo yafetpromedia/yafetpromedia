@@ -43,7 +43,7 @@ export default function CTASection() {
                 href="#contact"
                 className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.3)] hover:shadow-[0_0_60px_rgba(255,106,0,0.5)] transition-all duration-300 group/btn inline-flex items-center justify-center"
               >
-                Start a Project
+                Send a request
                 <ArrowRight className="ml-2 size-5 transition-transform group-hover/btn:translate-x-1" />
               </Link>
               <Link

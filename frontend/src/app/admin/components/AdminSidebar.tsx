@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminNavItem, AdminSection } from "@/app/admin/types";
 
@@ -10,23 +10,25 @@ export default function AdminSidebar({
   activeSection,
   mobileOpen,
   onCloseMobile,
+  onLogout,
 }: {
   navItems: AdminNavItem[];
   activeSection: AdminSection;
   mobileOpen: boolean;
   onCloseMobile: () => void;
+  onLogout: () => void;
 }) {
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-[min(20rem,calc(100vw-1rem))] sm:w-72 shrink-0 flex-col border-r border-border/60 bg-card/50 backdrop-blur-sm",
-        "lg:relative lg:translate-x-0 lg:shadow-none",
-        "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-out shadow-2xl lg:shadow-none",
+        "flex min-h-0 w-[min(20rem,calc(100vw-1rem))] shrink-0 flex-col overflow-hidden border-r border-border/60 bg-card/50 backdrop-blur-sm sm:w-72",
+        "fixed inset-y-0 left-0 z-50 max-h-dvh transform transition-transform duration-300 ease-out shadow-2xl",
+        "lg:relative lg:h-full lg:max-h-[100dvh] lg:min-h-0 lg:self-stretch lg:translate-x-0 lg:shadow-none",
         "pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))]",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-4 lg:px-5 lg:py-6 lg:border-0">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-card/50 px-4 py-4 lg:px-5 lg:py-6 lg:border-0">
         <div className="min-w-0 flex-1 lg:mb-0 lg:block">
           <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-foreground/45">Admin</p>
           <h1 className="mt-1 truncate text-lg font-display font-bold tracking-tight sm:text-xl lg:text-2xl">
@@ -43,7 +45,10 @@ export default function AdminSidebar({
         </button>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-3 lg:px-4 lg:py-2">
+      <nav
+        className="min-h-0 flex-[1_1_0%] space-y-1 overflow-y-auto overflow-x-hidden overscroll-y-contain px-3 py-3 [-webkit-overflow-scrolling:touch] lg:px-4 lg:py-2"
+        aria-label="Admin sections"
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
@@ -71,18 +76,22 @@ export default function AdminSidebar({
         })}
       </nav>
 
-      <div className="mt-auto space-y-2 border-t border-border/60 px-4 py-4 text-sm lg:px-5">
+      <div className="mt-auto shrink-0 space-y-2 border-t border-border/60 bg-card/50 px-4 py-4 text-sm lg:px-5">
+        <button
+          type="button"
+          onClick={onLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background/80 py-2.5 text-sm font-medium text-foreground transition hover:bg-foreground/[0.05]"
+        >
+          <LogOut className="size-4 shrink-0" />
+          Log out
+        </button>
         <Link
           href="/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="block rounded-lg py-2 text-foreground/65 transition hover:text-foreground"
         >
           View website
-        </Link>
-        <Link
-          href="/#contact"
-          className="block rounded-lg py-2 text-foreground/65 transition hover:text-foreground"
-        >
-          Contact section
         </Link>
       </div>
     </aside>

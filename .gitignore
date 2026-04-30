@@ -48,6 +48,8 @@ yarn-error.log*
 
 # testimonial queue when DB insert fails (fallback)
 .data/testimonial-submissions-pending.json
+# leads queue when DB insert fails (fallback)
+.data/leads-pending.json
 
 # vercel
 .vercel

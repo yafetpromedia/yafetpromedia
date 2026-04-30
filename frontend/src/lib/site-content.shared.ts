@@ -102,6 +102,8 @@ export type TrustLogoItem = {
 export type SiteContent = {
   /** Explore Architecture (systems CTA) modal copy & per-track flows */
   exploreArchitecture: ExploreArchitectureContent;
+  /** Navbar, footer, and login — `/images/...`, `/uploads/...`, or https URL */
+  siteLogoSrc: string;
   heroHeadline: string;
   heroHighlight: string;
   heroTail: string;
@@ -166,6 +168,11 @@ export type SiteContent = {
   contactSubmitLabel: string;
   /** Small note under the submit button. */
   contactReplyNote: string;
+  /**
+   * Shown on the public login page “Forgot password” dialog — recovery instructions, internal contacts,
+   * or what visitors should do when self‑serve reset is unavailable.
+   */
+  loginPasswordResetHelp: string;
   socialLinks: SocialLink[];
   aiName: string;
   whatsappNumber: string;
@@ -173,10 +180,12 @@ export type SiteContent = {
 
 export const defaultSiteContent: SiteContent = {
   exploreArchitecture: defaultExploreArchitectureContent,
-  heroHeadline: "We",
-  heroHighlight: "deliver full digital solutions",
-  heroTail: "for your brand, team, and operations.",
-  heroBadge: "End-to-end digital",
+  siteLogoSrc: "/images/navbar/hero image.svg",
+  /** Filled from CMS / admin; kept empty so shipped defaults never override site copy. */
+  heroHeadline: "",
+  heroHighlight: "",
+  heroTail: "",
+  heroBadge: "",
   heroCarouselSlides: [
     {
       id: "hero-slide-brand",
@@ -441,6 +450,7 @@ export const defaultSiteContent: SiteContent = {
   contactMessagePlaceholder: "Tell us about your project...",
   contactSubmitLabel: "Send",
   contactReplyNote: "We typically reply within one business day.",
+  loginPasswordResetHelp: "",
   socialLinks: [
     {
       label: "WhatsApp",

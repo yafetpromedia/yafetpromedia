@@ -248,7 +248,7 @@ export default function ExploreArchitectureDialog({
         const i = startIndex + j;
         const Icon = getExploreLucideIcon(step.icon);
         return (
-          <Fragment key={`${stackTrack}-${step.label}`}>
+          <Fragment key={`${stackTrack}-${startIndex}-${j}-${step.label}`}>
             <motion.div
               custom={i}
               initial={reduce ? false : { opacity: 0, y: 16, scale: 0.97 }}
@@ -355,11 +355,11 @@ export default function ExploreArchitectureDialog({
                     initial={reduce ? false : { opacity: 0 }}
                     animate={reduce ? undefined : { opacity: 1, transition: { delay: 0.12, duration: 0.4 } }}
                   >
-                    {explore.serviceStrip.map((s) => {
+                    {explore.serviceStrip.map((s, si) => {
                       const S = getExploreLucideIcon(s.icon);
                       return (
                         <span
-                          key={s.label}
+                          key={`${s.label}-${si}`}
                           className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-foreground/[0.03] px-2.5 py-1 text-[10px] font-medium text-foreground/70"
                         >
                           <S className="size-3 text-primary" />
@@ -419,7 +419,7 @@ export default function ExploreArchitectureDialog({
                   <div className="my-2 flex justify-center text-foreground/20 md:my-1" aria-hidden>
                     <ChevronDown className="size-4 md:rotate-90" />
                   </div>
-                  {renderFlowRow(flow.row2, 3)}
+                  {renderFlowRow(flow.row2, flow.row1.length)}
                   <motion.p
                     className="relative mt-4 text-center text-xs text-foreground/45"
                     initial={reduce ? false : { opacity: 0 }}

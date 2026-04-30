@@ -1,5 +1,4 @@
-import { cookies } from "next/headers";
-import { getSessionCookieName, verifySessionToken } from "@backend/auth";
+import { jsonForbiddenUnlessPermission } from "@/lib/admin-access";
 import { query } from "@db";
 import {
   removeTestimonialSubmissionFromFile,
@@ -8,16 +7,9 @@ import {
 
 export const runtime = "nodejs";
 
-async function isAuthenticated() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get(getSessionCookieName())?.value;
-  return verifySessionToken(session);
-}
-
 export async function PATCH(request: Request) {
-  if (!(await isAuthenticated())) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = await jsonForbiddenUnlessPermission("testimonials.edit");
+  if (denied) return denied;
 
   const body = (await request.json().catch(() => null)) as {
     id?: number;
@@ -41,7 +33,7 @@ export async function PATCH(request: Request) {
         return Response.json({ error: "Not found" }, { status: 404 });
       }
     } else {
-      const ok = await removeTestimonialSubmissionFromFile(id);
+      const ok = await setTestimonialFileSubmissionStatus(id, "rejected", null);
       if (!ok) {
         return Response.json({ error: "Not found" }, { status: 404 });
       }
@@ -54,7 +46,7 @@ export async function PATCH(request: Request) {
       `
         UPDATE testimonial_submissions
         SET status = 'approved', approved_at = NOW()
-        WHERE id = $1 AND status = 'pending'
+        WHERE id = $1 AND status IN ('pending', 'rejected')
         RETURNING id
       `,
       [id]
@@ -81,9 +73,8 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await isAuthenticated())) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = await jsonForbiddenUnlessPermission("testimonials.delete");
+  if (denied) return denied;
 
   const id = Number(new URL(request.url).searchParams.get("id"));
   if (!Number.isFinite(id) || id === 0) {
