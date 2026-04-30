@@ -6,10 +6,24 @@ import {
   verifyAdminCredentials,
 } from "@backend/auth";
 import { jsonForbiddenUnlessPermission } from "@/lib/admin-access";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
+  const ip = clientIpFromRequest(request);
+  const limiter = hitRateLimit(`auth:change-password:${ip}`, { limit: 8, windowMs: 60_000 });
+  if (!limiter.ok) {
+    return Response.json(
+      { error: "Too many attempts. Please wait and retry." },
+      { status: 429, headers: { "Retry-After": String(limiter.retryAfterSec) } }
+    );
+  }
+
   const denied = await jsonForbiddenUnlessPermission("security.edit");
   if (denied) return denied;
 

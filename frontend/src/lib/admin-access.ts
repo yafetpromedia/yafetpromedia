@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import {
   getSessionCookieName,
   verifySessionToken,
@@ -32,6 +32,27 @@ export type ViewerAccess = {
   permissions: string[];
   isPrimary: boolean;
 };
+
+function extractRequestIp(forwardedFor: string | null, realIp: string | null): string {
+  if (forwardedFor) {
+    const first = forwardedFor.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  return realIp?.trim() || "unknown";
+}
+
+async function isAllowedAdminIp(): Promise<boolean> {
+  const allowlistRaw = process.env.ADMIN_IP_ALLOWLIST?.trim();
+  if (!allowlistRaw) return true;
+  const allowed = allowlistRaw
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+  if (allowed.length === 0) return true;
+  const h = await headers();
+  const ip = extractRequestIp(h.get("x-forwarded-for"), h.get("x-real-ip"));
+  return allowed.includes(ip);
+}
 
 export const ALL_ADMIN_PERMISSIONS: AdminPermission[] = [
   "*",
@@ -84,6 +105,9 @@ export function hasPermission(
 }
 
 export async function jsonForbiddenUnlessPermission(permission: AdminPermission): Promise<Response | null> {
+  if (!(await isAllowedAdminIp())) {
+    return Response.json({ error: "Forbidden: IP address not allowed." }, { status: 403 });
+  }
   const access = await getViewerAccess();
   if (!access) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!hasPermission(access, permission)) return Response.json({ error: "Forbidden" }, { status: 403 });
@@ -92,6 +116,9 @@ export async function jsonForbiddenUnlessPermission(permission: AdminPermission)
 
 /** CMS, uploads, team management — primary dashboard owners only. */
 export async function jsonForbiddenUnlessOwner(): Promise<Response | null> {
+  if (!(await isAllowedAdminIp())) {
+    return Response.json({ error: "Forbidden: IP address not allowed." }, { status: 403 });
+  }
   const access = await getViewerAccess();
   if (!access) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (access.role !== "owner") return Response.json({ error: "Forbidden" }, { status: 403 });

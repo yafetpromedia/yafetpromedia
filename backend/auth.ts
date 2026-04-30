@@ -2,9 +2,15 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { query } from "@db";
 
 const SESSION_COOKIE = "yafet_session";
+const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 function getAuthSecret() {
-  return process.env.AUTH_SECRET ?? "change-this-secret-in-env";
+  const secret = process.env.AUTH_SECRET?.trim();
+  if (secret && secret.length >= 32) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("AUTH_SECRET is missing or too short. Set AUTH_SECRET to at least 32 characters.");
+  }
+  return "dev-only-auth-secret-change-me-32chars-minimum";
 }
 
 export function getSessionCookieName() {
@@ -12,7 +18,9 @@ export function getSessionCookieName() {
 }
 
 export function createSessionToken(email: string) {
-  const payload = `${email}:${Date.now()}`;
+  const issuedAt = Date.now();
+  const expiresAt = issuedAt + SESSION_MAX_AGE_MS;
+  const payload = `${email}:${issuedAt}:${expiresAt}`;
   const signature = createHmac("sha256", getAuthSecret()).update(payload).digest("base64url");
   return `${Buffer.from(payload).toString("base64url")}.${signature}`;
 }
@@ -22,6 +30,16 @@ export function verifySessionToken(token?: string | null) {
   const [encodedPayload, signature] = token.split(".");
   if (!encodedPayload || !signature) return false;
   const payload = Buffer.from(encodedPayload, "base64url").toString("utf-8");
+  const parts = payload.split(":");
+  const expiresAt =
+    parts.length >= 3
+      ? Number(parts[2])
+      : parts.length >= 2
+        ? Number(parts[1]) + SESSION_MAX_AGE_MS
+        : Number.NaN;
+  if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) {
+    return false;
+  }
   const expected = createHmac("sha256", getAuthSecret()).update(payload).digest("base64url");
   const a = Buffer.from(signature);
   const b = Buffer.from(expected);
@@ -142,22 +160,23 @@ function verifyAgainstEnv(email: string, password: string) {
   const adminEmail = process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com";
   const plainPassword = process.env.ADMIN_PASSWORD ?? "Admin@12345";
   const hashedPassword = process.env.ADMIN_PASSWORD_HASH;
-  if (email !== adminEmail) return false;
+  if (email.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) return false;
   if (hashedPassword) return hashText(password) === hashedPassword;
   return password === plainPassword;
 }
 
 export async function verifyAdminCredentials(email: string, password: string) {
+  const normalizedEmail = String(email).trim().toLowerCase();
   try {
     const users = await query<{ password_hash: string }>(
-      "SELECT password_hash FROM admin_users WHERE email = $1 LIMIT 1",
-      [email]
+      "SELECT password_hash FROM admin_users WHERE LOWER(TRIM(email)) = $1 LIMIT 1",
+      [normalizedEmail]
     );
     const user = users[0];
-    if (!user) return verifyAgainstEnv(email, password);
+    if (!user) return verifyAgainstEnv(normalizedEmail, password);
     return user.password_hash === hashText(password);
   } catch {
-    return verifyAgainstEnv(email, password);
+    return verifyAgainstEnv(normalizedEmail, password);
   }
 }
 

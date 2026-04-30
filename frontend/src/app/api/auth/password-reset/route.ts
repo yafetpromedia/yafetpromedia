@@ -1,5 +1,7 @@
 import { resetAdminPasswordWithRecovery } from "@backend/auth";
 import { readSiteContent } from "@backend/site-content";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
@@ -17,6 +19,18 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const csrf = csrfGuard(request);
+    if (csrf) return csrf;
+
+    const ip = clientIpFromRequest(request);
+    const limiter = hitRateLimit(`auth:password-reset:${ip}`, { limit: 5, windowMs: 60_000 });
+    if (!limiter.ok) {
+      return Response.json(
+        { error: "Too many reset attempts. Please wait and retry." },
+        { status: 429, headers: { "Retry-After": String(limiter.retryAfterSec) } }
+      );
+    }
+
     const body = (await request.json()) as {
       email?: string;
       recoverySecret?: string;

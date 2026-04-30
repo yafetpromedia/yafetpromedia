@@ -1,6 +1,8 @@
 import { jsonForbiddenUnlessPermission } from "@/lib/admin-access";
 import { removeLeadFromFile, updateLeadHandledInFile } from "@backend/leads-file";
 import { query } from "@db";
+import { csrfGuard } from "@/lib/request-security";
+import { auditAdminAction } from "@/lib/admin-audit";
 
 export const runtime = "nodejs";
 
@@ -31,6 +33,9 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("leads.edit");
   if (denied) return denied;
 
@@ -46,6 +51,7 @@ export async function PATCH(request: Request) {
     if (!ok) {
       return Response.json({ error: "Not found" }, { status: 404 });
     }
+    await auditAdminAction("lead.update.file", { id, handled });
     return Response.json({ ok: true });
   }
 
@@ -56,11 +62,15 @@ export async function PATCH(request: Request) {
   if (rows.length === 0) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
+  await auditAdminAction("lead.update", { id, handled });
 
   return Response.json({ ok: true });
 }
 
 export async function DELETE(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("leads.delete");
   if (denied) return denied;
 
@@ -74,6 +84,7 @@ export async function DELETE(request: Request) {
     if (!removed) {
       return Response.json({ error: "Not found" }, { status: 404 });
     }
+    await auditAdminAction("lead.delete.file", { id });
     return Response.json({ ok: true });
   }
 
@@ -81,6 +92,7 @@ export async function DELETE(request: Request) {
   if (rows.length === 0) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
+  await auditAdminAction("lead.delete", { id });
 
   return Response.json({ ok: true });
 }

@@ -25,6 +25,8 @@ frontend/.next/
 # misc
 .DS_Store
 *.pem
+*.zip
+.vscode/
 
 # debug
 npm-debug.log*

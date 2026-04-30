@@ -7,6 +7,8 @@ import {
 } from "@backend/auth";
 import { jsonForbiddenUnlessPermission } from "@/lib/admin-access";
 import { query } from "@db";
+import { csrfGuard } from "@/lib/request-security";
+import { auditAdminAction } from "@/lib/admin-audit";
 
 export const runtime = "nodejs";
 
@@ -72,6 +74,10 @@ function normalizePermissions(value: unknown): DbPermission[] {
   return [...unique];
 }
 
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 function roleLabel(role: DbRole) {
   return role === "messages" ? "Restricted (custom permissions)" : "Owner (full dashboard)";
 }
@@ -100,6 +106,9 @@ function isPgUniqueViolation(err: unknown): boolean {
 }
 
 export async function POST(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("team.add");
   if (denied) return denied;
 
@@ -109,7 +118,7 @@ export async function POST(request: Request) {
   const role = normalizeRole(body?.role);
   const requestedPermissions = normalizePermissions(body?.permissions);
 
-  if (!emailRaw || !emailRaw.includes("@")) {
+  if (!emailRaw || !isValidEmail(emailRaw)) {
     return Response.json({ error: "Valid email is required." }, { status: 400 });
   }
   if (password.length < 8) {
@@ -125,6 +134,9 @@ export async function POST(request: Request) {
       : requestedPermissions.length > 0
         ? requestedPermissions
         : DEFAULT_MESSAGES_PERMISSIONS;
+  if (role === "messages" && permissions.length === 0) {
+    return Response.json({ error: "Restricted users need at least one permission." }, { status: 400 });
+  }
 
   const email = emailRaw.toLowerCase();
   const hash = hashAdminPassword(password);
@@ -146,6 +158,7 @@ export async function POST(request: Request) {
     if (!id) {
       return Response.json({ error: "Could not create user." }, { status: 500 });
     }
+    await auditAdminAction("team.user.create", { targetEmail: email, role });
     return Response.json({ ok: true, user: { id, email, role, permissions } });
   } catch (err) {
     if (isPgUniqueViolation(err)) {
@@ -163,6 +176,9 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("team.add");
   if (denied) return denied;
 
@@ -193,6 +209,9 @@ export async function PATCH(request: Request) {
       : requestedPermissions.length > 0
         ? requestedPermissions
         : DEFAULT_MESSAGES_PERMISSIONS;
+  if (role === "messages" && permissions.length === 0) {
+    return Response.json({ error: "Restricted users need at least one permission." }, { status: 400 });
+  }
 
   const rows = await query<{ id: number }>(
     `UPDATE admin_users SET role = $2, permissions = $3::jsonb WHERE id = $1 RETURNING id`,
@@ -201,10 +220,14 @@ export async function PATCH(request: Request) {
   if (rows.length === 0) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
+  await auditAdminAction("team.user.update", { targetId: id, role });
   return Response.json({ ok: true, user: { id, role, permissions } });
 }
 
 export async function DELETE(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("team.delete");
   if (denied) return denied;
 
@@ -234,5 +257,6 @@ export async function DELETE(request: Request) {
   }
 
   await query(`DELETE FROM admin_users WHERE id = $1`, [id]);
+  await auditAdminAction("team.user.delete", { targetId: id, targetEmail: target.email });
   return Response.json({ ok: true });
 }

@@ -27,6 +27,7 @@ export default function ContactSection() {
     company: "",
     phone: "",
     message: "",
+    website: "",
   });
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -42,7 +43,7 @@ export default function ContactSection() {
 
     setIsSubmitting(false);
     if (response.ok) {
-      setFormData({ name: "", email: "", company: "", phone: "", message: "" });
+      setFormData({ name: "", email: "", company: "", phone: "", message: "", website: "" });
       setSuccessOpen(true);
       return;
     }
@@ -213,6 +214,17 @@ export default function ContactSection() {
                   setFormData((prev) => ({ ...prev, message: event.target.value }))
                 }
                 className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-primary resize-none"
+              />
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={formData.website}
+                onChange={(event) =>
+                  setFormData((prev) => ({ ...prev, website: event.target.value }))
+                }
+                className="hidden"
               />
               <button
                 type="submit"

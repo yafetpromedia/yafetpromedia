@@ -4,10 +4,15 @@ import {
   removeTestimonialSubmissionFromFile,
   setTestimonialFileSubmissionStatus,
 } from "@backend/testimonial-submissions-file";
+import { csrfGuard } from "@/lib/request-security";
+import { auditAdminAction } from "@/lib/admin-audit";
 
 export const runtime = "nodejs";
 
 export async function PATCH(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("testimonials.edit");
   if (denied) return denied;
 
@@ -38,6 +43,7 @@ export async function PATCH(request: Request) {
         return Response.json({ error: "Not found" }, { status: 404 });
       }
     }
+    await auditAdminAction("testimonial.update.file", { id, action });
     return Response.json({ ok: true });
   }
 
@@ -54,6 +60,7 @@ export async function PATCH(request: Request) {
     if (rows.length === 0) {
       return Response.json({ error: "Not found or already processed" }, { status: 404 });
     }
+    await auditAdminAction("testimonial.approve", { id });
     return Response.json({ ok: true });
   }
 
@@ -69,10 +76,14 @@ export async function PATCH(request: Request) {
   if (rows.length === 0) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
+  await auditAdminAction("testimonial.reject", { id });
   return Response.json({ ok: true });
 }
 
 export async function DELETE(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const denied = await jsonForbiddenUnlessPermission("testimonials.delete");
   if (denied) return denied;
 
@@ -86,6 +97,7 @@ export async function DELETE(request: Request) {
     if (!removed) {
       return Response.json({ error: "Not found" }, { status: 404 });
     }
+    await auditAdminAction("testimonial.delete.file", { id });
     return Response.json({ ok: true });
   }
 
@@ -96,6 +108,7 @@ export async function DELETE(request: Request) {
   if (rows.length === 0) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
+  await auditAdminAction("testimonial.delete", { id });
 
   return Response.json({ ok: true });
 }

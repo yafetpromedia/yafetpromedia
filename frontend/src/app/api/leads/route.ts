@@ -1,6 +1,8 @@
 import { appendLeadToFile } from "@backend/leads-file";
 import { query } from "@db";
 import nodemailer from "nodemailer";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
@@ -55,13 +57,32 @@ async function sendLeadNotificationEmail(lead: {
 
 export async function POST(request: Request) {
   try {
+    const csrf = csrfGuard(request);
+    if (csrf) return csrf;
+
+    const ip = clientIpFromRequest(request);
+    const limiter = hitRateLimit(`public:leads:${ip}`, { limit: 6, windowMs: 60_000 });
+    if (!limiter.ok) {
+      return Response.json(
+        { error: "Too many submissions. Please wait and try again." },
+        { status: 429, headers: { "Retry-After": String(limiter.retryAfterSec) } }
+      );
+    }
+
     const body = (await request.json()) as {
       name?: string;
       email?: string;
       company?: string;
       phone?: string;
       message?: string;
+      website?: string;
     };
+
+    const website = String(body.website ?? "").trim();
+    // Honeypot: bots often fill hidden "website" field; accept silently without persisting.
+    if (website.length > 0) {
+      return Response.json({ ok: true });
+    }
 
     const name = String(body.name ?? "").trim().slice(0, 120);
     const email = String(body.email ?? "").trim().slice(0, 160);
@@ -74,6 +95,9 @@ export async function POST(request: Request) {
         { error: "Name, email, company, phone, and message are required." },
         { status: 400 }
       );
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return Response.json({ error: "Please provide a valid email." }, { status: 400 });
     }
 
     const dbUrl = process.env.DATABASE_URL?.trim();
