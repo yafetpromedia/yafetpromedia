@@ -481,13 +481,6 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-
-              <p className="mt-6 text-center text-[12px] leading-relaxed text-foreground/38 lg:text-left">
-                Edit visitor-facing reset notes under <span className="text-foreground/55">Admin → Security</span>.
-                Self-service reset needs{" "}
-                <span className="font-mono text-[11px] text-foreground/50">ADMIN_PASSWORD_RECOVERY_SECRET</span> in
-                hosting env.
-              </p>
             </section>
           </div>
         </div>

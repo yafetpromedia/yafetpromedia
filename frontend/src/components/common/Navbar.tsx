@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import GoogleTranslateWidget from "@/components/i18n/GoogleTranslateWidget";
+import GoogleTranslateWidget from "@/components/i18n/GoogleTranslateWidgetStable";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
