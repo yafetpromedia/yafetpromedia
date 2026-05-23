@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 
 export default function LoginPage() {
   const { content } = useSiteContent();
@@ -369,7 +370,7 @@ export default function LoginPage() {
                         height={36}
                         className="object-contain"
                         priority
-                        unoptimized={/^https?:\/\//i.test(logoSrc)}
+                        unoptimized={shouldUseUnoptimizedImage(logoSrc)}
                       />
                     </div>
                     <div>

@@ -6,6 +6,7 @@ import SectionWrapper from "@/components/common/SectionWrapper";
 import FadeIn from "@/components/animations/FadeIn";
 import { Quote, Star, PenLine, CheckCircle2 } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import TestimonialSubmitDialog from "@/components/testimonials/TestimonialSubmitDialog";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +78,7 @@ export default function TrustSection() {
                       width={176}
                       height={48}
                       className="h-8 w-auto max-h-9 max-w-[10rem] object-contain object-center sm:max-h-10 sm:max-w-[12rem]"
-                      unoptimized={/^https?:\/\//i.test(logo.imageSrc)}
+                      unoptimized={shouldUseUnoptimizedImage(logo.imageSrc)}
                     />
                   ) : (
                     <span className="text-center text-xs font-mono uppercase tracking-[0.2em] text-foreground/55">

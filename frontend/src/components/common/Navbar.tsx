@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -13,8 +14,14 @@ import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
 
 export default function Navbar() {
-  const { content } = useSiteContent();
-  const logoSrc = content.siteLogoSrc || defaultSiteContent.siteLogoSrc;
+  const { content, isLoading } = useSiteContent();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+  const logoSrc =
+    (hydrated && !isLoading ? content.siteLogoSrc : defaultSiteContent.siteLogoSrc) ||
+    defaultSiteContent.siteLogoSrc;
   const { t } = useLanguage();
   const navLinks = useMemo(
     () => [
@@ -122,7 +129,7 @@ export default function Navbar() {
                   height={32}
                   className="object-contain w-full h-full"
                   priority
-                  unoptimized={/^https?:\/\//i.test(logoSrc)}
+                  unoptimized={shouldUseUnoptimizedImage(logoSrc)}
                 />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 hidden sm:block">

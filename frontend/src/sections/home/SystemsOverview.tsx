@@ -9,6 +9,7 @@ import ExploreArchitectureDialog from "@/components/architecture/ExploreArchitec
 import { cn } from "@/lib/utils";
 import { Database, Layout, Video, LineChart, ArrowUpRight } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 
 const systemLayouts = [
   { icon: Database, className: "col-span-1 md:col-span-2 lg:col-span-2 row-span-2", delay: 0.1 },
@@ -118,7 +119,7 @@ export default function SystemsOverview() {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 28vw"
                     className="z-0 object-cover object-center pointer-events-none transition-transform duration-[1.1s] ease-out group-hover:scale-105"
-                    unoptimized={/^https?:\/\//i.test(system.imageSrc)}
+                    unoptimized={shouldUseUnoptimizedImage(system.imageSrc)}
                     aria-hidden
                   />
                   {/* Readability scrim + brand tint — pointer-events-none so :hover targets card content */}

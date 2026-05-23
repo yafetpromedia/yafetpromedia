@@ -22,12 +22,15 @@ import FadeIn from "@/components/animations/FadeIn";
 import { ArrowRight, ChevronDown, Play } from "lucide-react";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { defaultSiteContent } from "@/lib/site-content.shared";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 
 const CAROUSEL_INTERVAL_MS = 6500;
 
 export default function Hero() {
   const { t } = useLanguage();
-  const { content } = useSiteContent();
+  const { content, isLoading } = useSiteContent();
+  const [hydrated, setHydrated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const carouselRegionRef = useRef<HTMLDivElement>(null);
   const { heroHeadline, heroHighlight, heroTail, heroBadge } = content;
@@ -39,15 +42,19 @@ export default function Hero() {
   const [carouselDir, setCarouselDir] = useState(1);
   const [carouselPaused, setCarouselPaused] = useState(false);
 
-  const heroSlides = useMemo(
-    () =>
-      content.heroCarouselSlides.map((s) => ({
-        key: s.id,
-        src: s.src,
-        alt: s.alt,
-      })),
-    [content.heroCarouselSlides]
-  );
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  const heroSlides = useMemo(() => {
+    const source =
+      hydrated && !isLoading ? content.heroCarouselSlides : defaultSiteContent.heroCarouselSlides;
+    return source.map((s) => ({
+      key: s.id,
+      src: s.src,
+      alt: s.alt,
+    }));
+  }, [content.heroCarouselSlides, hydrated, isLoading]);
 
   useEffect(() => {
     startTransition(() => {
@@ -290,7 +297,7 @@ export default function Hero() {
                           alt={heroSlides[carouselIndex].alt}
                           fill
                           sizes="(min-width: 1024px) min(620px,46vw), (min-width: 640px) min(360px,76vw), 72vw"
-                          unoptimized={/^https?:\/\//i.test(heroSlides[carouselIndex].src)}
+                          unoptimized={shouldUseUnoptimizedImage(heroSlides[carouselIndex].src)}
                           className="object-contain scale-95 select-none drop-shadow-[0_24px_64px_rgba(0,0,0,0.38)] sm:scale-100 lg:scale-[1.08] dark:drop-shadow-[0_28px_70px_rgba(0,0,0,0.55)]"
                           priority={carouselIndex === 0}
                         />

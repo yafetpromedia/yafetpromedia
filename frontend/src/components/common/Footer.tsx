@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 
 function digitsToDisplayPhone(digits: string): string {
   const d = digits.replace(/\D/g, "");
@@ -27,8 +29,14 @@ function digitsToDisplayPhone(digits: string): string {
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const { content } = useSiteContent();
-  const logoSrc = content.siteLogoSrc || defaultSiteContent.siteLogoSrc;
+  const { content, isLoading } = useSiteContent();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+  const logoSrc =
+    (hydrated && !isLoading ? content.siteLogoSrc : defaultSiteContent.siteLogoSrc) ||
+    defaultSiteContent.siteLogoSrc;
   const phoneFromWhatsApp = digitsToDisplayPhone(content.whatsappNumber);
   const phoneDisplay =
     content.contactPhone.trim() ||
@@ -86,7 +94,7 @@ export default function Footer() {
                   width={30}
                   height={30}
                   className="size-full object-contain"
-                  unoptimized={/^https?:\/\//i.test(logoSrc)}
+                  unoptimized={shouldUseUnoptimizedImage(logoSrc)}
                 />
               </div>
               <span className="text-xl font-semibold tracking-tight text-foreground md:text-[1.35rem]">

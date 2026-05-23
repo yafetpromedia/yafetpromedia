@@ -9,6 +9,7 @@ import FadeIn from "@/components/animations/FadeIn";
 import ProductLearnMoreDialog from "@/components/products/ProductLearnMoreDialog";
 import ProductsCatalogDialog from "@/components/products/ProductsCatalogDialog";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import { cn } from "@/lib/utils";
 import type { ProductCard } from "@/lib/site-content.shared";
 
@@ -66,7 +67,7 @@ function ProductImage({ src, className, priority }: { src: string; className?: s
         fill
         sizes="(max-width: 768px) 100vw, 40vw"
         className="object-cover object-center transition duration-700 group-hover:scale-[1.03]"
-        unoptimized={/^https?:\/\//i.test(src)}
+        unoptimized={shouldUseUnoptimizedImage(src)}
         priority={priority}
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import type { ProductCard } from "@/lib/site-content.shared";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -43,7 +44,7 @@ function CatalogThumb({ src }: { src: string }) {
       fill
       className="object-cover object-center"
       sizes="(max-width: 640px) 100vw, 180px"
-      unoptimized={/^https?:\/\//i.test(src)}
+      unoptimized={shouldUseUnoptimizedImage(src)}
     />
   );
 }

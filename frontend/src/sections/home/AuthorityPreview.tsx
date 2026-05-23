@@ -6,6 +6,7 @@ import SectionWrapper from "@/components/common/SectionWrapper";
 import FadeIn from "@/components/animations/FadeIn";
 import { ArrowUpRight } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import PublicationsCatalogDialog from "@/components/publications/PublicationsCatalogDialog";
 import PublicationReadDialog from "@/components/publications/PublicationReadDialog";
 import type { PublicationCard } from "@/lib/site-content.shared";
@@ -44,7 +45,7 @@ function PublicationCardView({
             fill
             className="object-cover object-center transition-transform duration-300 ease-out group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, 33vw"
-            unoptimized={/^https?:\/\//i.test(item.imageSrc)}
+            unoptimized={shouldUseUnoptimizedImage(item.imageSrc)}
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
         </div>

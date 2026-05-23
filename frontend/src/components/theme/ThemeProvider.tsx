@@ -12,13 +12,6 @@ type ThemeContextType = {
 
 const ThemeContext = React.createContext<ThemeContextType | null>(null);
 
-function getInitialTheme(defaultTheme: Theme) {
-  if (typeof window === "undefined") return defaultTheme;
-  const saved = window.localStorage.getItem("theme");
-  if (saved === "light" || saved === "dark") return saved;
-  return defaultTheme;
-}
-
 export function ThemeProvider({
   children,
   defaultTheme = "dark",
@@ -26,7 +19,14 @@ export function ThemeProvider({
   children: React.ReactNode;
   defaultTheme?: Theme;
 }) {
-  const [theme, setTheme] = React.useState<Theme>(() => getInitialTheme(defaultTheme));
+  const [theme, setTheme] = React.useState<Theme>(defaultTheme);
+
+  React.useEffect(() => {
+    const saved = window.localStorage.getItem("theme");
+    if (saved === "light" || saved === "dark") {
+      setTheme(saved);
+    }
+  }, []);
 
   React.useEffect(() => {
     const root = document.documentElement;
