@@ -7,6 +7,7 @@ import {
   Home,
   LayoutDashboard,
   LayoutTemplate,
+  ClipboardList,
   Inbox,
   Shield,
   Sparkles,
@@ -18,6 +19,8 @@ import {
   ListChecks,
   MessageSquareQuote,
   Users,
+  Layers,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AdminSidebar from "@/app/admin/components/AdminSidebar";
@@ -57,18 +60,21 @@ export default function AdminClient({
     const full: AdminNavItem[] = [
       { id: "overview", label: "Overview", icon: LayoutDashboard, href: "/admin" },
       { id: "hero", label: "Hero", icon: Home, href: "/admin/hero" },
+      { id: "ecosystem", label: "Ecosystem", icon: Layers, href: "/admin/ecosystem" },
       { id: "systems", label: "Systems", icon: Sparkles, href: "/admin/systems" },
       { id: "explore", label: "Explore dialog", icon: LayoutTemplate, href: "/admin/explore" },
       { id: "services", label: "Services", icon: Wrench, href: "/admin/services" },
       { id: "products", label: "Products", icon: Package, href: "/admin/products" },
-      { id: "caseStudies", label: "Case Studies", icon: BriefcaseBusiness, href: "/admin/case-studies" },
-      { id: "publications", label: "Publications", icon: Library, href: "/admin/publications" },
+      { id: "caseStudies", label: "Portfolio", icon: BriefcaseBusiness, href: "/admin/case-studies" },
+      { id: "publications", label: "Blog / Insights", icon: Library, href: "/admin/publications" },
+      { id: "about", label: "About Yafet", icon: User, href: "/admin/about" },
       { id: "trust", label: "Trust", icon: Handshake, href: "/admin/trust" },
       { id: "testimonials", label: "Testimonials", icon: MessageSquareQuote, href: "/admin/testimonials" },
       { id: "processFaq", label: "Process & FAQ", icon: ListChecks, href: "/admin/process-faq" },
       { id: "contact", label: "Contact & Assistant", icon: Bot, href: "/admin/contact" },
       { id: "team", label: "Team", icon: Users, href: "/admin/team" },
       { id: "leads", label: "Messages", icon: Inbox, href: "/admin/leads" },
+      { id: "consultations", label: "AI Consultations", icon: ClipboardList, href: "/admin/consultations" },
       { id: "security", label: "Security", icon: Shield, href: "/admin/security" },
       { id: "ai", label: "AI Provider", icon: Bot, href: "/admin/ai" },
     ];
@@ -77,18 +83,21 @@ export default function AdminClient({
       const required: Partial<Record<typeof item.id, AdminPermission>> = {
         overview: "content.view",
         hero: "content.view",
+        ecosystem: "content.view",
         systems: "content.view",
         explore: "content.view",
         services: "content.view",
         products: "content.view",
         caseStudies: "content.view",
         publications: "content.view",
+        about: "content.view",
         trust: "content.view",
         testimonials: "testimonials.view",
         processFaq: "content.view",
         contact: "content.view",
         team: "team.view",
         leads: "leads.view",
+        consultations: "leads.view",
         security: "security.view",
         ai: "ai.view",
       };
@@ -101,6 +110,7 @@ export default function AdminClient({
     canAccess(viewerRole, viewerPermissions, "content.edit") &&
     activeSection !== "overview" &&
     activeSection !== "leads" &&
+    activeSection !== "consultations" &&
     activeSection !== "security" &&
     activeSection !== "team" &&
     activeSection !== "ai";

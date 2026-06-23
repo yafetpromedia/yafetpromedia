@@ -1,4 +1,5 @@
 import Hero from "@/sections/home/Hero";
+import EcosystemSection from "@/sections/home/EcosystemSection";
 import SystemsOverview from "@/sections/home/SystemsOverview";
 import ServicesGrid from "@/sections/home/ServicesGrid";
 import ProductsPreview from "@/sections/home/ProductsPreview";
@@ -13,6 +14,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
+      <EcosystemSection />
       <SystemsOverview />
       <ServicesGrid />
       <ProductsPreview />

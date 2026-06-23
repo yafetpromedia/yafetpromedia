@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Check, ChevronDown, Languages, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -109,13 +109,15 @@ function canUseGoogleProxyTranslate() {
 
 export default function GoogleTranslateWidgetStable({ className }: { className?: string }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const [lang, setLang] = useState("en");
+  const cookieLang = useSyncExternalStore(
+    () => () => {},
+    getCookieLang,
+    () => "en"
+  );
+  const [pickedLang, setPickedLang] = useState<string | null>(null);
+  const lang = pickedLang ?? cookieLang;
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    setLang(getCookieLang());
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -156,7 +158,7 @@ export default function GoogleTranslateWidgetStable({ className }: { className?:
   }, []);
 
   const onSelect = useCallback((next: string) => {
-    setLang(next);
+    setPickedLang(next);
     setOpen(false);
     setQuery("");
     setCookieLang(next);

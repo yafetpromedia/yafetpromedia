@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -17,6 +16,7 @@ import {
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
+import { useHydrated } from "@/lib/use-hydrated";
 
 function digitsToDisplayPhone(digits: string): string {
   const d = digits.replace(/\D/g, "");
@@ -30,10 +30,7 @@ function digitsToDisplayPhone(digits: string): string {
 export default function Footer() {
   const year = new Date().getFullYear();
   const { content, isLoading } = useSiteContent();
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  const hydrated = useHydrated();
   const logoSrc =
     (hydrated && !isLoading ? content.siteLogoSrc : defaultSiteContent.siteLogoSrc) ||
     defaultSiteContent.siteLogoSrc;
@@ -123,11 +120,11 @@ export default function Footer() {
             <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Solutions</h2>
             <ul className="flex flex-col gap-1">
               {[
+                { label: "Ecosystem", href: "#ecosystem" },
                 { label: "Digital Infrastructure", href: "#systems" },
                 { label: "Services", href: "#services" },
                 { label: "Products", href: "#products" },
-                { label: "Case Studies", href: "#case-studies" },
-                { label: "Trust", href: "#trust" },
+                { label: "Portfolio", href: "#case-studies" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link href={item.href} className={linkCls}>
@@ -155,7 +152,8 @@ export default function Footer() {
             <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Company</h2>
             <ul className="flex flex-col gap-1">
               {[
-                { label: "About", href: "#services" },
+                { label: "About Yafet", href: "/about/yafet" },
+                { label: "Insights", href: "/#insights" },
                 { label: "Process & FAQ", href: "#process-faq" },
                 { label: "Contact", href: "#contact" },
               ].map((item) => (

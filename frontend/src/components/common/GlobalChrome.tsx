@@ -6,6 +6,7 @@ import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import ScrollProgress from "@/components/common/ScrollProgress";
 import FloatingActionCluster from "@/components/common/FloatingActionCluster";
+import PageViewTracker from "@/components/common/PageViewTracker";
 
 function ChromeTop() {
   const pathname = usePathname();
@@ -36,6 +37,7 @@ function ChromeBottom() {
 export default function GlobalChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <PageViewTracker />
       <Suspense fallback={null}>
         <ChromeTop />
       </Suspense>

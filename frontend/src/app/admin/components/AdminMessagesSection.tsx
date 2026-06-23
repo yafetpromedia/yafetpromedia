@@ -2,14 +2,91 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Inbox, Mail, PhoneCall, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  Inbox,
+  Mail,
+  PhoneCall,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import AdminListFilter from "@/app/admin/components/AdminListFilter";
 import type { Lead } from "@/app/admin/types";
 import { matchesAdminFilter } from "@/lib/admin-filter";
 import { cn } from "@/lib/utils";
 
 type Props = { initialLeads: Lead[] };
+
+type ParsedLeadMessage = {
+  isConsultant: boolean;
+  preview: string;
+  full: string;
+  consultant?: {
+    project: string;
+    industry: string;
+    budget: string;
+    timeline: string;
+    leadScore: string;
+    estimatedCost: string;
+    estimatedTimeline: string;
+    brief: string;
+  };
+};
+
+const CONSULTANT_MARKER = "— AI Project Consultant lead —";
+const BRIEF_MARKER = "--- Generated brief ---";
+
+function fieldFromBlock(block: string, label: string): string {
+  const re = new RegExp(`^${label}:\\s*(.+)$`, "im");
+  return block.match(re)?.[1]?.trim() ?? "";
+}
+
+function parseLeadMessage(message: string): ParsedLeadMessage {
+  if (!message.includes(CONSULTANT_MARKER)) {
+    const oneLine = message.replace(/\s+/g, " ").trim();
+    const preview = oneLine.length > 160 ? `${oneLine.slice(0, 160)}…` : oneLine;
+    return { isConsultant: false, preview, full: message };
+  }
+
+  const headerEnd = message.indexOf(BRIEF_MARKER);
+  const header = headerEnd >= 0 ? message.slice(0, headerEnd) : message;
+  const brief = headerEnd >= 0 ? message.slice(headerEnd + BRIEF_MARKER.length).trim() : "";
+
+  const project = fieldFromBlock(header, "Project");
+  const budget = fieldFromBlock(header, "Budget");
+  const timeline = fieldFromBlock(header, "Timeline");
+  const leadScore = fieldFromBlock(header, "Lead score");
+
+  return {
+    isConsultant: true,
+    preview: [project, budget, timeline].filter(Boolean).join(" · ") || "AI consultation lead",
+    full: message,
+    consultant: {
+      project,
+      industry: fieldFromBlock(header, "Industry"),
+      budget,
+      timeline,
+      leadScore,
+      estimatedCost: fieldFromBlock(header, "Est. cost"),
+      estimatedTimeline: fieldFromBlock(header, "Est. duration"),
+      brief,
+    },
+  };
+}
+
+function displayName(lead: Lead): string {
+  const name = lead.name.trim();
+  if (name.length <= 48) return name;
+  if (lead.email && name.toLowerCase().includes(lead.email.toLowerCase())) {
+    return lead.email.split("@")[0] ?? name.slice(0, 48);
+  }
+  return `${name.slice(0, 45)}…`;
+}
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -32,14 +109,18 @@ const dangerBtn = cn(
 export default function AdminMessagesSection({ initialLeads }: Props) {
   const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [prevInitialLeads, setPrevInitialLeads] = useState(initialLeads);
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  useEffect(() => {
+  if (initialLeads !== prevInitialLeads) {
+    setPrevInitialLeads(initialLeads);
     setLeads(initialLeads);
-  }, [initialLeads]);
+  }
 
   const count = leads.length;
   const [inboxFilter, setInboxFilter] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(() => new Set());
+
   const filteredLeads = useMemo(() => {
     if (!inboxFilter.trim()) return leads;
     return leads.filter((lead) =>
@@ -55,6 +136,18 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
       )
     );
   }, [leads, inboxFilter]);
+
+  const toggleExpanded = (id: number) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const collapseAll = () => setExpandedIds(new Set());
+  const expandAll = () => setExpandedIds(new Set(filteredLeads.map((l) => l.id)));
 
   const setHandled = async (lead: Lead, handled: boolean) => {
     const prev = lead.handled;
@@ -141,8 +234,26 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Inbox</h4>
-              <p className="mt-1 text-sm text-foreground/55">Newest submissions appear first in this list.</p>
+              <p className="mt-1 text-sm text-foreground/55">Newest submissions appear first. Details are collapsed by default.</p>
             </div>
+            {count > 0 ? (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={collapseAll}
+                  className="rounded-lg border border-border/70 px-2.5 py-1.5 text-[11px] font-semibold text-foreground/60 hover:border-primary/35 hover:text-foreground"
+                >
+                  Collapse all
+                </button>
+                <button
+                  type="button"
+                  onClick={expandAll}
+                  className="rounded-lg border border-border/70 px-2.5 py-1.5 text-[11px] font-semibold text-foreground/60 hover:border-primary/35 hover:text-foreground"
+                >
+                  Expand all
+                </button>
+              </div>
+            ) : null}
           </div>
           <AdminListFilter
             id="admin-messages-filter"
@@ -173,8 +284,10 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
               </p>
             ) : null}
             {filteredLeads.map((lead) => {
+              const parsed = parseLeadMessage(lead.message);
+              const expanded = expandedIds.has(lead.id);
               const replySubject = encodeURIComponent(`Re: Your message to Yafetpromedia`);
-              const replyBody = encodeURIComponent(`Hi ${lead.name},\n\nThank you for reaching out.\n\n`);
+              const replyBody = encodeURIComponent(`Hi ${displayName(lead)},\n\nThank you for reaching out.\n\n`);
               const mailtoHref = `mailto:${lead.email}?subject=${replySubject}&body=${replyBody}`;
               const telHref = lead.phone.trim() !== "" ? `tel:${lead.phone.replace(/\s+/g, "")}` : null;
 
@@ -184,110 +297,203 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
                   className="group relative overflow-hidden rounded-2xl border border-border/65 bg-background/70 shadow-sm transition hover:border-amber-500/22 hover:shadow-md dark:bg-white/[0.03]"
                 >
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/35 to-transparent opacity-0 transition group-hover:opacity-100" />
-                  <div className="p-5 sm:p-6">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-                      <div
-                        className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/15 text-sm font-bold tracking-tight text-amber-950 ring-1 ring-amber-500/25 dark:text-amber-200"
-                        aria-hidden
-                      >
-                        {initials(lead.name)}
+
+                  {/* Compact header — always visible */}
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(lead.id)}
+                    className="flex w-full items-start gap-4 p-4 text-left sm:gap-5 sm:p-5"
+                  >
+                    <div
+                      className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/15 text-xs font-bold tracking-tight text-amber-950 ring-1 ring-amber-500/25 dark:text-amber-200"
+                      aria-hidden
+                    >
+                      {initials(lead.name)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-semibold leading-snug tracking-tight text-foreground">
+                          {displayName(lead)}
+                        </h4>
+                        {parsed.isConsultant ? (
+                          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-500/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet-700 ring-1 ring-violet-500/20 dark:text-violet-300">
+                            <ClipboardList className="size-3" />
+                            AI Plan
+                          </span>
+                        ) : null}
+                        <span
+                          className={cn(
+                            "inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                            lead.handled
+                              ? "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-500/25 dark:text-emerald-400"
+                              : "bg-amber-500/15 text-amber-950 ring-1 ring-amber-500/22 dark:text-amber-400"
+                          )}
+                        >
+                          {lead.handled ? "Handled" : "Needs reply"}
+                        </span>
                       </div>
-                      <div className="min-w-0 flex-1 space-y-3">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="font-semibold leading-snug tracking-tight text-foreground break-words">
-                                {lead.name}
-                              </h4>
-                              <span
-                                className={cn(
-                                  "inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
-                                  lead.handled
-                                    ? "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-500/25 dark:text-emerald-400"
-                                    : "bg-amber-500/15 text-amber-950 ring-1 ring-amber-500/22 dark:text-amber-400"
-                                )}
-                              >
-                                {lead.handled ? "Handled" : "Needs reply"}
-                              </span>
-                            </div>
-                            {lead.company.trim() !== "" ? (
-                              <p className="mt-1 inline-flex rounded-full border border-border/60 bg-card/60 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-foreground/55">
-                                {lead.company}
-                              </p>
-                            ) : null}
-                          </div>
-                          <time
-                            className="shrink-0 text-[11px] font-medium tabular-nums text-foreground/45 sm:text-right"
-                            dateTime={lead.created_at}
-                          >
-                            {new Date(lead.created_at).toLocaleString()}
-                          </time>
-                        </div>
 
-                        <div className="flex flex-wrap gap-2">
-                          <a href={mailtoHref} className={actionBtn}>
-                            <Mail className="size-3.5 shrink-0 opacity-80" />
-                            Reply by email
-                          </a>
-                          {telHref ? (
-                            <a href={telHref} className={actionBtn}>
-                              <PhoneCall className="size-3.5 shrink-0 opacity-80" />
-                              Call
-                            </a>
+                      <p className="mt-1 truncate text-sm text-primary">{lead.email}</p>
+
+                      {parsed.isConsultant && parsed.consultant ? (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {parsed.consultant.project ? (
+                            <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[11px] text-foreground/70">
+                              {parsed.consultant.project}
+                            </span>
                           ) : null}
-                          <button
-                            type="button"
-                            className={cn(
-                              actionBtn,
-                              lead.handled
-                                ? "border-border/80 text-foreground/75 hover:border-amber-500/35 hover:bg-amber-500/[0.07]"
-                                : "border-emerald-500/28 text-emerald-900 hover:border-emerald-500/45 hover:bg-emerald-500/[0.09] dark:text-emerald-400 dark:hover:text-emerald-300"
-                            )}
-                            disabled={busyId === lead.id}
-                            aria-busy={busyId === lead.id}
-                            onClick={() => void setHandled(lead, !lead.handled)}
-                          >
-                            {lead.handled ? (
-                              <>
-                                <RotateCcw className="size-3.5 shrink-0 opacity-85" />
-                                Needs reply
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="size-3.5 shrink-0 opacity-85" />
-                                Mark handled
-                              </>
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            className={cn(dangerBtn, "disabled:pointer-events-none disabled:opacity-45")}
-                            disabled={busyId === lead.id}
-                            aria-busy={busyId === lead.id}
-                            onClick={() => void remove(lead)}
-                          >
-                            <Trash2 className="size-3.5 shrink-0 opacity-90" />
-                            Delete
-                          </button>
+                          {parsed.consultant.budget ? (
+                            <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[11px] text-foreground/70">
+                              {parsed.consultant.budget}
+                            </span>
+                          ) : null}
+                          {parsed.consultant.timeline ? (
+                            <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[11px] text-foreground/70">
+                              {parsed.consultant.timeline}
+                            </span>
+                          ) : null}
+                          {parsed.consultant.leadScore ? (
+                            <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                              {parsed.consultant.leadScore}
+                            </span>
+                          ) : null}
                         </div>
+                      ) : (
+                        <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-foreground/55">{parsed.preview}</p>
+                      )}
 
-                        <div className="space-y-2 rounded-2xl border border-border/50 bg-muted/25 px-4 py-3 dark:bg-white/[0.03]">
-                          <a
-                            href={`mailto:${lead.email}`}
-                            className="block text-sm font-medium text-primary underline-offset-2 hover:underline break-all"
-                          >
-                            {lead.email}
+                      {lead.company.trim() !== "" ? (
+                        <p className="mt-2 truncate text-[11px] font-medium uppercase tracking-wider text-foreground/40">
+                          {lead.company}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <time
+                        className="text-[10px] font-medium tabular-nums text-foreground/45"
+                        dateTime={lead.created_at}
+                      >
+                        {new Date(lead.created_at).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </time>
+                      <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-foreground/45">
+                        {expanded ? (
+                          <>
+                            Hide
+                            <ChevronUp className="size-3.5" />
+                          </>
+                        ) : (
+                          <>
+                            Details
+                            <ChevronDown className="size-3.5" />
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Expanded detail */}
+                  {expanded ? (
+                    <div className="border-t border-border/50 px-4 pb-4 pt-3 sm:px-5 sm:pb-5">
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        <a href={mailtoHref} className={actionBtn} onClick={(e) => e.stopPropagation()}>
+                          <Mail className="size-3.5 shrink-0 opacity-80" />
+                          Reply by email
+                        </a>
+                        {telHref ? (
+                          <a href={telHref} className={actionBtn} onClick={(e) => e.stopPropagation()}>
+                            <PhoneCall className="size-3.5 shrink-0 opacity-80" />
+                            Call
                           </a>
+                        ) : null}
+                        <button
+                          type="button"
+                          className={cn(
+                            actionBtn,
+                            lead.handled
+                              ? "border-border/80 text-foreground/75 hover:border-amber-500/35 hover:bg-amber-500/[0.07]"
+                              : "border-emerald-500/28 text-emerald-900 hover:border-emerald-500/45 hover:bg-emerald-500/[0.09] dark:text-emerald-400 dark:hover:text-emerald-300"
+                          )}
+                          disabled={busyId === lead.id}
+                          onClick={() => void setHandled(lead, !lead.handled)}
+                        >
+                          {lead.handled ? (
+                            <>
+                              <RotateCcw className="size-3.5 shrink-0 opacity-85" />
+                              Needs reply
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="size-3.5 shrink-0 opacity-85" />
+                              Mark handled
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className={cn(dangerBtn, "disabled:pointer-events-none disabled:opacity-45")}
+                          disabled={busyId === lead.id}
+                          onClick={() => void remove(lead)}
+                        >
+                          <Trash2 className="size-3.5 shrink-0 opacity-90" />
+                          Delete
+                        </button>
+                      </div>
+
+                      {parsed.isConsultant && parsed.consultant ? (
+                        <div className="space-y-3">
+                          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-xl border border-border/50 bg-muted/20 p-3 text-xs sm:grid-cols-3">
+                            {parsed.consultant.industry ? (
+                              <div>
+                                <dt className="text-foreground/45">Industry</dt>
+                                <dd className="font-medium text-foreground/80">{parsed.consultant.industry}</dd>
+                              </div>
+                            ) : null}
+                            {parsed.consultant.estimatedCost ? (
+                              <div>
+                                <dt className="text-foreground/45">Est. cost</dt>
+                                <dd className="font-medium text-foreground/80">{parsed.consultant.estimatedCost}</dd>
+                              </div>
+                            ) : null}
+                            {parsed.consultant.estimatedTimeline ? (
+                              <div>
+                                <dt className="text-foreground/45">Est. timeline</dt>
+                                <dd className="font-medium text-foreground/80">{parsed.consultant.estimatedTimeline}</dd>
+                              </div>
+                            ) : null}
+                            {lead.phone.trim() ? (
+                              <div>
+                                <dt className="text-foreground/45">Phone</dt>
+                                <dd className="font-medium text-foreground/80">{lead.phone}</dd>
+                              </div>
+                            ) : null}
+                          </dl>
+                          {parsed.consultant.brief ? (
+                            <div className="max-h-64 overflow-y-auto rounded-xl border border-border/50 bg-background/60 p-3">
+                              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-foreground/45">
+                                Generated brief
+                              </p>
+                              <pre className="whitespace-pre-wrap break-words text-xs leading-relaxed text-foreground/75">
+                                {parsed.consultant.brief}
+                              </pre>
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-border/50 bg-muted/20 px-4 py-3">
                           {lead.phone.trim() !== "" ? (
-                            <p className="text-sm text-foreground/70">{lead.phone}</p>
+                            <p className="mb-2 text-sm text-foreground/70">{lead.phone}</p>
                           ) : null}
                           <p className="text-sm leading-relaxed text-foreground/82 whitespace-pre-wrap break-words">
                             {lead.message}
                           </p>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  </div>
+                  ) : null}
                 </article>
               );
             })}

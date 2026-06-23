@@ -17,22 +17,26 @@ import {
   TestimonialSubmission,
 } from "@/app/admin/types";
 import type { AdminPermission } from "@/app/admin/types";
+import { resolveActiveAiProvider } from "@/lib/ai-chat-provider";
 
 const SECTION_PERMISSIONS: Partial<Record<AdminSection, AdminPermission>> = {
   overview: "content.view",
   hero: "content.view",
+  ecosystem: "content.view",
   systems: "content.view",
   explore: "content.view",
   services: "content.view",
   products: "content.view",
   caseStudies: "content.view",
   publications: "content.view",
+  about: "content.view",
   trust: "content.view",
   testimonials: "testimonials.view",
   processFaq: "content.view",
   contact: "content.view",
   team: "team.view",
   leads: "leads.view",
+  consultations: "leads.view",
   security: "security.view",
   ai: "ai.view",
 };
@@ -46,6 +50,7 @@ function sectionToPath(section: AdminSection): string {
   if (section === "overview") return "/admin";
   if (section === "caseStudies") return "/admin/case-studies";
   if (section === "processFaq") return "/admin/process-faq";
+  if (section === "about") return "/admin/about";
   return `/admin/${section}`;
 }
 
@@ -58,8 +63,12 @@ function emptyAnalytics(): DashboardAnalytics {
       testimonialsRejected: 0,
       chatTurns: 0,
       adminUsers: 0,
+      pageViews: 0,
+      pageViewsWeek: 0,
     },
     series: [],
+    topPages: [],
+    conversionRate: 0,
     recentLeads: [],
     recentChats: [],
     siteContentUpdatedAt: null,
@@ -76,6 +85,8 @@ async function fetchDashboardAnalytics(): Promise<DashboardAnalytics> {
       tm_approved: string;
       tm_rejected: string;
       admins: string;
+      views: string;
+      views_week: string;
     }>(
       `
       SELECT
@@ -84,11 +95,13 @@ async function fetchDashboardAnalytics(): Promise<DashboardAnalytics> {
         (SELECT COUNT(*)::text FROM testimonial_submissions WHERE status = 'pending') AS tm_pending,
         (SELECT COUNT(*)::text FROM testimonial_submissions WHERE status = 'approved') AS tm_approved,
         (SELECT COUNT(*)::text FROM testimonial_submissions WHERE status = 'rejected') AS tm_rejected,
-        (SELECT COUNT(*)::text FROM admin_users) AS admins
+        (SELECT COUNT(*)::text FROM admin_users) AS admins,
+        (SELECT COUNT(*)::text FROM page_views) AS views,
+        (SELECT COUNT(*)::text FROM page_views WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days') AS views_week
       `
     );
 
-    const seriesRows = await query<{ date: string; leads: string; chats: string }>(
+    const seriesRows = await query<{ date: string; leads: string; chats: string; views: string }>(
       `
       WITH series AS (
         SELECT generate_series(
@@ -108,15 +121,34 @@ async function fetchDashboardAnalytics(): Promise<DashboardAnalytics> {
         FROM chat_logs
         WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
         GROUP BY 1
+      ),
+      view_daily AS (
+        SELECT date_trunc('day', created_at)::date AS d, COUNT(*)::int AS n
+        FROM page_views
+        WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+        GROUP BY 1
       )
       SELECT
         series.day::text AS date,
         COALESCE(lead_daily.n, 0)::text AS leads,
-        COALESCE(chat_daily.n, 0)::text AS chats
+        COALESCE(chat_daily.n, 0)::text AS chats,
+        COALESCE(view_daily.n, 0)::text AS views
       FROM series
       LEFT JOIN lead_daily ON lead_daily.d = series.day
       LEFT JOIN chat_daily ON chat_daily.d = series.day
+      LEFT JOIN view_daily ON view_daily.d = series.day
       ORDER BY series.day
+      `
+    ).catch(() => []);
+
+    const topPages = await query<{ path: string; views: string }>(
+      `
+      SELECT path, COUNT(*)::text AS views
+      FROM page_views
+      WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+      GROUP BY path
+      ORDER BY COUNT(*) DESC
+      LIMIT 8
       `
     ).catch(() => []);
 
@@ -159,18 +191,27 @@ async function fetchDashboardAnalytics(): Promise<DashboardAnalytics> {
       date: row.date,
       leads: parseCt(row.leads),
       chats: parseCt(row.chats),
+      views: parseCt(row.views),
     }));
+
+    const totalViews = parseCt(counts?.views);
+    const totalLeads = parseCt(counts?.leads);
+    const conversionRate = totalViews > 0 ? Math.round((totalLeads / totalViews) * 1000) / 10 : 0;
 
     return {
       totals: {
-        leads: parseCt(counts?.leads),
+        leads: totalLeads,
         testimonialsPending: parseCt(counts?.tm_pending),
         testimonialsApproved: parseCt(counts?.tm_approved),
         testimonialsRejected: parseCt(counts?.tm_rejected),
         chatTurns: parseCt(counts?.chats),
         adminUsers: parseCt(counts?.admins),
+        pageViews: totalViews,
+        pageViewsWeek: parseCt(counts?.views_week),
       },
       series,
+      topPages: topPages.map((r) => ({ path: r.path, views: parseCt(r.views) })),
+      conversionRate,
       recentLeads,
       recentChats,
       siteContentUpdatedAt: updatedRow?.updated_at ?? null,
@@ -244,13 +285,12 @@ export async function getAdminPageData(initialSection: AdminSection) {
     .slice(0, 100);
 
   const aiStatus = {
-    geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
-    openAIConfigured: Boolean(process.env.OPENAI_API_KEY),
-    activeProvider: (Boolean(process.env.GEMINI_API_KEY)
-      ? "Gemini"
-      : Boolean(process.env.OPENAI_API_KEY)
-        ? "OpenAI"
-        : "Fallback") as "Gemini" | "OpenAI" | "Fallback",
+    freeModelConfigured: Boolean(process.env.AI_API_KEY?.trim()),
+    geminiConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
+    openAIConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
+    activeProvider: resolveActiveAiProvider(),
+    freeModel: process.env.AI_MODEL?.trim() || "claude-t0",
+    freeModelBaseUrl: process.env.AI_BASE_URL?.trim() || "https://api.freemodel.dev/v1",
     geminiModel: process.env.GEMINI_MODEL ?? "gemini-1.5-flash",
     openAIModel: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
   };

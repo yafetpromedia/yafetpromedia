@@ -10,9 +10,11 @@ import {
   Trash2,
   TrendingUp,
 } from "lucide-react";
+import Image from "next/image";
 import AdminListFilter from "@/app/admin/components/AdminListFilter";
 import type { CaseStudyCard, SiteContent } from "@/lib/site-content.shared";
 import { matchesAdminFilter } from "@/lib/admin-filter";
+import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import { cn } from "@/lib/utils";
 
 type Props = { draft: SiteContent; setDraft: Dispatch<SetStateAction<SiteContent>> };
@@ -41,13 +43,18 @@ const CASE_STUDY_MAX = 16;
 
 function emptyCaseStudyCard(): CaseStudyCard {
   return {
-    title: "New case study",
+    title: "New project",
     category: "Category",
     problem: "",
     solution: "",
     result: "",
     stat: "",
     statLabel: "",
+    clientName: "",
+    projectLink: "",
+    projectStatus: "completed",
+    technologies: [],
+    images: [],
   };
 }
 
@@ -86,6 +93,26 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
       caseStudiesCards: prev.caseStudiesCards.map((item, i) => (i === index ? { ...item, ...patch } : item)),
     }));
 
+  const uploadImage = async (index: number, file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("folder", "portfolio");
+    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+    if (!res.ok) return;
+    const data = (await res.json()) as { url?: string };
+    if (data.url) {
+      setDraft((prev) => {
+        const card = prev.caseStudiesCards[index];
+        if (!card) return prev;
+        const images = [...(card.images ?? []), data.url!].slice(0, 8);
+        return {
+          ...prev,
+          caseStudiesCards: prev.caseStudiesCards.map((c, i) => (i === index ? { ...c, images } : c)),
+        };
+      });
+    }
+  };
+
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
@@ -99,14 +126,14 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
             </span>
             <div>
               <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-sky-700/95 dark:text-sky-400/95">
-                Homepage · Case studies
+                Homepage · Portfolio
               </p>
               <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">
-                Proof & outcomes
+                Projects & case studies
               </h3>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-foreground/58">
-                Section headline, intro, and the View-all catalog link—plus each tile&apos;s problem → solution → result
-                story and headline metric (add/remove studies; max {CASE_STUDY_MAX}).
+                Full portfolio CMS — client, technologies, status, project link, and image gallery. Projects appear
+                automatically on the website.
               </p>
             </div>
           </div>
@@ -290,6 +317,90 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
                     className={inputCls}
                   />
                 </label>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className={labelCls}>Client name</span>
+                    <input
+                      value={card.clientName ?? ""}
+                      onChange={(e) => patchCard(index, { clientName: e.target.value })}
+                      placeholder="Client or organization"
+                      className={inputCls}
+                    />
+                  </label>
+                  <label className="block">
+                    <span className={labelCls}>Project status</span>
+                    <select
+                      value={card.projectStatus ?? "completed"}
+                      onChange={(e) =>
+                        patchCard(index, { projectStatus: e.target.value as CaseStudyCard["projectStatus"] })
+                      }
+                      className={inputCls}
+                    >
+                      <option value="live">Live</option>
+                      <option value="in-progress">In progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="concept">Concept</option>
+                    </select>
+                  </label>
+                  <label className="block sm:col-span-2">
+                    <span className={labelCls}>Project link</span>
+                    <input
+                      value={card.projectLink ?? ""}
+                      onChange={(e) => patchCard(index, { projectLink: e.target.value })}
+                      placeholder="https://…"
+                      className={inputCls}
+                    />
+                  </label>
+                  <label className="block sm:col-span-2">
+                    <span className={labelCls}>Technologies (comma-separated)</span>
+                    <input
+                      value={(card.technologies ?? []).join(", ")}
+                      onChange={(e) =>
+                        patchCard(index, {
+                          technologies: e.target.value
+                            .split(",")
+                            .map((t) => t.trim())
+                            .filter(Boolean),
+                        })
+                      }
+                      placeholder="Next.js, PostgreSQL, Figma"
+                      className={inputCls}
+                    />
+                  </label>
+                </div>
+
+                <div>
+                  <span className={labelCls}>Project images</span>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(card.images ?? []).map((src, imgIdx) => (
+                      <div key={imgIdx} className="relative size-16 overflow-hidden rounded-xl border">
+                        <Image src={src} alt="" fill className="object-cover" unoptimized={shouldUseUnoptimizedImage(src)} />
+                        <button
+                          type="button"
+                          className="absolute right-0 top-0 bg-red-600/90 p-0.5 text-white"
+                          onClick={() =>
+                            patchCard(index, { images: (card.images ?? []).filter((_, j) => j !== imgIdx) })
+                          }
+                        >
+                          <Trash2 className="size-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <label className="flex size-16 cursor-pointer items-center justify-center rounded-xl border border-dashed text-xs text-foreground/50 hover:border-primary/40">
+                      +
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) void uploadImage(index, f);
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
 
                 <div className="rounded-2xl border border-rose-500/18 bg-rose-500/[0.04] p-4 ring-1 ring-rose-500/10 dark:bg-rose-500/[0.06]">
                   <span className={cn(labelCls, "!mb-2 text-rose-800/90 dark:text-rose-300/95")}>Problem</span>

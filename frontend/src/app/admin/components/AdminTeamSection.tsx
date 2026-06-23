@@ -215,8 +215,24 @@ export default function AdminTeamSection() {
   }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let cancelled = false;
+    void (async () => {
+      const res = await fetch("/api/admin/users", { cache: "no-store" });
+      if (cancelled) return;
+      setLoading(false);
+      if (!res.ok) {
+        setError("Could not load team members.");
+        return;
+      }
+      const data = (await res.json()) as { users?: TeamUser[] };
+      if (cancelled) return;
+      setUsers(data.users ?? []);
+      setError("");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const createUser = async () => {
     setCreateOk("");

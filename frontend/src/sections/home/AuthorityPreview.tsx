@@ -82,7 +82,6 @@ export default function AuthorityPreview() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [readIndex, setReadIndex] = useState<number | null>(null);
   const landing = content.publicationsCards.slice(0, LANDING_PUBLICATIONS_LIMIT);
-  const hasMore = content.publicationsCards.length > LANDING_PUBLICATIONS_LIMIT;
 
   const readPublication = readIndex !== null ? content.publicationsCards[readIndex] ?? null : null;
 
@@ -105,18 +104,27 @@ export default function AuthorityPreview() {
             </p>
           </FadeIn>
         </div>
-        {hasMore && content.publicationsCatalogCtaLabel.trim() ? (
-          <FadeIn delay={0.2} className="shrink-0">
+        <FadeIn delay={0.2} className="shrink-0">
+          {content.publicationsCatalogCtaLabel.trim() ? (
             <button
               type="button"
               onClick={() => setCatalogOpen(true)}
-              className="inline-flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-bold uppercase tracking-wider text-foreground"
+              className="group inline-flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-bold uppercase tracking-wider text-foreground transition hover:border-primary hover:text-primary"
             >
               {content.publicationsCatalogCtaLabel}
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCatalogOpen(true)}
+              className="group inline-flex items-center gap-2 border-b border-border pb-2 text-sm font-bold uppercase tracking-wider text-foreground transition hover:border-primary hover:text-primary"
+            >
+              View all insights
               <ArrowUpRight className="size-4" />
             </button>
-          </FadeIn>
-        ) : null}
+          )}
+        </FadeIn>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -103,6 +103,32 @@ async function ensureSchema() {
       approved_at TIMESTAMPTZ NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS page_views (
+      id SERIAL PRIMARY KEY,
+      path TEXT NOT NULL,
+      referrer TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS project_consultations (
+      id SERIAL PRIMARY KEY,
+      session_id TEXT NOT NULL UNIQUE,
+      project_type TEXT NOT NULL DEFAULT '',
+      industry TEXT NOT NULL DEFAULT '',
+      budget TEXT NOT NULL DEFAULT '',
+      timeline TEXT NOT NULL DEFAULT '',
+      requirements JSONB NOT NULL DEFAULT '{}'::jsonb,
+      generated_brief TEXT NOT NULL DEFAULT '',
+      lead_score INTEGER NOT NULL DEFAULT 0,
+      client_name TEXT NOT NULL DEFAULT '',
+      client_email TEXT NOT NULL DEFAULT '',
+      complexity TEXT NOT NULL DEFAULT '',
+      estimated_cost TEXT NOT NULL DEFAULT '',
+      estimated_timeline TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'in_progress',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
   `);
 
   await getPool().query(`
@@ -163,6 +189,12 @@ async function ensureSchema() {
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS contact_lead_phone_placeholder TEXT NOT NULL DEFAULT '';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS login_password_reset_help TEXT NOT NULL DEFAULT '';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS site_logo_src TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS ecosystem_section_tag TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS ecosystem_section_title TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS ecosystem_section_description TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS ecosystem_parent_label TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS ecosystem_cards JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS about_yafet JSONB NOT NULL DEFAULT '{}'::jsonb;
   `);
 }
 

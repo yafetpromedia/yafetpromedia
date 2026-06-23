@@ -26,9 +26,12 @@ export type TestimonialSubmission = {
 };
 
 export type AIStatus = {
+  freeModelConfigured: boolean;
   geminiConfigured: boolean;
   openAIConfigured: boolean;
-  activeProvider: "Gemini" | "OpenAI" | "Fallback";
+  activeProvider: "FreeModel" | "Gemini" | "OpenAI" | "Fallback";
+  freeModel: string;
+  freeModelBaseUrl: string;
   geminiModel: string;
   openAIModel: string;
 };
@@ -42,9 +45,13 @@ export type DashboardAnalytics = {
     testimonialsRejected: number;
     chatTurns: number;
     adminUsers: number;
+    pageViews: number;
+    pageViewsWeek: number;
   };
   /** Last 30 calendar days, ISO date → counts */
-  series: { date: string; leads: number; chats: number }[];
+  series: { date: string; leads: number; chats: number; views: number }[];
+  topPages: { path: string; views: number }[];
+  conversionRate: number;
   recentLeads: {
     id: number;
     name: string;
@@ -60,18 +67,21 @@ export type DashboardAnalytics = {
 export type AdminSection =
   | "overview"
   | "hero"
+  | "ecosystem"
   | "systems"
   | "explore"
   | "services"
   | "products"
   | "caseStudies"
   | "publications"
+  | "about"
   | "trust"
   | "testimonials"
   | "processFaq"
   | "contact"
   | "team"
   | "leads"
+  | "consultations"
   | "security"
   | "ai";
 

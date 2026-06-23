@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
   ChevronDown,
   GitCompare,
@@ -83,9 +83,10 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
   const [serviceStripFilter, setServiceStripFilter] = useState("");
   const [trackDetailFilter, setTrackDetailFilter] = useState("");
 
-  useEffect(() => {
+  const selectTrack = (index: number) => {
+    setTIdx(index);
     setTrackDetailFilter("");
-  }, [tIdx]);
+  };
 
   const serviceStripPairs = useMemo(() => {
     const indexed = ex.serviceStrip.map((s, i) => ({ s, i }));
@@ -657,7 +658,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
             <button
               key={t.id}
               type="button"
-              onClick={() => setTIdx(i)}
+              onClick={() => selectTrack(i)}
               className={cn(
                 "min-h-[2.75rem] flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:min-w-[140px]",
                 tIdx === i

@@ -7,7 +7,11 @@ import {
   SystemsCard,
   TestimonialCard,
   TrustLogoItem,
+  type AboutYafetContent,
+  type CaseStudyCard,
+  type EcosystemProductCard,
 } from "@/lib/site-content.shared";
+import { slugify } from "@/lib/slug";
 import { sanitizeExploreArchitecture } from "@/lib/explore-architecture.shared";
 import { query } from "@db";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -225,6 +229,31 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
         learnMore: String(p.learnMore ?? def?.learnMore ?? "").slice(0, 2500),
       };
     }),
+    ecosystemSectionTag: String(input.ecosystemSectionTag ?? defaultSiteContent.ecosystemSectionTag).slice(0, 120),
+    ecosystemSectionTitle: String(input.ecosystemSectionTitle ?? defaultSiteContent.ecosystemSectionTitle).slice(0, 180),
+    ecosystemSectionDescription: String(
+      input.ecosystemSectionDescription ?? defaultSiteContent.ecosystemSectionDescription
+    ).slice(0, 500),
+    ecosystemParentLabel: String(input.ecosystemParentLabel ?? defaultSiteContent.ecosystemParentLabel).slice(0, 120),
+    ecosystemCards: (Array.isArray(input.ecosystemCards) ? input.ecosystemCards : defaultSiteContent.ecosystemCards)
+      .slice(0, 12)
+      .map((card, index) => {
+        const def =
+          defaultSiteContent.ecosystemCards[Math.min(index, defaultSiteContent.ecosystemCards.length - 1)]!;
+        const p = card as Partial<EcosystemProductCard>;
+        const statusRaw = String(p.status ?? def.status ?? "planned");
+        const status = statusRaw === "live" || statusRaw === "building" || statusRaw === "planned" ? statusRaw : "planned";
+        return {
+          title: String(p.title ?? def.title ?? "").slice(0, 80),
+          tagline: String(p.tagline ?? def.tagline ?? "").slice(0, 120),
+          description: String(p.description ?? def.description ?? "").slice(0, 600),
+          imageSrc: sanitizeOptionalImageUrl(p.imageSrc ?? def.imageSrc),
+          href: sanitizeProductHref(p.href ?? def.href),
+          linkLabel: String(p.linkLabel ?? def.linkLabel ?? "Learn more").slice(0, 48),
+          status,
+          featured: Boolean(p.featured ?? def.featured),
+        };
+      }),
     caseStudiesSectionTag: String(
       input.caseStudiesSectionTag ?? defaultSiteContent.caseStudiesSectionTag
     ).slice(0, 120),
@@ -237,15 +266,35 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     caseStudiesSectionCtaLabel: String(
       input.caseStudiesSectionCtaLabel ?? defaultSiteContent.caseStudiesSectionCtaLabel
     ).slice(0, 80),
-    caseStudiesCards: caseStudyCards.slice(0, 16).map((card, index) => ({
-      title: String(card?.title ?? defaultSiteContent.caseStudiesCards[index]?.title ?? "").slice(0, 120),
-      category: String(card?.category ?? defaultSiteContent.caseStudiesCards[index]?.category ?? "").slice(0, 80),
-      problem: String(card?.problem ?? defaultSiteContent.caseStudiesCards[index]?.problem ?? "").slice(0, 300),
-      solution: String(card?.solution ?? defaultSiteContent.caseStudiesCards[index]?.solution ?? "").slice(0, 300),
-      result: String(card?.result ?? defaultSiteContent.caseStudiesCards[index]?.result ?? "").slice(0, 220),
-      stat: String(card?.stat ?? defaultSiteContent.caseStudiesCards[index]?.stat ?? "").slice(0, 40),
-      statLabel: String(card?.statLabel ?? defaultSiteContent.caseStudiesCards[index]?.statLabel ?? "").slice(0, 60),
-    })),
+    caseStudiesCards: caseStudyCards.slice(0, 16).map((card, index) => {
+      const def = defaultSiteContent.caseStudiesCards[Math.min(index, defaultSiteContent.caseStudiesCards.length - 1)];
+      const c = card as Partial<CaseStudyCard>;
+      const statusRaw = String(c.projectStatus ?? def?.projectStatus ?? "completed");
+      const projectStatus =
+        statusRaw === "live" || statusRaw === "in-progress" || statusRaw === "completed" || statusRaw === "concept"
+          ? statusRaw
+          : "completed";
+      const technologies = Array.isArray(c.technologies)
+        ? c.technologies.map((t) => String(t ?? "").trim()).filter(Boolean).slice(0, 12)
+        : def?.technologies ?? [];
+      const images = Array.isArray(c.images)
+        ? c.images.map((img) => sanitizeOptionalImageUrl(img)).filter(Boolean).slice(0, 8)
+        : def?.images ?? [];
+      return {
+        title: String(c.title ?? def?.title ?? "").slice(0, 120),
+        category: String(c.category ?? def?.category ?? "").slice(0, 80),
+        problem: String(c.problem ?? def?.problem ?? "").slice(0, 300),
+        solution: String(c.solution ?? def?.solution ?? "").slice(0, 300),
+        result: String(c.result ?? def?.result ?? "").slice(0, 220),
+        stat: String(c.stat ?? def?.stat ?? "").slice(0, 40),
+        statLabel: String(c.statLabel ?? def?.statLabel ?? "").slice(0, 60),
+        clientName: String(c.clientName ?? def?.clientName ?? "").slice(0, 120),
+        projectLink: sanitizeProductHref(c.projectLink ?? def?.projectLink ?? ""),
+        projectStatus,
+        technologies,
+        images,
+      };
+    }),
     publicationsSectionTag: String(
       input.publicationsSectionTag ?? defaultSiteContent.publicationsSectionTag
     ).slice(0, 120),
@@ -262,9 +311,13 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
       const def =
         defaultSiteContent.publicationsCards[Math.min(index, defaultSiteContent.publicationsCards.length - 1)]!;
       const p = card as Partial<PublicationCard>;
+      const title = String(p.title ?? def.title ?? "").slice(0, 200);
+      const slugRaw = String(p.slug ?? def.slug ?? "").trim();
+      const slug = slugify(slugRaw || title) || `article-${index + 1}`;
       return {
-        title: String(p.title ?? def.title ?? "").slice(0, 200),
+        title,
         category: String(p.category ?? def.category ?? "").slice(0, 80),
+        slug,
         dateLabel: String(p.dateLabel ?? def.dateLabel ?? "").slice(0, 80),
         readTime: String(p.readTime ?? def.readTime ?? "").slice(0, 40),
         imageSrc: sanitizeOptionalImageUrl(p.imageSrc ?? def.imageSrc),
@@ -272,6 +325,23 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
         href: sanitizeProductHref(p.href ?? def.href),
       };
     }),
+    aboutYafet: (() => {
+      const raw = (input.aboutYafet ?? defaultSiteContent.aboutYafet) as Partial<AboutYafetContent>;
+      const def = defaultSiteContent.aboutYafet;
+      const achievements = Array.isArray(raw.achievements)
+        ? raw.achievements.map((a) => String(a ?? "").trim()).filter(Boolean).slice(0, 12)
+        : def.achievements;
+      return {
+        pageTitle: String(raw.pageTitle ?? def.pageTitle).slice(0, 120),
+        pageSubtitle: String(raw.pageSubtitle ?? def.pageSubtitle).slice(0, 280),
+        journey: String(raw.journey ?? def.journey).slice(0, 6000),
+        mission: String(raw.mission ?? def.mission).slice(0, 2000),
+        vision: String(raw.vision ?? def.vision).slice(0, 2000),
+        achievements,
+        projectsHighlight: String(raw.projectsHighlight ?? def.projectsHighlight).slice(0, 2000),
+        heroImageSrc: sanitizeOptionalImageUrl(raw.heroImageSrc ?? def.heroImageSrc),
+      };
+    })(),
     trustSectionTag: String(input.trustSectionTag ?? defaultSiteContent.trustSectionTag).slice(0, 120),
     trustSectionTitle: String(input.trustSectionTitle ?? defaultSiteContent.trustSectionTitle).slice(0, 180),
     trustLogoItems: trustLogos,
@@ -425,14 +495,22 @@ export async function readSiteContent(): Promise<SiteContent> {
       whatsapp_number: string;
       site_logo_src: string;
       explore_architecture: unknown;
+      ecosystem_section_tag?: string | null;
+      ecosystem_section_title?: string | null;
+      ecosystem_section_description?: string | null;
+      ecosystem_parent_label?: string | null;
+      ecosystem_cards?: unknown;
+      about_yafet?: unknown;
     }>(
       `
         SELECT hero_headline, hero_highlight, hero_tail, hero_badge, hero_carousel_slides,
                systems_section_tag, systems_section_title, systems_section_description, systems_explore_cta_label, systems_cards,
                services_section_tag, services_section_title, services_cards,
                products_section_tag, products_section_title, products_section_description, products_catalog_cta_label, products_cards,
+               ecosystem_section_tag, ecosystem_section_title, ecosystem_section_description, ecosystem_parent_label, ecosystem_cards,
                case_studies_section_tag, case_studies_section_title, case_studies_section_description, case_studies_section_cta_label, case_studies_cards,
                publications_section_tag, publications_section_title, publications_section_description, publications_catalog_cta_label, publications_cards,
+               about_yafet,
                trust_section_tag, trust_section_title, trust_logo_items, trust_testimonials,
                process_faq_section_tag, process_faq_section_title, process_faq_section_description,
                process_faq_process_card_label, process_faq_faq_card_label,
@@ -478,6 +556,15 @@ export async function readSiteContent(): Promise<SiteContent> {
       productsCards: Array.isArray(row.products_cards) && row.products_cards.length > 0
         ? (row.products_cards as SiteContent["productsCards"])
         : defaultSiteContent.productsCards,
+      ecosystemSectionTag: row.ecosystem_section_tag || defaultSiteContent.ecosystemSectionTag,
+      ecosystemSectionTitle: row.ecosystem_section_title || defaultSiteContent.ecosystemSectionTitle,
+      ecosystemSectionDescription:
+        row.ecosystem_section_description || defaultSiteContent.ecosystemSectionDescription,
+      ecosystemParentLabel: row.ecosystem_parent_label || defaultSiteContent.ecosystemParentLabel,
+      ecosystemCards:
+        Array.isArray(row.ecosystem_cards) && row.ecosystem_cards.length > 0
+          ? (row.ecosystem_cards as SiteContent["ecosystemCards"])
+          : defaultSiteContent.ecosystemCards,
       caseStudiesSectionTag: row.case_studies_section_tag || defaultSiteContent.caseStudiesSectionTag,
       caseStudiesSectionTitle: row.case_studies_section_title || defaultSiteContent.caseStudiesSectionTitle,
       caseStudiesSectionDescription:
@@ -499,6 +586,10 @@ export async function readSiteContent(): Promise<SiteContent> {
         Array.isArray(row.publications_cards) && row.publications_cards.length > 0
           ? (row.publications_cards as SiteContent["publicationsCards"])
           : defaultSiteContent.publicationsCards,
+      aboutYafet:
+        row.about_yafet && typeof row.about_yafet === "object"
+          ? (row.about_yafet as SiteContent["aboutYafet"])
+          : defaultSiteContent.aboutYafet,
       trustSectionTag: row.trust_section_tag || defaultSiteContent.trustSectionTag,
       trustSectionTitle: row.trust_section_title || defaultSiteContent.trustSectionTitle,
       trustLogoItems: Array.isArray(row.trust_logo_items) && row.trust_logo_items.length > 0
@@ -563,18 +654,20 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
             systems_section_tag = $6, systems_section_title = $7, systems_section_description = $8, systems_explore_cta_label = $9, systems_cards = $10::jsonb,
             services_section_tag = $11, services_section_title = $12, services_cards = $13::jsonb,
             products_section_tag = $14, products_section_title = $15, products_section_description = $16, products_catalog_cta_label = $17, products_cards = $18::jsonb,
-            case_studies_section_tag = $19, case_studies_section_title = $20, case_studies_section_description = $21, case_studies_section_cta_label = $22, case_studies_cards = $23::jsonb,
-            publications_section_tag = $24, publications_section_title = $25, publications_section_description = $26, publications_catalog_cta_label = $27, publications_cards = $28::jsonb,
-            trust_section_tag = $29, trust_section_title = $30, trust_logo_items = $31::jsonb, trust_testimonials = $32::jsonb,
-            process_faq_section_tag = $33, process_faq_section_title = $34, process_faq_section_description = $35, process_steps = $36::jsonb, faq_items = $37::jsonb,
-            contact_email = $38, contact_phone = $39, social_links = $40::jsonb, ai_name = $41, whatsapp_number = $42, explore_architecture = $43::jsonb,
-            process_faq_process_card_label = $44, process_faq_faq_card_label = $45,
-            contact_section_tag = $46, contact_section_title = $47, contact_section_description = $48,
-            contact_whatsapp_label = $49, contact_reply_note = $50, contact_submit_label = $51,
-            contact_name_placeholder = $52, contact_email_placeholder = $53, contact_company_placeholder = $54, contact_message_placeholder = $55,
-            contact_lead_phone_placeholder = $56,
-            login_password_reset_help = $57,
-            site_logo_src = $58,
+            ecosystem_section_tag = $19, ecosystem_section_title = $20, ecosystem_section_description = $21, ecosystem_parent_label = $22, ecosystem_cards = $23::jsonb,
+            case_studies_section_tag = $24, case_studies_section_title = $25, case_studies_section_description = $26, case_studies_section_cta_label = $27, case_studies_cards = $28::jsonb,
+            publications_section_tag = $29, publications_section_title = $30, publications_section_description = $31, publications_catalog_cta_label = $32, publications_cards = $33::jsonb,
+            about_yafet = $34::jsonb,
+            trust_section_tag = $35, trust_section_title = $36, trust_logo_items = $37::jsonb, trust_testimonials = $38::jsonb,
+            process_faq_section_tag = $39, process_faq_section_title = $40, process_faq_section_description = $41, process_steps = $42::jsonb, faq_items = $43::jsonb,
+            contact_email = $44, contact_phone = $45, social_links = $46::jsonb, ai_name = $47, whatsapp_number = $48, explore_architecture = $49::jsonb,
+            process_faq_process_card_label = $50, process_faq_faq_card_label = $51,
+            contact_section_tag = $52, contact_section_title = $53, contact_section_description = $54,
+            contact_whatsapp_label = $55, contact_reply_note = $56, contact_submit_label = $57,
+            contact_name_placeholder = $58, contact_email_placeholder = $59, contact_company_placeholder = $60, contact_message_placeholder = $61,
+            contact_lead_phone_placeholder = $62,
+            login_password_reset_help = $63,
+            site_logo_src = $64,
             updated_at = NOW()
         WHERE id = 1
       `,
@@ -597,6 +690,11 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
         content.productsSectionDescription,
         content.productsCatalogCtaLabel,
         JSON.stringify(content.productsCards),
+        content.ecosystemSectionTag,
+        content.ecosystemSectionTitle,
+        content.ecosystemSectionDescription,
+        content.ecosystemParentLabel,
+        JSON.stringify(content.ecosystemCards),
         content.caseStudiesSectionTag,
         content.caseStudiesSectionTitle,
         content.caseStudiesSectionDescription,
@@ -607,6 +705,7 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
         content.publicationsSectionDescription,
         content.publicationsCatalogCtaLabel,
         JSON.stringify(content.publicationsCards),
+        JSON.stringify(content.aboutYafet),
         content.trustSectionTag,
         content.trustSectionTitle,
         JSON.stringify(content.trustLogoItems),

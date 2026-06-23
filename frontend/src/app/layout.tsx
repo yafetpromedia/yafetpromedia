@@ -38,7 +38,12 @@ export default function RootLayout({
 }) {
   // Matches ThemeProvider defaultTheme so SSR/first paint use dark CSS variables (no white hero flash).
   return (
-    <html lang="en" className="scroll-smooth dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="scroll-smooth dark"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body
         suppressHydrationWarning
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}

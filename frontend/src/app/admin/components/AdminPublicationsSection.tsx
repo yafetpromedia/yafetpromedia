@@ -48,6 +48,7 @@ function emptyPublicationCard(): PublicationCard {
   return {
     title: "",
     category: "",
+    slug: "",
     dateLabel: "",
     readTime: "",
     imageSrc: "",
@@ -337,6 +338,16 @@ export default function AdminPublicationsSection({ draft, setDraft }: Props) {
                       value={card.title}
                       onChange={(e) => patchCard(index, { title: e.target.value })}
                       placeholder="Headline"
+                      className={inputCls}
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className={labelCls}>Shareable URL slug (optional)</span>
+                    <input
+                      value={card.slug ?? ""}
+                      onChange={(e) => patchCard(index, { slug: e.target.value })}
+                      placeholder="auto-from-title"
                       className={inputCls}
                     />
                   </label>

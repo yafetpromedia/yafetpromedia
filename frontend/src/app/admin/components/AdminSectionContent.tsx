@@ -9,8 +9,11 @@ import {
   TestimonialSubmission,
 } from "@/app/admin/types";
 import { SiteContent } from "@/lib/site-content.shared";
+import AdminAboutSection from "@/app/admin/components/AdminAboutSection";
 import AdminAIProviderSection from "@/app/admin/components/AdminAIProviderSection";
+import AdminEcosystemSection from "@/app/admin/components/AdminEcosystemSection";
 import AdminCaseStudiesSection from "@/app/admin/components/AdminCaseStudiesSection";
+import AdminConsultationsSection from "@/app/admin/components/AdminConsultationsSection";
 import AdminContactSection from "@/app/admin/components/AdminContactSection";
 import AdminExploreArchitectureEditor from "@/app/admin/components/AdminExploreArchitectureEditor";
 import AdminHeroSection from "@/app/admin/components/AdminHeroSection";
@@ -71,6 +74,10 @@ export default function AdminSectionContent({
     return <AdminHeroSection draft={draft} setDraft={setDraft} />;
   }
 
+  if (activeSection === "ecosystem") {
+    return <AdminEcosystemSection draft={draft} setDraft={setDraft} />;
+  }
+
   if (activeSection === "systems") {
     return <AdminSystemsSection draft={draft} setDraft={setDraft} />;
   }
@@ -95,6 +102,10 @@ export default function AdminSectionContent({
     return <AdminPublicationsSection draft={draft} setDraft={setDraft} />;
   }
 
+  if (activeSection === "about") {
+    return <AdminAboutSection draft={draft} setDraft={setDraft} />;
+  }
+
   if (activeSection === "testimonials") {
     return <AdminTestimonialsSection initialTestimonialSubmissions={initialTestimonialSubmissions} />;
   }
@@ -117,6 +128,10 @@ export default function AdminSectionContent({
 
   if (activeSection === "leads") {
     return <AdminMessagesSection initialLeads={initialLeads} />;
+  }
+
+  if (activeSection === "consultations") {
+    return <AdminConsultationsSection />;
   }
 
   if (activeSection === "security") {

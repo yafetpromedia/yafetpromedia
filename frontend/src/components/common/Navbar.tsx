@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,37 +13,54 @@ import GoogleTranslateWidget from "@/components/i18n/GoogleTranslateWidgetStable
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
+import { useHydrated } from "@/lib/use-hydrated";
 
 export default function Navbar() {
   const { content, isLoading } = useSiteContent();
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  const hydrated = useHydrated();
   const logoSrc =
     (hydrated && !isLoading ? content.siteLogoSrc : defaultSiteContent.siteLogoSrc) ||
     defaultSiteContent.siteLogoSrc;
+  const pathname = usePathname();
   const { t } = useLanguage();
-  const navLinks = useMemo(
-    () => [
-      { name: t("navSystems"), href: "#systems" },
-      { name: t("navServices"), href: "#services" },
-      { name: t("navProducts"), href: "#products" },
-      { name: t("navCaseStudies"), href: "#case-studies" },
-      { name: t("navTrust"), href: "#trust" },
-      { name: t("navProcessFaq"), href: "#process-faq" },
-    ],
-    [t]
-  );
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
 
+  const resolveHref = useCallback((href: string) => {
+    if (href.startsWith("#")) return pathname === "/" ? href : `/${href}`;
+    return href;
+  }, [pathname]);
+
+  const isLinkActive = useCallback(
+    (href: string) => {
+      if (href.startsWith("/")) {
+        return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+      }
+      return pathname === "/" && activeSection === href;
+    },
+    [pathname, activeSection]
+  );
+
+  const navLinks = useMemo(
+    () => [
+      { name: t("navEcosystem"), href: "#ecosystem" },
+      { name: t("navServices"), href: "#services" },
+      { name: t("navProducts"), href: "#products" },
+      { name: t("navCaseStudies"), href: "#case-studies" },
+      { name: t("navInsights"), href: "#insights" },
+      { name: t("navAbout"), href: "/about/yafet" },
+    ],
+    [t]
+  );
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+      if (pathname !== "/") return;
 
       const sectionMeta = navLinks
+        .filter((link) => link.href.startsWith("#"))
         .map((link) => {
           const id = link.href.replace("#", "");
           const section = document.getElementById(id);
@@ -86,7 +104,13 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, [navLinks]);
+  }, [navLinks, pathname]);
+
+  useEffect(() => {
+    if (pathname === "/about/yafet") setActiveSection("/about/yafet");
+    else if (pathname.startsWith("/blog/")) setActiveSection("#insights");
+    else if (pathname !== "/") setActiveSection("");
+  }, [pathname]);
 
   useEffect(() => {
     const handleSecretShortcut = (event: KeyboardEvent) => {
@@ -142,10 +166,10 @@ export default function Navbar() {
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
-                  href={link.href}
+                  href={resolveHref(link.href)}
                   className={cn(
                     "text-sm font-medium px-4 py-2 rounded-full transition-all duration-300",
-                    activeSection === link.href
+                    isLinkActive(link.href)
                       ? "text-primary-foreground bg-gradient-to-r from-primary to-[#ff9b4d] shadow-[0_8px_24px_rgba(255,106,0,0.35)]"
                       : "text-foreground/70 hover:text-foreground hover:bg-foreground/10"
                   )}
@@ -160,7 +184,7 @@ export default function Navbar() {
               <GoogleTranslateWidget />
               <ThemeToggle />
               <Link
-                href="#contact"
+                href={pathname === "/" ? "#contact" : "/#contact"}
                 className="rounded-full px-6 h-10 inline-flex items-center bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 group text-sm font-medium"
               >
                 {t("startProject")}
@@ -212,10 +236,10 @@ export default function Navbar() {
                   transition={{ delay: i * 0.1, duration: 0.4 }}
                 >
                   <Link
-                    href={link.href}
+                    href={resolveHref(link.href)}
                     className={cn(
                       "text-3xl font-display font-bold transition-colors",
-                      activeSection === link.href ? "text-primary" : "text-foreground/70 hover:text-foreground"
+                      isLinkActive(link.href) ? "text-primary" : "text-foreground/70 hover:text-foreground"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -232,7 +256,7 @@ export default function Navbar() {
               transition={{ delay: 0.4 }}
             >
               <Link
-                href="#contact"
+                href={pathname === "/" ? "#contact" : "/#contact"}
                 className="w-full rounded-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground inline-flex items-center justify-center font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

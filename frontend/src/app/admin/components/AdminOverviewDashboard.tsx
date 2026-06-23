@@ -21,6 +21,8 @@ import {
   Sparkles,
   Users,
   Zap,
+  Eye,
+  Percent,
 } from "lucide-react";
 import {
   Area,
@@ -195,6 +197,7 @@ export default function AdminOverviewDashboard({
 
   const leadSum30 = analytics.series.reduce((s, r) => s + r.leads, 0);
   const chatSum30 = analytics.series.reduce((s, r) => s + r.chats, 0);
+  const viewSum30 = analytics.series.reduce((s, r) => s + (r.views ?? 0), 0);
 
   const trendLead = useMemo(() => {
     const s = analytics.series;
@@ -315,7 +318,14 @@ export default function AdminOverviewDashboard({
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+        <KpiCard
+          icon={Eye}
+          label="Page views"
+          value={analytics.totals.pageViews}
+          sub={`${analytics.totals.pageViewsWeek} in the last 7 days · ${viewSum30} in chart window.`}
+          accent="primary"
+        />
         <KpiCard
           icon={Inbox}
           label="Total leads"
@@ -324,6 +334,12 @@ export default function AdminOverviewDashboard({
           trend={trendLead}
           spark={sparkLeads}
           accent="primary"
+        />
+        <KpiCard
+          icon={Percent}
+          label="Lead conversion"
+          value={`${analytics.conversionRate}%`}
+          sub="Leads ÷ page views (lifetime)."
         />
         <KpiCard
           icon={MessageSquareQuote}
@@ -346,6 +362,25 @@ export default function AdminOverviewDashboard({
           sub="Operators with dashboard access."
         />
       </div>
+
+      {analytics.topPages.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl border border-white/[0.07] bg-card/85 p-6 sm:p-8"
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-foreground/45">Traffic</p>
+          <h3 className="mt-1 font-display text-xl font-bold">Most viewed pages (30d)</h3>
+          <ul className="mt-5 space-y-2">
+            {analytics.topPages.map((row) => (
+              <li key={row.path} className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-background/40 px-4 py-3 font-mono text-sm">
+                <span className="truncate text-foreground/75">{row.path}</span>
+                <span className="shrink-0 tabular-nums font-semibold text-primary">{row.views}</span>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-5">
         <motion.div
@@ -470,9 +505,26 @@ export default function AdminOverviewDashboard({
             <div className="mt-5 rounded-2xl border border-white/[0.06] bg-background/50 px-4 py-3">
               <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/45">Routing</p>
               <p className="mt-1 font-display text-xl font-bold text-primary">{aiStatus.activeProvider}</p>
-              <p className="mt-1 text-xs text-foreground/55">Gemini wins when configured; else OpenAI; else offline prompts.</p>
+              <p className="mt-1 text-xs text-foreground/55">
+                FreeModel when configured; else Gemini; else OpenAI; else offline prompts.
+              </p>
             </div>
             <div className="mt-4 space-y-2.5">
+              <div className="flex items-start gap-3 rounded-xl border border-white/[0.05] bg-background/45 px-3.5 py-3">
+                <CheckCircle2
+                  className={cn(
+                    "mt-0.5 size-4 shrink-0",
+                    aiStatus.freeModelConfigured ? "text-emerald-400" : "text-foreground/25"
+                  )}
+                />
+                <div className="min-w-0 text-[13px] leading-snug">
+                  <span className="font-semibold text-foreground">FreeModel</span>{" "}
+                  <span className="font-mono text-[11px] text-foreground/55">{aiStatus.freeModel}</span>
+                  <span className="block text-foreground/50">
+                    {aiStatus.freeModelConfigured ? "Streaming assistant enabled." : "Not configured."}
+                  </span>
+                </div>
+              </div>
               <div className="flex items-start gap-3 rounded-xl border border-white/[0.05] bg-background/45 px-3.5 py-3">
                 <CheckCircle2
                   className={cn(

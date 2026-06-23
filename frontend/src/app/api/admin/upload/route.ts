@@ -64,8 +64,23 @@ export async function POST(request: Request) {
           ? "publications"
           : folderField === "trust"
             ? "trust"
-            : "hero";
-  const allowedFolders = new Set(["hero", "systems", "products", "publications", "trust"]);
+            : folderField === "portfolio"
+              ? "portfolio"
+              : folderField === "ecosystem"
+                ? "ecosystem"
+                : folderField === "about"
+                  ? "about"
+                  : "hero";
+  const allowedFolders = new Set([
+    "hero",
+    "systems",
+    "products",
+    "publications",
+    "trust",
+    "portfolio",
+    "ecosystem",
+    "about",
+  ]);
   if (!allowedFolders.has(uploadFolder)) {
     return Response.json({ error: "Invalid upload folder." }, { status: 400 });
   }

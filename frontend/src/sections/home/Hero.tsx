@@ -24,13 +24,16 @@ import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
+import { useHydrated } from "@/lib/use-hydrated";
+import ShapeGrid from "@/components/background/ShapeGrid";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 const CAROUSEL_INTERVAL_MS = 6500;
 
 export default function Hero() {
   const { t } = useLanguage();
   const { content, isLoading } = useSiteContent();
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useHydrated();
   const ref = useRef<HTMLDivElement>(null);
   const carouselRegionRef = useRef<HTMLDivElement>(null);
   const { heroHeadline, heroHighlight, heroTail, heroBadge } = content;
@@ -38,13 +41,11 @@ export default function Hero() {
   const highlightFirstWord = highlightParts[0] ?? "";
   const highlightRest = highlightParts.slice(1);
   const reduceMotion = useReducedMotion();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [carouselDir, setCarouselDir] = useState(1);
   const [carouselPaused, setCarouselPaused] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   const heroSlides = useMemo(() => {
     const source =
@@ -123,9 +124,9 @@ export default function Hero() {
   });
 
   const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const yImage = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const yImage = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
 
   const slideVariants = {
     enter: (direction: number) => ({
@@ -150,49 +151,91 @@ export default function Hero() {
       ref={ref}
       className="relative isolate -mt-4 flex min-h-[min(92vh,900px)] flex-col overflow-hidden bg-background pb-20 pt-28 sm:-mt-6 sm:min-h-0 sm:pb-24 sm:pt-32 md:-mt-8 md:pt-36 lg:pb-28"
     >
-      {/* Background */}
-      <motion.div
-        style={{ y: yBg, opacity }}
-        className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden"
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-[0.2] [background-image:radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.17)_1px,transparent_0)] [background-size:24px_24px] dark:opacity-[0.16]" />
+      {/* Light-mode warm mesh base */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_90%_70%_at_72%_28%,rgba(255,106,0,0.14),transparent_58%),radial-gradient(ellipse_75%_55%_at_18%_78%,rgba(147,197,253,0.16),transparent_52%),linear-gradient(168deg,#fff4eb_0%,#fffdfb_42%,#f3f7ff_100%)] dark:hidden"
+      />
 
+      {/* Animated shape grid */}
+      <div
+        className={cn(
+          "absolute inset-0 z-0 overflow-hidden [mask-image:radial-gradient(ellipse_92%_78%_at_50%_42%,black_20%,transparent_78%)]",
+          isDark ? "opacity-90" : "opacity-100"
+        )}
+      >
+        <ShapeGrid
+          speed={reduceMotion ? 0 : 0.5}
+          squareSize={40}
+          direction="diagonal"
+          borderColor={isDark ? "rgba(47, 41, 58, 0.85)" : "rgba(255, 106, 0, 0.16)"}
+          hoverFillColor={isDark ? "rgba(34, 34, 34, 0.9)" : "rgba(255, 106, 0, 0.14)"}
+          edgeFadeColor={isDark ? "rgba(15, 23, 42, 0.55)" : "rgba(255, 253, 250, 0.92)"}
+          shape="square"
+          hoverTrailAmount={isDark ? 0 : 5}
+        />
+      </div>
+
+      {/* Background glows */}
+      <motion.div
+        style={{ y: yBg, opacity: bgOpacity }}
+        className="pointer-events-none absolute inset-0 z-[1] h-full w-full overflow-hidden"
+      >
         {!reduceMotion && (
           <>
             <motion.div
               aria-hidden
-              className="absolute right-[4%] top-[18%] size-[min(560px,88vw)] rounded-full bg-primary/[0.13] blur-[120px]"
-              animate={{ scale: [1, 1.12, 1], opacity: [0.45, 0.75, 0.45] }}
+              className={cn(
+                "absolute right-[4%] top-[18%] size-[min(560px,88vw)] rounded-full blur-[120px]",
+                isDark ? "bg-primary/[0.13]" : "bg-primary/[0.28]"
+              )}
+              animate={{ scale: [1, 1.12, 1], opacity: isDark ? [0.45, 0.75, 0.45] : [0.55, 0.85, 0.55] }}
               transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.div
               aria-hidden
-              className="absolute bottom-[12%] left-[28%] size-[min(340px,55vw)] rounded-full bg-sky-500/[0.09] blur-[100px]"
-              animate={{ scale: [1.08, 1, 1.08], opacity: [0.35, 0.6, 0.35] }}
+              className={cn(
+                "absolute bottom-[12%] left-[28%] size-[min(340px,55vw)] rounded-full blur-[100px]",
+                isDark ? "bg-sky-500/[0.09]" : "bg-sky-400/[0.22]"
+              )}
+              animate={{ scale: [1.08, 1, 1.08], opacity: isDark ? [0.35, 0.6, 0.35] : [0.45, 0.72, 0.45] }}
               transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
             />
+            {!isDark && (
+              <motion.div
+                aria-hidden
+                className="absolute left-[8%] top-[42%] size-[min(280px,48vw)] rounded-full bg-amber-200/35 blur-[90px]"
+                animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.65, 0.4] }}
+                transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              />
+            )}
           </>
         )}
         {reduceMotion && (
           <>
-            <div className="absolute right-[5%] top-[22%] size-[min(640px,85vw)] rounded-full bg-primary/[0.11] blur-[130px]" />
-            <div className="absolute bottom-[15%] left-[35%] size-[min(380px,50vw)] rounded-full bg-sky-500/[0.06] blur-[110px]" />
+            <div
+              className={cn(
+                "absolute right-[5%] top-[22%] size-[min(640px,85vw)] rounded-full blur-[130px]",
+                isDark ? "bg-primary/[0.11]" : "bg-primary/[0.24]"
+              )}
+            />
+            <div
+              className={cn(
+                "absolute bottom-[15%] left-[35%] size-[min(380px,50vw)] rounded-full blur-[110px]",
+                isDark ? "bg-sky-500/[0.06]" : "bg-sky-400/[0.18]"
+              )}
+            />
+            {!isDark && (
+              <div className="absolute left-[8%] top-[42%] size-[min(280px,48vw)] rounded-full bg-amber-200/30 blur-[90px]" />
+            )}
           </>
         )}
 
-        <div className="absolute left-[6%] top-[6%] size-[min(400px,52vw)] rounded-full bg-primary/[0.055] blur-[95px]" />
-
         <div
-          className="absolute inset-0 opacity-[0.048]"
-          style={{
-            backgroundImage:
-              "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
-            backgroundSize: "44px 44px",
-            maskImage:
-              "radial-gradient(ellipse 88% 68% at 48% 40%, black 16%, transparent 70%)",
-            WebkitMaskImage:
-              "radial-gradient(ellipse 88% 68% at 48% 40%, black 16%, transparent 70%)",
-          }}
+          className={cn(
+            "absolute left-[6%] top-[6%] size-[min(400px,52vw)] rounded-full blur-[95px]",
+            isDark ? "bg-primary/[0.055]" : "bg-primary/[0.12]"
+          )}
         />
       </motion.div>
 
@@ -213,7 +256,7 @@ export default function Hero() {
         <div className="grid flex-1 grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1.14fr)_minmax(0,0.86fr)] lg:gap-x-16 xl:gap-x-20">
           {/* Copy */}
           <motion.div
-            style={{ y: yText, opacity }}
+            style={{ y: yText }}
             className="relative flex flex-col items-start justify-start"
           >
             <div className="pointer-events-none absolute -left-1 top-[0.15em] hidden h-[calc(100%-0.5em)] w-px bg-gradient-to-b from-primary/70 via-primary/15 to-transparent lg:block" />
@@ -266,7 +309,7 @@ export default function Hero() {
 
           {/* Visual — illustration only (carousel rotates; no frame or chrome) */}
           <motion.div
-            style={{ y: yImage, opacity }}
+            style={{ y: yImage }}
             className="relative flex items-start justify-center lg:items-start lg:justify-end"
           >
             <FadeIn delay={0.18} distance={52} className="relative w-full max-w-lg lg:max-w-none" revealOnMount>
@@ -298,7 +341,7 @@ export default function Hero() {
                           fill
                           sizes="(min-width: 1024px) min(620px,46vw), (min-width: 640px) min(360px,76vw), 72vw"
                           unoptimized={shouldUseUnoptimizedImage(heroSlides[carouselIndex].src)}
-                          className="object-contain scale-95 select-none drop-shadow-[0_24px_64px_rgba(0,0,0,0.38)] sm:scale-100 lg:scale-[1.08] dark:drop-shadow-[0_28px_70px_rgba(0,0,0,0.55)]"
+                          className="object-contain scale-95 select-none sm:scale-100 lg:scale-[1.08] dark:drop-shadow-[0_28px_70px_rgba(0,0,0,0.55)] drop-shadow-[0_20px_56px_rgba(255,106,0,0.18),0_12px_40px_rgba(0,0,0,0.12)]"
                           priority={carouselIndex === 0}
                         />
                       )}
@@ -352,7 +395,7 @@ export default function Hero() {
         </Link>
       </motion.div>
 
-      <div className="pointer-events-none absolute bottom-0 left-0 z-30 h-40 w-full bg-gradient-to-t from-background via-background/94 to-transparent md:h-48" />
+      <div className="pointer-events-none absolute bottom-0 left-0 z-30 h-40 w-full bg-gradient-to-t from-background via-background/94 to-transparent md:h-48 dark:from-background dark:via-background/94" />
     </section>
   );
 }

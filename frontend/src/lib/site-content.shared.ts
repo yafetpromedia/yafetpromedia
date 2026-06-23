@@ -43,12 +43,24 @@ export type CaseStudyCard = {
   result: string;
   stat: string;
   statLabel: string;
+  /** Client or organization name */
+  clientName: string;
+  /** Live project URL */
+  projectLink: string;
+  /** Portfolio delivery status */
+  projectStatus: "live" | "in-progress" | "completed" | "concept";
+  /** Tech stack tags, e.g. Next.js, PostgreSQL */
+  technologies: string[];
+  /** Gallery images — /uploads/... or https */
+  images: string[];
 };
 
-/** Thought leadership / publications (Authority & Insights section). */
+/** Thought leadership / blog article card. */
 export type PublicationCard = {
   title: string;
   category: string;
+  /** URL slug for /blog/[slug] — auto-derived from title when empty */
+  slug: string;
   /** Visible date line, e.g. "April 15, 2026" */
   dateLabel: string;
   /** e.g. "5 min read" */
@@ -99,6 +111,30 @@ export type TrustLogoItem = {
   imageSrc: string;
 };
 
+/** Product under the YafetPromedia parent company (ecosystem hierarchy). */
+export type EcosystemProductCard = {
+  title: string;
+  tagline: string;
+  description: string;
+  imageSrc: string;
+  href: string;
+  linkLabel: string;
+  status: "live" | "building" | "planned";
+  featured: boolean;
+};
+
+/** Founder story content for /about/yafet */
+export type AboutYafetContent = {
+  pageTitle: string;
+  pageSubtitle: string;
+  journey: string;
+  mission: string;
+  vision: string;
+  achievements: string[];
+  projectsHighlight: string;
+  heroImageSrc: string;
+};
+
 export type SiteContent = {
   /** Explore Architecture (systems CTA) modal copy & per-track flows */
   exploreArchitecture: ExploreArchitectureContent;
@@ -124,6 +160,12 @@ export type SiteContent = {
   /** Uppercase CTA (e.g. EXPLORE ALL PRODUCTS) — opens the full product catalog modal */
   productsCatalogCtaLabel: string;
   productsCards: ProductCard[];
+  ecosystemSectionTag: string;
+  ecosystemSectionTitle: string;
+  ecosystemSectionDescription: string;
+  /** Label above the product tree, e.g. "YafetPromedia — The parent company" */
+  ecosystemParentLabel: string;
+  ecosystemCards: EcosystemProductCard[];
   caseStudiesSectionTag: string;
   caseStudiesSectionTitle: string;
   caseStudiesSectionDescription: string;
@@ -135,6 +177,7 @@ export type SiteContent = {
   /** Uppercase CTA — opens full publications list when there are more than three */
   publicationsCatalogCtaLabel: string;
   publicationsCards: PublicationCard[];
+  aboutYafet: AboutYafetContent;
   trustSectionTag: string;
   trustSectionTitle: string;
   /** Partner logos for the marquee. `name` is used for alt text and as fallback if `imageSrc` is empty. */
@@ -319,7 +362,47 @@ export const defaultSiteContent: SiteContent = {
         "Automation Engine turns repetitive steps into reliable flows: form intake, routing, reminders, and handoffs between tools. You stay in control with a clear visual map of each automation and who it affects.\n\nWe start with the highest-friction loops—where copy-paste and email chains slow people down—then measure time saved and iterate.\n\nIntegrations are pragmatic: connect the services you already use, with guardrails so changes are reviewable before they go live.",
     },
   ],
-  caseStudiesSectionTag: "Proven Architecture",
+  ecosystemSectionTag: "Company Platform",
+  ecosystemSectionTitle: "YafetPromedia — the parent company.",
+  ecosystemSectionDescription:
+    "YafetPromedia is the holding company and delivery studio. Mr.Software, CampusOne, ድር, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
+  ecosystemParentLabel: "YafetPromedia · Parent company",
+  ecosystemCards: [
+    {
+      title: "Mr.Software",
+      tagline: "Software publishing platform",
+      description:
+        "Our flagship operating system for business—dashboards, workflows, and team alignment in one place. Built to scale from growing teams to multi-site organizations.",
+      imageSrc: "/images/contact-illustration.webp",
+      href: "#products",
+      linkLabel: "Explore Mr.Software",
+      status: "live",
+      featured: true,
+    },
+    {
+      title: "CampusOne",
+      tagline: "Student ecosystem",
+      description:
+        "An integrated platform for campuses—student life, administration, and digital services connected in one ecosystem built for Ethiopian institutions.",
+      imageSrc: "",
+      href: "#contact",
+      linkLabel: "Learn more",
+      status: "building",
+      featured: false,
+    },
+    {
+      title: "ድር",
+      tagline: "African web infrastructure",
+      description:
+        "Web infrastructure designed for African connectivity realities—fast, reliable, and built for the next generation of digital products on the continent.",
+      imageSrc: "",
+      href: "#contact",
+      linkLabel: "Coming soon",
+      status: "planned",
+      featured: false,
+    },
+  ],
+  caseStudiesSectionTag: "Portfolio",
   caseStudiesSectionTitle: "Systems that deliver measurable scale.",
   caseStudiesSectionDescription:
     "Explore how our digital ecosystems have transformed enterprise workflows and driven verifiable growth.",
@@ -333,6 +416,11 @@ export const defaultSiteContent: SiteContent = {
       result: "40% reduction in admin overhead and 100% data integrity achievement.",
       stat: "50+",
       statLabel: "Institutions",
+      clientName: "National Education Initiative",
+      projectLink: "",
+      projectStatus: "completed",
+      technologies: ["Next.js", "PostgreSQL", "Node.js"],
+      images: [],
     },
     {
       title: "Global Logistics Brand",
@@ -342,6 +430,11 @@ export const defaultSiteContent: SiteContent = {
       result: "25% increase in brand recognition and centralized asset management.",
       stat: "+25%",
       statLabel: "Growth",
+      clientName: "Global Logistics Group",
+      projectLink: "",
+      projectStatus: "live",
+      technologies: ["Brand Systems", "Figma", "Media Pipeline"],
+      images: [],
     },
   ],
   publicationsSectionTag: "Thought Leadership",
@@ -353,6 +446,7 @@ export const defaultSiteContent: SiteContent = {
     {
       title: "Why Infrastructure Matters More Than UI in 2026",
       category: "Architecture",
+      slug: "why-infrastructure-matters-more-than-ui-in-2026",
       dateLabel: "April 15, 2026",
       readTime: "5 min read",
       imageSrc: "",
@@ -363,6 +457,7 @@ export const defaultSiteContent: SiteContent = {
     {
       title: "Building Scalable Digital Identities for Global Brands",
       category: "Branding",
+      slug: "building-scalable-digital-identities-for-global-brands",
       dateLabel: "April 10, 2026",
       readTime: "4 min read",
       imageSrc: "",
@@ -373,6 +468,7 @@ export const defaultSiteContent: SiteContent = {
     {
       title: "The Future of Integrated Institutional Management",
       category: "Automation",
+      slug: "future-of-integrated-institutional-management",
       dateLabel: "April 02, 2026",
       readTime: "8 min read",
       imageSrc: "",
@@ -381,6 +477,26 @@ export const defaultSiteContent: SiteContent = {
       href: "",
     },
   ],
+  aboutYafet: {
+    pageTitle: "Yafet — Founder & Builder",
+    pageSubtitle:
+      "Student, founder, and builder of YafetPromedia — creating software ecosystems for Africa.",
+    journey:
+      "I started YafetPromedia while still a student, driven by a belief that African teams deserve the same caliber of digital infrastructure as global companies—not outsourced fragments, but integrated systems built with long-term ownership in mind.\n\nWhat began as client delivery work evolved into a company platform: Mr.Software for business operations, CampusOne for education ecosystems, and ድር for web infrastructure. Each product shares the same engineering discipline and design language.\n\nAlong the way I represented a startup initiative at an event attended by the Ethiopian Prime Minister—an honor that reinforced my commitment to building technology that scales beyond a single project.",
+    mission:
+      "To build complete digital ecosystems—software, brand, and infrastructure—that help African organizations compete globally without compromising on quality, security, or clarity.",
+    vision:
+      "A future where African software companies are recognized worldwide—not as low-cost vendors, but as founders shipping products that define how the next billion users experience technology.",
+    achievements: [
+      "Founded YafetPromedia as a student-led software company",
+      "Built Mr.Software — flagship business operating platform",
+      "Represented a startup initiative at an event with the Ethiopian Prime Minister",
+      "Developing CampusOne and ድር under the YafetPromedia ecosystem",
+    ],
+    projectsHighlight:
+      "YafetPromedia is the parent company. Mr.Software, CampusOne, and ድር are products in the ecosystem—each solving a distinct problem, unified by one founder's vision for African software.",
+    heroImageSrc: "",
+  },
   trustSectionTag: "Institutional Trust",
   trustSectionTitle: "Trusted by leading institutions.",
   trustLogoItems: [
