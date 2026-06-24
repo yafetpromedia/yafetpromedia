@@ -7,9 +7,7 @@ export function getAuthSecret(): string {
   const secret = process.env.AUTH_SECRET?.trim();
   if (secret && secret.length >= 32) return secret;
 
-  const hasDb = Boolean(process.env.DATABASE_URL?.trim());
-  const isProd = process.env.NODE_ENV === "production";
-  if (isProd || hasDb) {
+  if (process.env.NODE_ENV === "production") {
     throw new Error("AUTH_SECRET is missing or too short. Set AUTH_SECRET to at least 32 characters.");
   }
   return "dev-only-auth-secret-change-me-32chars-minimum";
