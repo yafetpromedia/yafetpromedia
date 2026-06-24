@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import GoogleTranslateWidget from "@/components/i18n/GoogleTranslateWidgetStable";
@@ -14,6 +14,13 @@ import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { defaultSiteContent } from "@/lib/site-content.shared";
 import { useHydrated } from "@/lib/use-hydrated";
+import { NAV_SECTION_GROUPS, collectHashSectionHrefs } from "@/lib/nav-sections";
+
+type ResolvedNavGroup = {
+  name: string;
+  href: string;
+  children: { name: string; href: string; description?: string }[];
+};
 
 export default function Navbar() {
   const { content, isLoading } = useSiteContent();
@@ -26,13 +33,32 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const resolveHref = useCallback((href: string) => {
     if (href.startsWith("#")) return pathname === "/" ? href : `/${href}`;
     return href;
   }, [pathname]);
 
-  const isLinkActive = useCallback(
+  const navGroups = useMemo<ResolvedNavGroup[]>(
+    () =>
+      NAV_SECTION_GROUPS.map((group) => ({
+        name: t(group.labelKey),
+        href: group.href,
+        children: group.children.map((child) => ({
+          name: t(child.labelKey),
+          href: child.href,
+          description: child.descriptionKey ? t(child.descriptionKey) : undefined,
+        })),
+      })),
+    [t]
+  );
+
+  const sectionHrefs = useMemo(() => collectHashSectionHrefs(), []);
+
+  const isHrefActive = useCallback(
     (href: string) => {
       if (href.startsWith("/")) {
         return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
@@ -42,29 +68,34 @@ export default function Navbar() {
     [pathname, activeSection]
   );
 
-  const navLinks = useMemo(
-    () => [
-      { name: t("navEcosystem"), href: "#ecosystem" },
-      { name: t("navServices"), href: "#services" },
-      { name: t("navProducts"), href: "#products" },
-      { name: t("navCaseStudies"), href: "#case-studies" },
-      { name: t("navInsights"), href: "#insights" },
-      { name: t("navAbout"), href: "/about/yafet" },
-    ],
-    [t]
+  const isGroupActive = useCallback(
+    (group: ResolvedNavGroup) => {
+      if (isHrefActive(group.href)) return true;
+      return group.children.some((child) => isHrefActive(child.href));
+    },
+    [isHrefActive]
   );
+
+  const openMenu = (name: string) => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setOpenDropdown(name);
+  };
+
+  const scheduleCloseMenu = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => setOpenDropdown(null), 120);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
       if (pathname !== "/") return;
 
-      const sectionMeta = navLinks
-        .filter((link) => link.href.startsWith("#"))
-        .map((link) => {
-          const id = link.href.replace("#", "");
+      const sectionMeta = sectionHrefs
+        .map((href) => {
+          const id = href.replace("#", "");
           const section = document.getElementById(id);
-          return section ? { href: link.href, top: section.offsetTop } : null;
+          return section ? { href, top: section.offsetTop } : null;
         })
         .filter((item): item is { href: string; top: number } => Boolean(item))
         .sort((a, b) => a.top - b.top);
@@ -104,7 +135,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, [navLinks, pathname]);
+  }, [pathname, sectionHrefs]);
 
   useEffect(() => {
     if (pathname === "/about/yafet") setActiveSection("/about/yafet");
@@ -123,6 +154,28 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleSecretShortcut);
   }, []);
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) setExpandedMobile(null);
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const closeMenusOnScroll = () => {
+      setOpenDropdown(null);
+    };
+    window.addEventListener("scroll", closeMenusOnScroll, { passive: true });
+    return () => window.removeEventListener("scroll", closeMenusOnScroll);
+  }, []);
+
+  const pillActive =
+    "text-primary-foreground bg-gradient-to-r from-primary to-[#ff9b4d] shadow-[0_8px_24px_rgba(255,106,0,0.35)]";
+  const pillIdle = "text-foreground/70 hover:text-foreground hover:bg-foreground/10";
+
   return (
     <>
       <motion.nav
@@ -135,15 +188,14 @@ export default function Navbar() {
         )}
       >
         <div className="w-full px-4 flex justify-center">
-          <div 
+          <div
             className={cn(
               "flex items-center justify-between w-full max-w-7xl transition-all duration-500 rounded-full border",
-              isScrolled 
-                ? "bg-background/60 backdrop-blur-xl border-border py-3 px-6 shadow-2xl" 
+              isScrolled
+                ? "bg-background/60 backdrop-blur-xl border-border py-3 px-6 shadow-2xl"
                 : "bg-transparent border-transparent py-4 px-0"
             )}
           >
-            {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group shrink-0">
               <div className="relative size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1 group-hover:border-primary/50 group-hover:bg-primary/15 transition-all duration-300">
                 <Image
@@ -161,25 +213,94 @@ export default function Navbar() {
               </span>
             </Link>
 
-            {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-1 bg-foreground/5 rounded-full px-2 py-1 border border-border">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={resolveHref(link.href)}
-                  className={cn(
-                    "text-sm font-medium px-4 py-2 rounded-full transition-all duration-300",
-                    isLinkActive(link.href)
-                      ? "text-primary-foreground bg-gradient-to-r from-primary to-[#ff9b4d] shadow-[0_8px_24px_rgba(255,106,0,0.35)]"
-                      : "text-foreground/70 hover:text-foreground hover:bg-foreground/10"
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
+            <div className="hidden lg:flex items-center gap-0.5 bg-foreground/5 rounded-full px-1.5 py-1 border border-border">
+              {navGroups.map((group) => {
+                const active = isGroupActive(group);
+                const isOpen = openDropdown === group.name;
+                const hasMenu = group.children.length > 1;
+
+                if (!hasMenu) {
+                  const only = group.children[0] ?? { name: group.name, href: group.href };
+                  return (
+                    <Link
+                      key={group.name}
+                      href={resolveHref(only.href)}
+                      className={cn(
+                        "text-sm font-medium px-3.5 py-2 rounded-full transition-all duration-300",
+                        isHrefActive(only.href) ? pillActive : pillIdle
+                      )}
+                    >
+                      {group.name}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <div
+                    key={group.name}
+                    className="relative"
+                    onMouseEnter={() => openMenu(group.name)}
+                    onMouseLeave={scheduleCloseMenu}
+                  >
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center gap-1 text-sm font-medium px-3.5 py-2 rounded-full transition-all duration-300",
+                        active || isOpen ? pillActive : pillIdle
+                      )}
+                      aria-expanded={isOpen}
+                      aria-haspopup="menu"
+                      onClick={() => setOpenDropdown((prev) => (prev === group.name ? null : group.name))}
+                    >
+                      {group.name}
+                      <ChevronDown
+                        className={cn("size-3.5 opacity-80 transition-transform duration-200", isOpen && "rotate-180")}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {isOpen ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                          className="absolute left-1/2 top-[calc(100%+0.45rem)] z-50 w-[min(18rem,calc(100vw-2rem))] -translate-x-1/2"
+                          role="menu"
+                          onMouseEnter={() => openMenu(group.name)}
+                          onMouseLeave={scheduleCloseMenu}
+                        >
+                          <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/95 p-1.5 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)] backdrop-blur-xl ring-1 ring-white/[0.06]">
+                            {group.children.map((child) => (
+                              <Link
+                                key={`${group.name}-${child.href}`}
+                                href={resolveHref(child.href)}
+                                role="menuitem"
+                                className={cn(
+                                  "block rounded-xl px-3.5 py-2.5 transition-colors",
+                                  isHrefActive(child.href)
+                                    ? "bg-primary/12 text-foreground"
+                                    : "text-foreground/80 hover:bg-foreground/[0.06] hover:text-foreground"
+                                )}
+                                onClick={() => setOpenDropdown(null)}
+                              >
+                                <span className="block text-sm font-semibold">{child.name}</span>
+                                {child.description ? (
+                                  <span className="mt-0.5 block text-xs leading-relaxed text-foreground/50">
+                                    {child.description}
+                                  </span>
+                                ) : null}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Desktop Right Side */}
             <div className="hidden lg:flex items-center gap-4 shrink-0">
               <GoogleTranslateWidget />
               <ThemeToggle />
@@ -192,13 +313,14 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Mobile Actions */}
             <div className="flex lg:hidden items-center gap-2">
               <GoogleTranslateWidget className="scale-90 origin-right" />
               <ThemeToggle className="size-9" />
               <button
+                type="button"
                 className="relative z-50 p-2 text-foreground/70 hover:text-foreground"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
                 <AnimatePresence mode="wait">
                   {isMobileMenuOpen ? (
@@ -217,7 +339,6 @@ export default function Navbar() {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -225,35 +346,100 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl lg:hidden pt-32 px-6 flex flex-col"
+            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl lg:hidden pt-28 px-5 pb-8 overflow-y-auto"
           >
-            <div className="flex flex-col gap-6 text-center">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1, duration: 0.4 }}
-                >
-                  <Link
-                    href={resolveHref(link.href)}
-                    className={cn(
-                      "text-3xl font-display font-bold transition-colors",
-                      isLinkActive(link.href) ? "text-primary" : "text-foreground/70 hover:text-foreground"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
+            <div className="mx-auto flex max-w-md flex-col gap-2">
+              {navGroups.map((group, i) => {
+                const hasMenu = group.children.length > 1;
+                const expanded = expandedMobile === group.name;
+
+                if (!hasMenu) {
+                  const only = group.children[0] ?? { name: group.name, href: group.href };
+                  return (
+                    <motion.div
+                      key={group.name}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.35 }}
+                    >
+                      <Link
+                        href={resolveHref(only.href)}
+                        className={cn(
+                          "block rounded-2xl border px-4 py-3.5 text-lg font-display font-bold transition-colors",
+                          isHrefActive(only.href)
+                            ? "border-primary/35 bg-primary/10 text-primary"
+                            : "border-border/70 text-foreground/80 hover:border-primary/25 hover:bg-foreground/[0.04]"
+                        )}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {group.name}
+                      </Link>
+                    </motion.div>
+                  );
+                }
+
+                return (
+                  <motion.div
+                    key={group.name}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04, duration: 0.35 }}
+                    className="overflow-hidden rounded-2xl border border-border/70"
                   >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex w-full items-center justify-between px-4 py-3.5 text-left text-lg font-display font-bold transition-colors",
+                        isGroupActive(group) ? "bg-primary/10 text-primary" : "text-foreground/85"
+                      )}
+                      onClick={() => setExpandedMobile((prev) => (prev === group.name ? null : group.name))}
+                      aria-expanded={expanded}
+                    >
+                      {group.name}
+                      <ChevronDown className={cn("size-5 transition-transform", expanded && "rotate-180")} />
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {expanded ? (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22 }}
+                          className="border-t border-border/60 bg-foreground/[0.02]"
+                        >
+                          <div className="space-y-1 p-2">
+                            {group.children.map((child) => (
+                              <Link
+                                key={`${group.name}-${child.href}`}
+                                href={resolveHref(child.href)}
+                                className={cn(
+                                  "block rounded-xl px-3 py-2.5 transition-colors",
+                                  isHrefActive(child.href)
+                                    ? "bg-primary/12 text-primary"
+                                    : "text-foreground/75 hover:bg-foreground/[0.05] hover:text-foreground"
+                                )}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                <span className="block text-sm font-semibold">{child.name}</span>
+                                {child.description ? (
+                                  <span className="mt-0.5 block text-xs text-foreground/50">{child.description}</span>
+                                ) : null}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
             </div>
-            
-            <motion.div 
-              className="mt-12 flex flex-col gap-4"
+
+            <motion.div
+              className="mx-auto mt-8 flex max-w-md flex-col gap-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.2 }}
             >
               <Link
                 href={pathname === "/" ? "#contact" : "/#contact"}

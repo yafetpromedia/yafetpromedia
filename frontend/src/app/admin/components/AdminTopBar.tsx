@@ -10,15 +10,19 @@ export default function AdminTopBar({
   navItems,
   canSave,
   isSaving,
+  sidebarCollapsed,
   onSave,
   onOpenMobileNav,
+  onToggleSidebar,
 }: {
   activeSection: AdminSection;
   navItems: AdminNavItem[];
   canSave: boolean;
   isSaving: boolean;
+  sidebarCollapsed?: boolean;
   onSave: () => void;
   onOpenMobileNav: () => void;
+  onToggleSidebar: () => void;
 }) {
   const label = navItems.find((item) => item.id === activeSection)?.label ?? "Admin";
 
@@ -39,9 +43,17 @@ export default function AdminTopBar({
           >
             <Menu className="size-5" />
           </button>
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="mt-0.5 hidden size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground/70 shadow-sm transition hover:bg-foreground/[0.04] hover:text-foreground active:scale-[0.98] lg:flex"
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-pressed={sidebarCollapsed}
+          >
+            <PanelLeft className="size-5" />
+          </button>
           <div className="min-w-0 flex-1 overflow-hidden">
             <div className="hidden items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-foreground/40 sm:flex">
-              <PanelLeft className="size-3.5 shrink-0" />
               Section
             </div>
             <h2 className="break-words text-xl font-display font-bold tracking-tight sm:text-2xl md:text-3xl">

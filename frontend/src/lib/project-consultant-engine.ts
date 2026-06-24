@@ -169,10 +169,6 @@ export function buildProjectBrief(session: ConsultationSession): ProjectBrief {
     "### Estimated Cost",
     "",
     estimatedCost,
-    "",
-    "### Lead Score",
-    "",
-    leadLabel,
   ].join("\n");
 
   return {
@@ -312,15 +308,24 @@ export function advanceConsultation(input: StepInput): {
     };
   }
 
-  const brief = buildProjectBrief(session);
+  if (session.phase === "complete") {
+    return {
+      session,
+      response: {
+        reply: "Your project brief is ready below.",
+        phase: "complete",
+        complete: true,
+        brief: buildProjectBrief(session),
+        leadScore: computeLeadScore(session),
+      },
+    };
+  }
+
   return {
     session,
     response: {
-      reply: "Your project brief is ready below.",
-      phase: "complete",
-      complete: true,
-      brief,
-      leadScore: computeLeadScore(session),
+      reply: "Let's continue — tell me more about what you're building.",
+      phase: session.phase,
     },
   };
 }

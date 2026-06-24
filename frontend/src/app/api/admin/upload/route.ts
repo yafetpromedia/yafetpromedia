@@ -7,7 +7,7 @@ import { auditAdminAction } from "@/lib/admin-audit";
 
 export const runtime = "nodejs";
 
-const ALLOWED = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/svg+xml", "image/gif"]);
+const ALLOWED = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"]);
 const MAX_BYTES = 4 * 1024 * 1024;
 
 function hasAllowedImageSignature(buffer: Buffer, mime: string): boolean {
@@ -37,10 +37,6 @@ function hasAllowedImageSignature(buffer: Buffer, mime: string): boolean {
       buffer.subarray(0, 4).toString("ascii") === "RIFF" &&
       buffer.subarray(8, 12).toString("ascii") === "WEBP"
     );
-  }
-  if (mime === "image/svg+xml") {
-    const start = buffer.subarray(0, Math.min(buffer.length, 300)).toString("utf-8").trimStart().toLowerCase();
-    return start.startsWith("<svg") || start.startsWith("<?xml");
   }
   return false;
 }
@@ -100,7 +96,7 @@ export async function POST(request: Request) {
   }
 
   const original = file.name.replace(/[^a-zA-Z0-9._-]/g, "") || "upload";
-  const ext = path.extname(original).toLowerCase() || (file.type === "image/svg+xml" ? ".svg" : ".png");
+  const ext = path.extname(original).toLowerCase() || ".png";
   const base = path.basename(original, path.extname(original)) || "image";
   const name = `${base.slice(0, 40)}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
 

@@ -86,6 +86,7 @@ export async function getViewerAccess(): Promise<ViewerAccess | null> {
   if (!verifySessionToken(session)) return null;
   const email = (getEmailFromSessionToken(session) ?? "").trim().toLowerCase();
   const access = await getAdminAccessForEmail(email);
+  if (!access) return null;
   return {
     email,
     role: access.role,

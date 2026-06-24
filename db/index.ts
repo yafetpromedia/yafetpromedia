@@ -1,12 +1,10 @@
-import { createHash } from "node:crypto";
 import { Pool } from "pg";
 import { defaultSiteContent } from "@/lib/site-content.shared";
+import { getBootstrapAdminEmail, hasAdminBootstrapSecret, isProductionEnv, resolveBootstrapPasswordHash } from "../backend/env-admin";
+import { hashAdminPassword as hashAdminPasswordScrypt } from "../backend/password";
+
 let pool: Pool | null = null;
 let initPromise: Promise<void> | null = null;
-
-function hashPassword(input: string) {
-  return createHash("sha256").update(input).digest("hex");
-}
 
 function getPool() {
   if (pool) return pool;
@@ -199,18 +197,22 @@ async function ensureSchema() {
 }
 
 async function seedInitialData() {
-  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com";
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "Admin@12345";
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH ?? hashPassword(adminPassword);
-
-  await getPool().query(
-    `
-      INSERT INTO admin_users (email, password_hash)
-      VALUES ($1, $2)
-      ON CONFLICT (email) DO NOTHING
-    `,
-    [adminEmail, passwordHash]
-  );
+  if (isProductionEnv() && !hasAdminBootstrapSecret()) {
+    console.warn("[db] Skipping admin user seed: set ADMIN_PASSWORD or ADMIN_PASSWORD_HASH in production.");
+  } else {
+    const adminEmail = getBootstrapAdminEmail();
+    const passwordHash = resolveBootstrapPasswordHash();
+    if (passwordHash) {
+      await getPool().query(
+        `
+          INSERT INTO admin_users (email, password_hash)
+          VALUES ($1, $2)
+          ON CONFLICT (email) DO NOTHING
+        `,
+        [adminEmail, passwordHash]
+      );
+    }
+  }
 
   await getPool().query(
     `
@@ -284,5 +286,5 @@ export async function query<T = Record<string, unknown>>(text: string, params: u
 }
 
 export function hashAdminPassword(input: string) {
-  return hashPassword(input);
+  return hashAdminPasswordScrypt(input);
 }

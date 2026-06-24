@@ -1,5 +1,7 @@
 import { query } from "@db";
 import { appendTestimonialSubmissionToFile } from "@backend/testimonial-submissions-file";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
@@ -14,12 +16,25 @@ function clampRating(raw: unknown): number {
 }
 
 export async function POST(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
+  const ip = clientIpFromRequest(request);
+  const limiter = hitRateLimit(`testimonials:${ip}`, { limit: 5, windowMs: 60_000 });
+  if (!limiter.ok) {
+    return Response.json(
+      { error: "Too many submissions. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limiter.retryAfterSec) } }
+    );
+  }
+
   let body: {
     quote?: string;
     author?: string;
     role?: string;
     email?: string;
     rating?: number;
+    website?: string;
   };
   try {
     body = (await request.json()) as typeof body;
@@ -34,6 +49,10 @@ export async function POST(request: Request) {
     const emailRaw = String(body.email ?? "").trim().slice(0, 160);
     const email = emailRaw === "" ? "" : emailRaw;
     const rating = clampRating(body.rating);
+
+    if (String(body.website ?? "").trim()) {
+      return Response.json({ ok: true, stored: "ignored" as const });
+    }
 
     if (quote.length < 12) {
       return Response.json(

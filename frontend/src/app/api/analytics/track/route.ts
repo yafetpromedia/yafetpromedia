@@ -1,29 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@db";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
-const RATE_WINDOW_MS = 60_000;
-const RATE_MAX = 120;
-const hits = new Map<string, { count: number; reset: number }>();
-
-function rateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = hits.get(ip);
-  if (!entry || now > entry.reset) {
-    hits.set(ip, { count: 1, reset: now + RATE_WINDOW_MS });
-    return true;
-  }
-  entry.count += 1;
-  return entry.count <= RATE_MAX;
-}
-
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-  if (!rateLimit(ip)) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
+  const ip = clientIpFromRequest(request);
+  const limiter = hitRateLimit(`analytics:${ip}`, { limit: 120, windowMs: 60_000 });
+  if (!limiter.ok) {
     return NextResponse.json({ ok: false }, { status: 429 });
   }
 
@@ -36,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   const path = String(body.path ?? "/").slice(0, 500);
   const referrer = String(body.referrer ?? "").slice(0, 500);
-  if (!path.startsWith("/")) {
+  if (!path.startsWith("/") || path.includes("..") || path.includes("\\")) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 

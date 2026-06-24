@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createLeadFromConsultation } from "@backend/consultation-leads";
 import {
   completeConsultation,
+  loadConsultationSession,
   markConsultationLeadLinked,
   upsertConsultationDraft,
 } from "@backend/project-consultations";
@@ -10,11 +11,14 @@ import {
   createSession,
   type ConsultationSession,
 } from "@/lib/project-consultant-engine";
+import { briefMarkdownForTeam } from "@/lib/project-consultant.shared";
 import {
   generateConsultantBrief,
   generateConsultantStepReply,
   isConsultantLlmAvailable,
 } from "@/lib/project-consultant-llm";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
@@ -23,8 +27,10 @@ type RequestBody = {
   message?: string;
   selections?: string[];
   action?: "start" | "message" | "select" | "skip_contact";
-  session?: ConsultationSession;
 };
+
+const MAX_MESSAGE_LEN = 2000;
+const MAX_SELECTIONS = 12;
 
 function appendHistory(
   session: ConsultationSession,
@@ -52,6 +58,18 @@ function userTurnLabel(body: RequestBody): string {
 }
 
 export async function POST(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
+  const ip = clientIpFromRequest(request);
+  const limiter = hitRateLimit(`consultant:${ip}`, { limit: 20, windowMs: 60_000 });
+  if (!limiter.ok) {
+    return Response.json(
+      { error: "Too many requests. Please wait a moment." },
+      { status: 429, headers: { "Retry-After": String(limiter.retryAfterSec) } }
+    );
+  }
+
   let body: RequestBody;
   try {
     body = (await request.json()) as RequestBody;
@@ -59,10 +77,27 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  const message = (body.message ?? "").trim();
+  if (message.length > MAX_MESSAGE_LEN) {
+    return Response.json({ error: "Message is too long." }, { status: 400 });
+  }
+  if (body.selections && body.selections.length > MAX_SELECTIONS) {
+    return Response.json({ error: "Too many selections." }, { status: 400 });
+  }
+
   const sessionId = body.sessionId?.trim() || randomUUID();
-  let session: ConsultationSession = body.session
-    ? { ...body.session, sessionId, requirements: { ...body.session.requirements } }
-    : createSession(sessionId);
+  let session =
+    (await loadConsultationSession(sessionId).catch(() => null)) ?? createSession(sessionId);
+
+  if (session.phase === "complete") {
+    return Response.json({
+      reply: "This consultation is already complete. Start a new session to plan another project.",
+      phase: "complete",
+      complete: true,
+      sessionId,
+      session,
+    });
+  }
 
   const userTurn = userTurnLabel(body);
   if (userTurn) {
@@ -107,7 +142,8 @@ export async function POST(request: Request) {
   try {
     if (response.complete && response.brief) {
       const leadScore = response.leadScore ?? 0;
-      const consultationId = await completeConsultation(workingSession, response.brief.markdown, {
+      const teamBriefMarkdown = briefMarkdownForTeam(response.brief);
+      const consultationId = await completeConsultation(workingSession, teamBriefMarkdown, {
         leadScore,
         complexity: response.brief.complexity,
         estimatedCost: response.brief.estimatedCost,
@@ -118,7 +154,7 @@ export async function POST(request: Request) {
       if (workingSession.clientEmail.trim()) {
         leadId = await createLeadFromConsultation({
           session: workingSession,
-          briefMarkdown: response.brief.markdown,
+          briefMarkdown: teamBriefMarkdown,
           leadScore,
           estimatedCost: response.brief.estimatedCost,
           estimatedTimeline: response.brief.estimatedTimeline,

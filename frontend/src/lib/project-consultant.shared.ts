@@ -47,8 +47,32 @@ export type ProjectBrief = {
   estimatedCost: string;
   complexity: "Low" | "Medium" | "High";
   leadLabel: string;
+  /** Client-facing brief markdown (download + display). */
   markdown: string;
+  /** Internal sales notes — never shown to clients. */
+  salesNotes?: string;
 };
+
+const INTERNAL_BRIEF_SECTION =
+  /^#{1,3}\s*(?:notes?\s+for\s+(?:the\s+)?sales\s+team|internal\s+notes?|sales\s+team\s+notes?)\b/im;
+
+/** Remove internal-only sections from brief markdown (e.g. Notes for Sales Team). */
+export function stripInternalBriefSections(markdown: string): string {
+  const sections = markdown.split(/(?=^#{1,3}\s)/m);
+  return sections
+    .filter((section) => !INTERNAL_BRIEF_SECTION.test(section.trim()))
+    .join("")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** Full brief stored for admin inbox and consultations — includes internal notes. */
+export function briefMarkdownForTeam(brief: ProjectBrief): string {
+  const client = stripInternalBriefSections(brief.markdown);
+  const notes = brief.salesNotes?.trim();
+  if (!notes) return client;
+  return `${client}\n\n## Notes for Sales Team\n\n${notes}`;
+}
 
 export type ConsultationRecord = {
   id: number;

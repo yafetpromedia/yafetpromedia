@@ -1,6 +1,92 @@
 import { query } from "@db";
-import type { ConsultationRequirements } from "@/lib/project-consultant.shared";
+import type { ConsultationPhase, ConsultationRequirements } from "@/lib/project-consultant.shared";
 import type { ConsultationSession } from "@/lib/project-consultant-engine";
+
+const SERVER_PHASE_KEY = "__phase";
+
+type StoredRequirements = ConsultationRequirements & { [SERVER_PHASE_KEY]?: ConsultationPhase };
+
+function packRequirements(session: ConsultationSession): string {
+  return JSON.stringify({
+    ...session.requirements,
+    [SERVER_PHASE_KEY]: session.phase,
+  });
+}
+
+function unpackRequirements(raw: unknown): { requirements: ConsultationRequirements; phase: ConsultationPhase | null } {
+  const obj = (raw && typeof raw === "object" ? raw : {}) as StoredRequirements;
+  const phase = obj[SERVER_PHASE_KEY] ?? null;
+  const { [SERVER_PHASE_KEY]: _, ...requirements } = obj;
+  return { requirements, phase };
+}
+
+function inferPhase(row: {
+  status: string;
+  project_type: string;
+  industry: string;
+  budget: string;
+  timeline: string;
+  client_email: string;
+}): ConsultationPhase {
+  if (row.status === "completed") return "complete";
+  if (row.client_email.trim()) return "contact";
+  if (row.timeline.trim()) return "contact";
+  if (row.budget.trim()) return "timeline";
+  if (row.industry.trim()) return "budget";
+  if (row.project_type.trim()) return "industry";
+  return "welcome";
+}
+
+export function sessionFromDbRow(row: {
+  session_id: string;
+  project_type: string;
+  industry: string;
+  budget: string;
+  timeline: string;
+  requirements: unknown;
+  client_name: string;
+  client_email: string;
+  status: string;
+}): ConsultationSession {
+  const { requirements, phase: storedPhase } = unpackRequirements(row.requirements);
+  return {
+    sessionId: row.session_id,
+    phase: storedPhase ?? inferPhase(row),
+    projectType: row.project_type,
+    industry: row.industry,
+    budget: row.budget,
+    timeline: row.timeline,
+    requirements,
+    clientName: row.client_name,
+    clientEmail: row.client_email,
+  };
+}
+
+export async function loadConsultationSession(sessionId: string): Promise<ConsultationSession | null> {
+  const rows = await query<{
+    session_id: string;
+    project_type: string;
+    industry: string;
+    budget: string;
+    timeline: string;
+    requirements: unknown;
+    client_name: string;
+    client_email: string;
+    status: string;
+  }>(
+    `
+      SELECT session_id, project_type, industry, budget, timeline, requirements,
+             client_name, client_email, status
+      FROM project_consultations
+      WHERE session_id = $1
+      LIMIT 1
+    `,
+    [sessionId]
+  );
+  const row = rows[0];
+  if (!row) return null;
+  return sessionFromDbRow(row);
+}
 
 export type DbConsultation = {
   id: number;
@@ -25,14 +111,17 @@ export async function upsertConsultationDraft(session: ConsultationSession) {
   await query(
     `
       INSERT INTO project_consultations (
-        session_id, project_type, industry, budget, timeline, requirements, status
-      ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, 'in_progress')
+        session_id, project_type, industry, budget, timeline, requirements,
+        client_name, client_email, status
+      ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, 'in_progress')
       ON CONFLICT (session_id) DO UPDATE SET
         project_type = EXCLUDED.project_type,
         industry = EXCLUDED.industry,
         budget = EXCLUDED.budget,
         timeline = EXCLUDED.timeline,
         requirements = EXCLUDED.requirements,
+        client_name = EXCLUDED.client_name,
+        client_email = EXCLUDED.client_email,
         status = EXCLUDED.status
     `,
     [
@@ -41,7 +130,9 @@ export async function upsertConsultationDraft(session: ConsultationSession) {
       session.industry,
       session.budget,
       session.timeline,
-      JSON.stringify(session.requirements),
+      packRequirements(session),
+      session.clientName,
+      session.clientEmail,
     ]
   );
 }
@@ -85,7 +176,7 @@ export async function completeConsultation(
       session.industry,
       session.budget,
       session.timeline,
-      JSON.stringify(session.requirements),
+      packRequirements(session),
       briefMarkdown,
       meta.leadScore,
       session.clientName,

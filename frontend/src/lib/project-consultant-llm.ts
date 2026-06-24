@@ -3,6 +3,7 @@ import {
   CONSULTANT_SYSTEM_PROMPT,
   PAYMENT_OPTIONS,
   TIMELINE_OPTIONS,
+  stripInternalBriefSections,
   type ConsultationPhase,
   type ProjectBrief,
 } from "@/lib/project-consultant.shared";
@@ -13,6 +14,7 @@ type LlmStepResult = { reply: string };
 
 type LlmBriefResult = {
   markdown: string;
+  salesNotes?: string;
   recommendedFeatures: string[];
   estimatedTimeline: string;
   estimatedCost: string;
@@ -158,6 +160,7 @@ export async function generateConsultantBrief(
     "Return valid JSON only with this shape:",
     "{",
     '  "markdown": "# Project Brief\\n...",',
+    '  "salesNotes": "Internal upsell and fit notes for the sales team only",',
     '  "recommendedFeatures": ["..."],',
     '  "estimatedTimeline": "4–6 Weeks",',
     '  "estimatedCost": "$3,500–$5,000",',
@@ -165,8 +168,9 @@ export async function generateConsultantBrief(
     '  "leadLabel": "High Potential Client"',
     "}",
     "",
-    "Write a professional project brief markdown for YafetPromedia sales team.",
-    "Include sections: Client Requirements, Recommended Features (with checkmarks), Estimated Timeline, Estimated Cost, Lead Score label.",
+    "Write a professional project brief the client can download.",
+    "markdown sections ONLY: Client Requirements, Recommended Features (with checkmarks), Estimated Timeline, Estimated Cost.",
+    "Do NOT put Lead Score or Notes for Sales Team in markdown — put internal notes in salesNotes instead.",
     "Base estimates on scope and budget — be realistic for Ethiopia/Africa + international clients.",
     "",
     `Project data: ${JSON.stringify({
@@ -207,7 +211,8 @@ export async function generateConsultantBrief(
     estimatedCost: parsed.estimatedCost?.trim() || fallback.estimatedCost,
     complexity,
     leadLabel: parsed.leadLabel?.trim() || fallback.leadLabel,
-    markdown: parsed.markdown.trim(),
+    markdown: stripInternalBriefSections(parsed.markdown.trim()),
+    salesNotes: parsed.salesNotes?.trim() || undefined,
   };
 }
 

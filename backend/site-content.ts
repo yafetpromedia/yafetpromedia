@@ -26,6 +26,24 @@ const fallbackPath = path.join(getRepoRoot(), ".data", "site-content.fallback.js
 /** Minimum one card; homepage grid supports up to this many tiles. */
 const SERVICE_CARDS_MAX = 8;
 
+const RETIRED_ECOSYSTEM_TITLE = "ድር";
+
+function stripRetiredEcosystemCopy(text: string): string {
+  let s = text;
+  s = s.replace(/,?\s*and\s+ድር\s+for\s+web\s+infrastructure/gi, "");
+  s = s.replace(/,?\s*ድር\s+for\s+web\s+infrastructure/gi, "");
+  s = s.replace(/,?\s*and\s+ድር\b/gi, "");
+  s = s.replace(/,?\s*ድር,?\s*/g, " ");
+  s = s.replace(/\s{2,}/g, " ");
+  s = s.replace(/,\s+,/g, ",");
+  s = s.replace(/,\s+and\s+/g, " and ");
+  return s.trim();
+}
+
+function isRetiredEcosystemCard(card: { title?: unknown }): boolean {
+  return String(card.title ?? "").trim() === RETIRED_ECOSYSTEM_TITLE;
+}
+
 function sanitizeServicesCards(raw: unknown): SiteContent["servicesCards"] {
   const def = defaultSiteContent.servicesCards;
   const arr = Array.isArray(raw) ? raw : [];
@@ -97,6 +115,17 @@ function sanitizeProductHref(value: unknown): string {
   if (t.startsWith("/") && !t.startsWith("//") && !t.includes("..")) return t;
   if (/^https?:\/\//i.test(t)) return t;
   return "";
+}
+
+function sanitizeSocialUrl(value: unknown): string {
+  const t = String(value ?? "")
+    .trim()
+    .slice(0, 260);
+  if (!t) return "";
+  if (t.startsWith("mailto:") && !t.includes("\n") && !t.includes("\r")) {
+    return t.slice(0, 320);
+  }
+  return sanitizeProductHref(t);
 }
 
 function sanitizeTrustLogoItems(input: unknown): TrustLogoItem[] {
@@ -231,11 +260,12 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     }),
     ecosystemSectionTag: String(input.ecosystemSectionTag ?? defaultSiteContent.ecosystemSectionTag).slice(0, 120),
     ecosystemSectionTitle: String(input.ecosystemSectionTitle ?? defaultSiteContent.ecosystemSectionTitle).slice(0, 180),
-    ecosystemSectionDescription: String(
-      input.ecosystemSectionDescription ?? defaultSiteContent.ecosystemSectionDescription
+    ecosystemSectionDescription: stripRetiredEcosystemCopy(
+      String(input.ecosystemSectionDescription ?? defaultSiteContent.ecosystemSectionDescription)
     ).slice(0, 500),
     ecosystemParentLabel: String(input.ecosystemParentLabel ?? defaultSiteContent.ecosystemParentLabel).slice(0, 120),
     ecosystemCards: (Array.isArray(input.ecosystemCards) ? input.ecosystemCards : defaultSiteContent.ecosystemCards)
+      .filter((card) => !isRetiredEcosystemCard(card as { title?: unknown }))
       .slice(0, 12)
       .map((card, index) => {
         const def =
@@ -328,17 +358,42 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     aboutYafet: (() => {
       const raw = (input.aboutYafet ?? defaultSiteContent.aboutYafet) as Partial<AboutYafetContent>;
       const def = defaultSiteContent.aboutYafet;
-      const achievements = Array.isArray(raw.achievements)
-        ? raw.achievements.map((a) => String(a ?? "").trim()).filter(Boolean).slice(0, 12)
-        : def.achievements;
+      const achievements = (Array.isArray(raw.achievements)
+        ? raw.achievements.map((a) => stripRetiredEcosystemCopy(String(a ?? "").trim())).filter(Boolean)
+        : def.achievements
+      )
+        .filter((a) => !a.includes(RETIRED_ECOSYSTEM_TITLE))
+        .slice(0, 12);
       return {
         pageTitle: String(raw.pageTitle ?? def.pageTitle).slice(0, 120),
-        pageSubtitle: String(raw.pageSubtitle ?? def.pageSubtitle).slice(0, 280),
-        journey: String(raw.journey ?? def.journey).slice(0, 6000),
+        pageSubtitle: String(raw.pageSubtitle ?? def.pageSubtitle).slice(0, 160),
+        heroTagline: String(raw.heroTagline ?? def.heroTagline).slice(0, 320),
+        introTitle: String(raw.introTitle ?? def.introTitle).slice(0, 120),
+        introBody: stripRetiredEcosystemCopy(String(raw.introBody ?? def.introBody)).slice(0, 6000),
+        journeyTitle: String(raw.journeyTitle ?? def.journeyTitle).slice(0, 120),
+        journeyQuote: String(raw.journeyQuote ?? def.journeyQuote).slice(0, 400),
+        journey: stripRetiredEcosystemCopy(String(raw.journey ?? def.journey)).slice(0, 6000),
         mission: String(raw.mission ?? def.mission).slice(0, 2000),
         vision: String(raw.vision ?? def.vision).slice(0, 2000),
         achievements,
-        projectsHighlight: String(raw.projectsHighlight ?? def.projectsHighlight).slice(0, 2000),
+        projectsHighlight: stripRetiredEcosystemCopy(String(raw.projectsHighlight ?? def.projectsHighlight)).slice(
+          0,
+          2000
+        ),
+        ecosystemProducts: (Array.isArray(raw.ecosystemProducts) ? raw.ecosystemProducts : def.ecosystemProducts)
+          .slice(0, 6)
+          .map((item, index) => {
+            const p = item as Partial<AboutYafetContent["ecosystemProducts"][number]>;
+            const fallback = def.ecosystemProducts[Math.min(index, def.ecosystemProducts.length - 1)]!;
+            return {
+              title: String(p.title ?? fallback.title).slice(0, 80),
+              tagline: String(p.tagline ?? fallback.tagline).slice(0, 160),
+              description: stripRetiredEcosystemCopy(String(p.description ?? fallback.description)).slice(0, 600),
+            };
+          }),
+        closingTitle: String(raw.closingTitle ?? def.closingTitle).slice(0, 120),
+        closingBody: stripRetiredEcosystemCopy(String(raw.closingBody ?? def.closingBody)).slice(0, 4000),
+        closingTagline: String(raw.closingTagline ?? def.closingTagline).slice(0, 200),
         heroImageSrc: sanitizeOptionalImageUrl(raw.heroImageSrc ?? def.heroImageSrc),
       };
     })(),
@@ -421,7 +476,7 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     ).slice(0, 2500),
     socialLinks: socialLinks.slice(0, 8).map((item, index) => ({
       label: String(item?.label ?? defaultSiteContent.socialLinks[index]?.label ?? "").slice(0, 40),
-      url: String(item?.url ?? defaultSiteContent.socialLinks[index]?.url ?? "").slice(0, 260),
+      url: sanitizeSocialUrl(item?.url ?? defaultSiteContent.socialLinks[index]?.url ?? ""),
       icon: (["whatsapp", "email", "linkedin", "instagram", "youtube", "github", "website"] as const).includes(
         item?.icon as never
       )

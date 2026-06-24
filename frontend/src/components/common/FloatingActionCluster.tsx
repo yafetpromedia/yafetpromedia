@@ -30,7 +30,15 @@ export default function FloatingActionCluster() {
       <div className="relative">
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-10 -z-10 blur-3xl opacity-[0.55] dark:opacity-[0.65]"
+          className="pointer-events-none absolute -inset-10 -z-10 blur-3xl opacity-30 dark:opacity-[0.65]"
+          style={{
+            background:
+              "radial-gradient(ellipse 85% 75% at 90% 88%, rgba(255,106,0,0.18), transparent 52%), radial-gradient(circle at 40% 35%, rgba(148,163,184,0.12), transparent 45%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -inset-10 -z-10 hidden blur-3xl dark:block dark:opacity-[0.65]"
           style={{
             background:
               "radial-gradient(ellipse 85% 75% at 90% 88%, rgba(255,106,0,0.42), transparent 52%), radial-gradient(circle at 40% 35%, rgba(251,191,36,0.1), transparent 45%)",

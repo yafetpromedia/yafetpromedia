@@ -198,8 +198,6 @@ export default function ExploreArchitectureDialog({
     document.addEventListener("keydown", onKeyDown);
     closeRef.current?.focus();
 
-    lenisRef.current?.stop();
-
     const html = document.documentElement;
     const body = document.body;
     const scrollY = window.scrollY;
@@ -232,9 +230,32 @@ export default function ExploreArchitectureDialog({
       body.style.right = prevBody.right;
       body.style.width = prevBody.width;
       window.scrollTo(0, scrollY);
-      lenisRef.current?.start();
+      requestAnimationFrame(() => {
+        lenisRef.current?.resize();
+        lenisRef.current?.start();
+      });
     };
   }, [open, onKeyDown]);
+
+  useEffect(() => {
+    if (open) return;
+    const body = document.body;
+    if (body.style.position !== "fixed") return;
+
+    const scrollY = Math.abs(parseInt(body.style.top || "0", 10));
+    body.style.position = "";
+    body.style.top = "";
+    body.style.left = "";
+    body.style.right = "";
+    body.style.width = "";
+    body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+    window.scrollTo(0, scrollY);
+    requestAnimationFrame(() => {
+      lenisRef.current?.resize();
+      lenisRef.current?.start();
+    });
+  }, [open]);
   const stepFloat = !reduce
     ? {
         animate: { y: [0, -5, 0] },

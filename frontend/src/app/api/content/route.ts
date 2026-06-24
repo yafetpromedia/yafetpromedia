@@ -1,4 +1,5 @@
 import { readSiteContent } from "@backend/site-content";
+import { toPublicSiteContent } from "@backend/public-site-content";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -6,7 +7,7 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    const content = await readSiteContent();
+    const content = toPublicSiteContent(await readSiteContent());
     const body = JSON.stringify({ content });
     return new Response(body, {
       status: 200,

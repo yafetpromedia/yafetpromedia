@@ -124,14 +124,30 @@ export type EcosystemProductCard = {
 };
 
 /** Founder story content for /about/yafet */
+export type AboutYafetEcosystemProduct = {
+  title: string;
+  tagline: string;
+  description: string;
+};
+
 export type AboutYafetContent = {
   pageTitle: string;
+  /** Role line under the name, e.g. Founder, Builder & Product Designer */
   pageSubtitle: string;
+  heroTagline: string;
+  introTitle: string;
+  introBody: string;
+  journeyTitle: string;
+  journeyQuote: string;
   journey: string;
   mission: string;
   vision: string;
   achievements: string[];
   projectsHighlight: string;
+  ecosystemProducts: AboutYafetEcosystemProduct[];
+  closingTitle: string;
+  closingBody: string;
+  closingTagline: string;
   heroImageSrc: string;
 };
 
@@ -365,7 +381,7 @@ export const defaultSiteContent: SiteContent = {
   ecosystemSectionTag: "Company Platform",
   ecosystemSectionTitle: "YafetPromedia — the parent company.",
   ecosystemSectionDescription:
-    "YafetPromedia is the holding company and delivery studio. Mr.Software, CampusOne, ድር, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
+    "YafetPromedia is the holding company and delivery studio. Mr.Software, CampusOne, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
   ecosystemParentLabel: "YafetPromedia · Parent company",
   ecosystemCards: [
     {
@@ -388,17 +404,6 @@ export const defaultSiteContent: SiteContent = {
       href: "#contact",
       linkLabel: "Learn more",
       status: "building",
-      featured: false,
-    },
-    {
-      title: "ድር",
-      tagline: "African web infrastructure",
-      description:
-        "Web infrastructure designed for African connectivity realities—fast, reliable, and built for the next generation of digital products on the continent.",
-      imageSrc: "",
-      href: "#contact",
-      linkLabel: "Coming soon",
-      status: "planned",
       featured: false,
     },
   ],
@@ -478,23 +483,48 @@ export const defaultSiteContent: SiteContent = {
     },
   ],
   aboutYafet: {
-    pageTitle: "Yafet — Founder & Builder",
-    pageSubtitle:
-      "Student, founder, and builder of YafetPromedia — creating software ecosystems for Africa.",
+    pageTitle: "Yafet Tesfaye",
+    pageSubtitle: "Founder, Builder & Product Designer",
+    heroTagline:
+      "Building digital products, software ecosystems, and technology companies from Ethiopia for the world.",
+    introTitle: "Student. Founder. Builder.",
+    introBody:
+      "I am Yafet Tesfaye, a student entrepreneur and the founder of YafetPromedia—a technology company focused on building software platforms, digital infrastructure, and AI-powered ecosystems that solve real-world problems across Africa.\n\nMy journey began with a passion for design, development, and technology. What started as creating websites and digital experiences quickly evolved into a larger vision: building products that can serve thousands of users, empower organizations, and create opportunities for the next generation of African innovators.\n\nToday, I lead the development of multiple platforms under the YafetPromedia ecosystem, combining technology, design, business strategy, and artificial intelligence to create solutions that scale beyond individual projects.",
+    journeyTitle: "Building in Public",
+    journeyQuote: "What infrastructure is missing, and how can we build it better?",
     journey:
-      "I started YafetPromedia while still a student, driven by a belief that African teams deserve the same caliber of digital infrastructure as global companies—not outsourced fragments, but integrated systems built with long-term ownership in mind.\n\nWhat began as client delivery work evolved into a company platform: Mr.Software for business operations, CampusOne for education ecosystems, and ድር for web infrastructure. Each product shares the same engineering discipline and design language.\n\nAlong the way I represented a startup initiative at an event attended by the Ethiopian Prime Minister—an honor that reinforced my commitment to building technology that scales beyond a single project.",
+      "That mindset led to the creation of YafetPromedia—not as a freelance brand, but as a founder-led technology company focused on long-term product development.\n\nAlong the journey, I have worked on websites, digital platforms, creative systems, educational technology, AI integrations, and software products designed to help organizations operate more efficiently and grow faster.\n\nI also had the opportunity to represent a startup initiative at a national technology event attended by the Ethiopian Prime Minister, an experience that reinforced my belief that African innovators can build products capable of competing on a global stage.\n\nToday, every project, platform, and innovation contributes to one larger mission: creating technology that empowers people, businesses, and institutions across Africa.",
     mission:
-      "To build complete digital ecosystems—software, brand, and infrastructure—that help African organizations compete globally without compromising on quality, security, or clarity.",
+      "To build world-class software, platforms, and digital ecosystems that help African organizations innovate faster, operate smarter, and compete globally.",
     vision:
-      "A future where African software companies are recognized worldwide—not as low-cost vendors, but as founders shipping products that define how the next billion users experience technology.",
+      "To create a future where African founders are recognized not only for providing services, but for building products, platforms, and technologies that shape the digital experiences of millions of people worldwide.",
     achievements: [
-      "Founded YafetPromedia as a student-led software company",
-      "Built Mr.Software — flagship business operating platform",
-      "Represented a startup initiative at an event with the Ethiopian Prime Minister",
-      "Developing CampusOne and ድር under the YafetPromedia ecosystem",
+      "Founded YafetPromedia while still a student, transforming a passion for technology into a growing software and product company.",
+      "Created Mr.Software, a software business ecosystem designed to help developers, startups, and organizations build, deploy, manage, and monetize digital products.",
+      "Represented a startup initiative during a national innovation event attended by the Ethiopian Prime Minister, gaining exposure to Ethiopia's growing technology ecosystem.",
+      "Launched CampusOne, an education-focused platform built to modernize digital experiences for schools, colleges, and universities.",
+      "Continuing to expand the YafetPromedia ecosystem through AI-powered products, digital infrastructure, and future technology ventures.",
     ],
     projectsHighlight:
-      "YafetPromedia is the parent company. Mr.Software, CampusOne, and ድር are products in the ecosystem—each solving a distinct problem, unified by one founder's vision for African software.",
+      "Everything begins with YafetPromedia.\n\nYafetPromedia serves as the parent company and innovation hub behind every platform we build. Rather than creating isolated projects, we focus on developing connected ecosystems that solve meaningful problems and create lasting impact.",
+    ecosystemProducts: [
+      {
+        title: "Mr.Software",
+        tagline: "The platform where African developers turn software into businesses.",
+        description:
+          "Build, deploy, publish, manage, and monetize software products from a single ecosystem designed for modern founders and growing organizations.",
+      },
+      {
+        title: "CampusOne",
+        tagline: "The future of connected education.",
+        description:
+          "A digital ecosystem that brings students, educators, administrators, and campus services together through one intelligent platform.",
+      },
+    ],
+    closingTitle: "Beyond the Products",
+    closingBody:
+      "Technology is only part of the story.\n\nI believe the future belongs to builders who combine creativity, engineering, business thinking, and a willingness to solve difficult problems. Through YafetPromedia, my goal is not simply to launch products, but to contribute to a stronger technology ecosystem for Africa—one platform, one innovation, and one opportunity at a time.",
+    closingTagline: "Building the future from Ethiopia. Scaling it to the world.",
     heroImageSrc: "",
   },
   trustSectionTag: "Institutional Trust",

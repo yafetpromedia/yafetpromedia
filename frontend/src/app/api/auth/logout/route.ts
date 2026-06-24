@@ -1,9 +1,13 @@
 import { cookies } from "next/headers";
 import { getSessionCookieName } from "@backend/auth";
+import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
-export async function POST() {
+export async function POST(request: Request) {
+  const csrf = csrfGuard(request);
+  if (csrf) return csrf;
+
   const cookieStore = await cookies();
   cookieStore.set(getSessionCookieName(), "", {
     httpOnly: true,

@@ -46,6 +46,7 @@ export default function AdminClient({
   const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [draft, setDraft] = useState(initialContent);
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -160,6 +161,23 @@ export default function AdminClient({
   };
 
   useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("admin-sidebar-collapsed");
+      if (stored === "1") setSidebarCollapsed(true);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("admin-sidebar-collapsed", sidebarCollapsed ? "1" : "0");
+    } catch {
+      // ignore
+    }
+  }, [sidebarCollapsed]);
+
+  useEffect(() => {
     startTransition(() => {
       setMobileNavOpen(false);
     });
@@ -175,12 +193,7 @@ export default function AdminClient({
   }, [mobileNavOpen]);
 
   return (
-    <main
-      className={cn(
-        "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
-        "bg-gradient-to-b from-background via-background to-muted/15"
-      )}
-    >
+    <main className="bg-gradient-to-b from-background via-background to-muted/15">
       {mobileNavOpen && (
         <button
           type="button"
@@ -190,71 +203,67 @@ export default function AdminClient({
         />
       )}
 
-      <div className="flex min-h-0 w-full flex-1 items-stretch overflow-hidden">
+      <div className="flex w-full min-h-dvh items-start">
         <AdminSidebar
           navItems={navItems}
           activeSection={activeSection}
           mobileOpen={mobileNavOpen}
+          collapsed={sidebarCollapsed}
           onCloseMobile={() => setMobileNavOpen(false)}
           onLogout={handleLogout}
         />
 
         <section
           className={cn(
-            "flex min-h-0 min-w-0 flex-1 flex-col border-l border-border/40",
+            "min-w-0 flex-1 border-l border-border/40",
             "pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(0.5rem,env(safe-area-inset-top))]",
             "px-4 sm:px-5 md:px-7 lg:px-8"
           )}
         >
-          <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-6xl flex-1 flex-col">
-            <div
-              className={cn(
-                "flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-y-contain pb-8",
-                "[-webkit-overflow-scrolling:touch]"
-              )}
-            >
-              <AdminTopBar
-                activeSection={activeSection}
-                navItems={navItems}
-                canSave={canSave}
-                isSaving={isSaving}
-                onSave={handleSave}
-                onOpenMobileNav={() => setMobileNavOpen(true)}
-              />
+          <div className="mx-auto w-full min-w-0 max-w-6xl">
+            <AdminTopBar
+              activeSection={activeSection}
+              navItems={navItems}
+              canSave={canSave}
+              isSaving={isSaving}
+              sidebarCollapsed={sidebarCollapsed}
+              onSave={handleSave}
+              onOpenMobileNav={() => setMobileNavOpen(true)}
+              onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
+            />
 
-              {(saved || saveError) && (
-                <div
-                  className={cn(
-                    "mb-5 rounded-xl border px-4 py-3 text-sm",
-                    saved && "border-emerald-500/30 bg-emerald-500/[0.06]",
-                    saveError && "border-red-500/30 bg-red-500/[0.06]"
-                  )}
-                  role="status"
-                >
-                  {saved && (
-                    <p className="text-emerald-700 dark:text-emerald-400 font-medium">Saved successfully.</p>
-                  )}
-                  {saveError && <p className="text-red-700 dark:text-red-400 font-medium">{saveError}</p>}
-                </div>
-              )}
+            {(saved || saveError) && (
+              <div
+                className={cn(
+                  "mb-5 rounded-xl border px-4 py-3 text-sm",
+                  saved && "border-emerald-500/30 bg-emerald-500/[0.06]",
+                  saveError && "border-red-500/30 bg-red-500/[0.06]"
+                )}
+                role="status"
+              >
+                {saved && (
+                  <p className="text-emerald-700 dark:text-emerald-400 font-medium">Saved successfully.</p>
+                )}
+                {saveError && <p className="text-red-700 dark:text-red-400 font-medium">{saveError}</p>}
+              </div>
+            )}
 
-              <AdminSectionContent
-                activeSection={activeSection}
-                draft={draft}
-                setDraft={setDraft}
-                initialLeads={initialLeads}
-                initialTestimonialSubmissions={initialTestimonialSubmissions}
-                analytics={analytics}
-                aiStatus={aiStatus}
-                currentPassword={currentPassword}
-                setCurrentPassword={setCurrentPassword}
-                newPassword={newPassword}
-                setNewPassword={setNewPassword}
-                passwordStatus={passwordStatus}
-                isChangingPassword={isChangingPassword}
-                onUpdatePassword={handlePasswordUpdate}
-              />
-            </div>
+            <AdminSectionContent
+              activeSection={activeSection}
+              draft={draft}
+              setDraft={setDraft}
+              initialLeads={initialLeads}
+              initialTestimonialSubmissions={initialTestimonialSubmissions}
+              analytics={analytics}
+              aiStatus={aiStatus}
+              currentPassword={currentPassword}
+              setCurrentPassword={setCurrentPassword}
+              newPassword={newPassword}
+              setNewPassword={setNewPassword}
+              passwordStatus={passwordStatus}
+              isChangingPassword={isChangingPassword}
+              onUpdatePassword={handlePasswordUpdate}
+            />
           </div>
         </section>
       </div>

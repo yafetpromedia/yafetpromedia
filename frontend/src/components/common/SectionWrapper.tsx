@@ -19,7 +19,7 @@ export default function SectionWrapper({
   return (
     <section
       id={id}
-      className={cn("py-24 md:py-32 relative overflow-hidden", className)}
+      className={cn("relative overflow-x-clip py-24 md:py-32", className)}
     >
       <motion.div 
         className={cn("max-w-7xl w-full mx-auto px-6", containerClassName)}

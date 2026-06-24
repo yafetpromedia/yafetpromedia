@@ -7,9 +7,14 @@ import {
   requestChatCompletionStream,
   resolveFreeModelConfig,
 } from "@/lib/ai-chat-provider";
+import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
+import { csrfGuard } from "@/lib/request-security";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 export const runtime = "nodejs";
+
+const MAX_USER_MESSAGE = 2000;
+const MAX_HISTORY = 12;
 
 async function logChat(userMessage: string, reply: string) {
   try {
@@ -22,8 +27,20 @@ async function logChat(userMessage: string, reply: string) {
   }
 }
 
-function offlineReply(userMessage: string, businessName: string) {
+function offlineReply(userMessage: string, businessName: string, siteContent?: Awaited<ReturnType<typeof readSiteContent>>) {
   const lower = userMessage.toLowerCase();
+  const about = siteContent?.aboutYafet;
+  if (
+    about &&
+    (lower.includes("owner") ||
+      lower.includes("founder") ||
+      lower.includes("who runs") ||
+      lower.includes("who is yafet") ||
+      lower.includes("who started") ||
+      lower.includes("ceo"))
+  ) {
+    return `${about.pageTitle} is the founder and owner of ${businessName} — ${about.pageSubtitle}. ${about.heroTagline} Read the full story at /about/yafet or contact us at ${siteContent?.contactEmail ?? "hello@yafetpromedia.com"}.`;
+  }
   if (lower.includes("price") || lower.includes("cost") || lower.includes("budget")) {
     return "Pricing depends on scope — websites, automation, and branding bundles are quoted after a short discovery call. Share your goals and timeline and we can suggest a realistic range.";
   }
@@ -87,6 +104,18 @@ async function streamOpenAiCompatibleReply(
 
 export async function POST(request: Request) {
   try {
+    const csrf = csrfGuard(request);
+    if (csrf) return csrf;
+
+    const ip = clientIpFromRequest(request);
+    const limiter = hitRateLimit(`ai-chat:${ip}`, { limit: 15, windowMs: 60_000 });
+    if (!limiter.ok) {
+      return Response.json(
+        { reply: "Too many messages. Please wait a moment and try again." },
+        { status: 429, headers: { "Retry-After": String(limiter.retryAfterSec) } }
+      );
+    }
+
     const body = (await request.json()) as {
       message?: string;
       history?: ChatMessage[];
@@ -94,15 +123,18 @@ export async function POST(request: Request) {
       stream?: boolean;
     };
     const userMessage = (body.message ?? "").trim();
-    const businessName = body.businessName ?? "Yafetpromedia";
+    const businessName = (body.businessName ?? "Yafetpromedia").slice(0, 80);
     const siteContent = await readSiteContent();
     const wantsStream = Boolean(body.stream);
 
     if (!userMessage) {
       return Response.json({ reply: "Please share your question so I can help." }, { status: 400 });
     }
+    if (userMessage.length > MAX_USER_MESSAGE) {
+      return Response.json({ reply: "Message is too long. Please shorten it." }, { status: 400 });
+    }
 
-    const history = body.history ?? [];
+    const history = (body.history ?? []).slice(-MAX_HISTORY);
     const systemPrompt = buildAssistantSystemPrompt(siteContent, businessName);
     const fallbackReply = `Thanks for reaching ${businessName}. You can contact us at ${siteContent.contactEmail}.`;
 
@@ -187,10 +219,13 @@ export async function POST(request: Request) {
       for (const geminiModel of geminiModels) {
         try {
           const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`,
             {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                "x-goog-api-key": geminiKey,
+              },
               body: JSON.stringify({
                 systemInstruction: { parts: [{ text: systemPrompt }] },
                 contents: [
@@ -231,7 +266,7 @@ export async function POST(request: Request) {
       return Response.json({ reply, provider: "error" });
     }
 
-    const reply = offlineReply(userMessage, businessName);
+    const reply = offlineReply(userMessage, businessName, siteContent);
     await logChat(userMessage, reply);
     return Response.json({ reply, provider: "Fallback" });
   } catch {

@@ -237,6 +237,9 @@ export async function getAdminPageData(initialSection: AdminSection) {
 
   const viewerEmail = getEmailFromSessionToken(session);
   const viewerAccess = await getAdminAccessForEmail(viewerEmail);
+  if (!viewerAccess) {
+    redirect("/login");
+  }
   const viewerRole = viewerAccess.role;
   const viewerPermissions = viewerAccess.permissions as AdminPermission[];
 

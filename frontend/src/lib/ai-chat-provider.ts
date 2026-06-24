@@ -18,6 +18,7 @@ type ChatCompletionResponse = {
 };
 
 export function buildAssistantSystemPrompt(siteContent: SiteContent, businessName: string): string {
+  const about = siteContent.aboutYafet;
   const services = siteContent.servicesCards
     .slice(0, 6)
     .map((s) => `- ${s.title}: ${s.description}`)
@@ -30,6 +31,11 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     .slice(0, 4)
     .map((s) => `- ${s.title}`)
     .join("\n");
+  const ecosystemProducts = about.ecosystemProducts
+    .slice(0, 4)
+    .map((p) => `- ${p.title}: ${p.tagline}`)
+    .join("\n");
+  const founderIntro = about.introBody.split(/\n\n+/).find(Boolean)?.trim() ?? about.heroTagline;
 
   return [
     `You are ${siteContent.aiName}, the live AI assistant for ${businessName}.`,
@@ -42,7 +48,18 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     "- Ask one clarifying question when scope, budget, or timeline is unclear.",
     "- Never invent prices; give ranges only when asked and note that final quotes follow discovery.",
     "- Steer toward booking a call or sending a project brief when intent is serious.",
-    "- If you do not know something, say so and offer contact details.",
+    "- For questions about the founder, owner, CEO, or who runs the company, answer clearly using the Founder & company section below — do not say you lack verified ownership information.",
+    "- If you do not know something outside this brief, say so and offer contact details.",
+    "",
+    "Founder & company:",
+    `- Founder & owner: ${about.pageTitle}`,
+    `- Role: ${about.pageSubtitle}`,
+    about.heroTagline.trim() ? `- Tagline: ${about.heroTagline.trim()}` : "",
+    founderIntro ? `- About the founder: ${founderIntro}` : "",
+    `- ${businessName} is the parent company and product studio behind Mr.Software, CampusOne, and client delivery work.`,
+    about.mission.trim() ? `- Mission: ${about.mission.trim()}` : "",
+    ecosystemProducts ? `- Ecosystem products:\n${ecosystemProducts}` : "",
+    "- Full founder story: /about/yafet",
     "",
     `Contact email: ${siteContent.contactEmail}`,
     `Contact phone: ${siteContent.contactPhone}`,

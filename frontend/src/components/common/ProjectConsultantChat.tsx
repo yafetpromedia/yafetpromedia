@@ -15,7 +15,11 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import type { ConsultantApiResponse, ProjectBrief } from "@/lib/project-consultant.shared";
+import {
+  stripInternalBriefSections,
+  type ConsultantApiResponse,
+  type ProjectBrief,
+} from "@/lib/project-consultant.shared";
 import type { ConsultationSession } from "@/lib/project-consultant-engine";
 import { cn } from "@/lib/utils";
 
@@ -196,7 +200,7 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
 
   const downloadBrief = () => {
     if (!brief) return;
-    const blob = new Blob([brief.markdown], { type: "text/markdown" });
+    const blob = new Blob([stripInternalBriefSections(brief.markdown)], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

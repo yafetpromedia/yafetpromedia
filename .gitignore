@@ -44,14 +44,19 @@ yarn-error.log*
 !/frontend/public/uploads/systems/.gitkeep
 /frontend/public/uploads/trust/**
 !/frontend/public/uploads/trust/.gitkeep
+/frontend/public/uploads/ecosystem/**
+!/frontend/public/uploads/ecosystem/.gitkeep
+/frontend/public/uploads/products/**
+!/frontend/public/uploads/products/.gitkeep
+/frontend/public/uploads/about/**
+!/frontend/public/uploads/about/.gitkeep
 
 # Orphan root public/uploads if created by mistake (app serves frontend/public)
 /public/uploads/
 
-# testimonial queue when DB insert fails (fallback)
-.data/testimonial-submissions-pending.json
-# leads queue when DB insert fails (fallback)
-.data/leads-pending.json
+# Local data / fallbacks (never commit snapshots)
+.data/
+!.data/.gitkeep
 
 # vercel
 .vercel

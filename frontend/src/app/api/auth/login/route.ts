@@ -40,8 +40,7 @@ export async function POST(request: Request) {
     });
 
     return Response.json({ ok: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Login failed";
-    return Response.json({ error: message }, { status: 500 });
+  } catch {
+    return Response.json({ error: "Login failed. Please try again." }, { status: 500 });
   }
 }

@@ -23,7 +23,13 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
         const res = await fetch("/api/content", { cache: "no-store" });
         if (!res.ok) return;
         const data = (await res.json()) as { content?: SiteContent };
-        if (active && data?.content) setContent(data.content);
+        if (active && data?.content) {
+          setContent({
+            ...defaultSiteContent,
+            ...data.content,
+            loginPasswordResetHelp: defaultSiteContent.loginPasswordResetHelp,
+          });
+        }
       } catch {
         // Keep default content when API is unavailable.
       } finally {
@@ -43,6 +49,11 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+    requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+  }, [isLoading, content]);
 
   const updateContent = async (next: SiteContent) => {
     const response = await fetch("/api/admin/content", {

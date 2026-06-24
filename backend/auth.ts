@@ -1,64 +1,22 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { query } from "@db";
+import { getBootstrapAdminEmail, isProductionEnv } from "./env-admin";
+import { hashAdminPassword, verifyAdminPassword } from "./password";
+import {
+  createSessionToken,
+  getEmailFromSessionToken,
+  getSessionCookieName,
+  verifySessionToken,
+} from "./session-token";
 
-const SESSION_COOKIE = "yafet_session";
-const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+export {
+  createSessionToken,
+  getEmailFromSessionToken,
+  getSessionCookieName,
+  verifySessionToken,
+};
 
-function getAuthSecret() {
-  const secret = process.env.AUTH_SECRET?.trim();
-  if (secret && secret.length >= 32) return secret;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("AUTH_SECRET is missing or too short. Set AUTH_SECRET to at least 32 characters.");
-  }
-  return "dev-only-auth-secret-change-me-32chars-minimum";
-}
-
-export function getSessionCookieName() {
-  return SESSION_COOKIE;
-}
-
-export function createSessionToken(email: string) {
-  const issuedAt = Date.now();
-  const expiresAt = issuedAt + SESSION_MAX_AGE_MS;
-  const payload = `${email}:${issuedAt}:${expiresAt}`;
-  const signature = createHmac("sha256", getAuthSecret()).update(payload).digest("base64url");
-  return `${Buffer.from(payload).toString("base64url")}.${signature}`;
-}
-
-export function verifySessionToken(token?: string | null) {
-  if (!token) return false;
-  const [encodedPayload, signature] = token.split(".");
-  if (!encodedPayload || !signature) return false;
-  const payload = Buffer.from(encodedPayload, "base64url").toString("utf-8");
-  const parts = payload.split(":");
-  const expiresAt =
-    parts.length >= 3
-      ? Number(parts[2])
-      : parts.length >= 2
-        ? Number(parts[1]) + SESSION_MAX_AGE_MS
-        : Number.NaN;
-  if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) {
-    return false;
-  }
-  const expected = createHmac("sha256", getAuthSecret()).update(payload).digest("base64url");
-  const a = Buffer.from(signature);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
-
-export function getEmailFromSessionToken(token?: string | null) {
-  if (!verifySessionToken(token)) return null;
-  const [encodedPayload] = String(token).split(".");
-  if (!encodedPayload) return null;
-  const payload = Buffer.from(encodedPayload, "base64url").toString("utf-8");
-  const [email] = payload.split(":");
-  return email || null;
-}
-
-export function hashAdminPassword(plain: string): string {
-  return hashText(plain);
-}
+export { hashAdminPassword };
 
 export type AdminRole = "owner" | "messages";
 export type AdminPermission = string;
@@ -71,6 +29,12 @@ const DEFAULT_MESSAGES_PERMISSIONS: AdminPermission[] = [
 ];
 
 const OWNER_PERMISSIONS: AdminPermission[] = ["*"];
+
+export type AdminAccess = {
+  role: AdminRole;
+  permissions: AdminPermission[];
+  isPrimary: boolean;
+};
 
 function normalizeRole(value: unknown): AdminRole {
   return value === "messages" ? "messages" : "owner";
@@ -101,15 +65,19 @@ function defaultsForRole(role: AdminRole): AdminPermission[] {
   return role === "owner" ? OWNER_PERMISSIONS : DEFAULT_MESSAGES_PERMISSIONS;
 }
 
+function primaryOwnerAccess(isPrimary: boolean): AdminAccess {
+  return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary };
+}
+
 export async function getAdminAccessForEmail(
   email: string | null | undefined
-): Promise<{ role: AdminRole; permissions: AdminPermission[]; isPrimary: boolean }> {
+): Promise<AdminAccess | null> {
   const normalized = String(email ?? "").trim().toLowerCase();
-  const envEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
-  const isPrimary = normalized !== "" && normalized === envEmail;
-  if (!normalized) {
-    return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: false };
-  }
+  if (!normalized) return null;
+
+  const envEmail = getBootstrapAdminEmail().trim().toLowerCase();
+  const isPrimary = normalized === envEmail;
+
   try {
     const rows = await query<{ role: string; permissions: unknown }>(
       `SELECT role, permissions FROM admin_users WHERE LOWER(TRIM(email)) = $1 LIMIT 1`,
@@ -122,28 +90,33 @@ export async function getAdminAccessForEmail(
       const permissions =
         role === "owner" ? OWNER_PERMISSIONS : fromDb.length > 0 ? fromDb : defaultsForRole(role);
       if (isPrimary) {
-        return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: true };
+        return primaryOwnerAccess(true);
       }
       return { role, permissions, isPrimary: false };
     }
+
+    if (isPrimary) {
+      return primaryOwnerAccess(true);
+    }
+    return null;
   } catch {
-    // DB unavailable — fallback below.
+    if (isPrimary) {
+      return primaryOwnerAccess(true);
+    }
+    return null;
   }
-  if (isPrimary) {
-    return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: true };
-  }
-  return { role: "owner", permissions: OWNER_PERMISSIONS, isPrimary: false };
 }
 
-/** Resolve dashboard permissions for an admin email. Env bootstrap account is always owner. */
-export async function getAdminRoleForEmail(email: string | null | undefined): Promise<AdminRole> {
+export async function getAdminRoleForEmail(email: string | null | undefined): Promise<AdminRole | null> {
   const access = await getAdminAccessForEmail(email);
-  return access.role;
+  return access?.role ?? null;
 }
 
-export async function getAdminPermissionsForEmail(email: string | null | undefined): Promise<AdminPermission[]> {
+export async function getAdminPermissionsForEmail(
+  email: string | null | undefined
+): Promise<AdminPermission[]> {
   const access = await getAdminAccessForEmail(email);
-  return access.permissions;
+  return access?.permissions ?? [];
 }
 
 export async function getAdminRoleFromSession(sessionToken?: string | null): Promise<AdminRole | null> {
@@ -152,17 +125,20 @@ export async function getAdminRoleFromSession(sessionToken?: string | null): Pro
   return getAdminRoleForEmail(email);
 }
 
-function hashText(text: string) {
-  return createHash("sha256").update(text).digest("hex");
-}
-
-function verifyAgainstEnv(email: string, password: string) {
-  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com";
-  const plainPassword = process.env.ADMIN_PASSWORD ?? "Admin@12345";
-  const hashedPassword = process.env.ADMIN_PASSWORD_HASH;
+function verifyAgainstEnv(email: string, password: string): boolean {
+  if (isProductionEnv() && !process.env.ADMIN_PASSWORD_HASH?.trim() && !process.env.ADMIN_PASSWORD?.trim()) {
+    return false;
+  }
+  const adminEmail = getBootstrapAdminEmail();
+  const hashedPassword = process.env.ADMIN_PASSWORD_HASH?.trim();
+  const plainPassword = process.env.ADMIN_PASSWORD?.trim();
   if (email.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) return false;
-  if (hashedPassword) return hashText(password) === hashedPassword;
-  return password === plainPassword;
+  if (hashedPassword) {
+    return verifyAdminPassword(password, hashedPassword);
+  }
+  if (plainPassword) return password === plainPassword;
+  if (isProductionEnv()) return false;
+  return password === "Admin@12345";
 }
 
 export async function verifyAdminCredentials(email: string, password: string) {
@@ -174,18 +150,25 @@ export async function verifyAdminCredentials(email: string, password: string) {
     );
     const user = users[0];
     if (!user) return verifyAgainstEnv(normalizedEmail, password);
-    return user.password_hash === hashText(password);
+    const ok = verifyAdminPassword(password, user.password_hash);
+    if (ok && !user.password_hash.startsWith("scrypt:")) {
+      const upgraded = hashAdminPassword(password);
+      await query("UPDATE admin_users SET password_hash = $1 WHERE LOWER(TRIM(email)) = $2", [
+        upgraded,
+        normalizedEmail,
+      ]).catch(() => undefined);
+    }
+    return ok;
   } catch {
     return verifyAgainstEnv(normalizedEmail, password);
   }
 }
 
-/** Timing-safe comparison for ADMIN_PASSWORD_RECOVERY_SECRET vs submitted recovery passphrase. */
 function verifyRecoverySecret(submitted: string): boolean {
   const configured = process.env.ADMIN_PASSWORD_RECOVERY_SECRET?.trim();
   if (!configured || !submitted.trim()) return false;
-  const aHex = hashText(submitted.trim());
-  const bHex = hashText(configured);
+  const aHex = createHash("sha256").update(submitted.trim()).digest("hex");
+  const bHex = createHash("sha256").update(configured).digest("hex");
   try {
     const a = Buffer.from(aHex, "hex");
     const b = Buffer.from(bHex, "hex");
@@ -197,18 +180,18 @@ function verifyRecoverySecret(submitted: string): boolean {
 }
 
 async function setAdminPasswordForEmail(emailRaw: string, newPasswordPlain: string): Promise<void> {
-  const hash = hashText(newPasswordPlain);
+  const hash = hashAdminPassword(newPasswordPlain);
   const normalized = emailRaw.trim().toLowerCase();
   const updated = await query<{ id: number }>(
     `UPDATE admin_users SET password_hash = $1 WHERE LOWER(TRIM(email)) = $2 RETURNING id`,
     [hash, normalized]
   );
   if (updated.length > 0) return;
-  const envEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  const envEmail = getBootstrapAdminEmail().trim().toLowerCase();
   if (normalized !== envEmail) {
     throw new Error("Unknown admin email.");
   }
-  const canonical = process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com";
+  const canonical = getBootstrapAdminEmail();
   await query(
     `INSERT INTO admin_users (email, password_hash) VALUES ($1, $2)
      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash`,
@@ -218,7 +201,7 @@ async function setAdminPasswordForEmail(emailRaw: string, newPasswordPlain: stri
 
 async function isAuthorizedAdminEmail(emailRaw: string): Promise<boolean> {
   const normalized = emailRaw.trim().toLowerCase();
-  const envEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  const envEmail = getBootstrapAdminEmail().trim().toLowerCase();
   if (normalized === envEmail) return true;
   try {
     const rows = await query<{ id: number }>(
@@ -231,10 +214,6 @@ async function isAuthorizedAdminEmail(emailRaw: string): Promise<boolean> {
   }
 }
 
-/**
- * Reset password using ADMIN_PASSWORD_RECOVERY_SECRET — intended when logged-out admins lose access.
- * Keeps timing-stable responses via hashed comparison on recovery inputs.
- */
 export async function resetAdminPasswordWithRecovery(
   emailRaw: string,
   recoverySecret: string,
