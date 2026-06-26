@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/common/SmoothScrollProvider";
@@ -6,6 +6,7 @@ import GlobalChrome from "@/components/common/GlobalChrome";
 import { LanguageProvider } from "@/components/i18n/LanguageProvider";
 import { SiteContentProvider } from "@/components/common/SiteContentProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { rootMetadata } from "@/lib/seo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,18 +18,16 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-export const metadata: Metadata = {
-  title: "Yafetpromedia | Digital Infrastructure & System Solutions",
-  description:
-    "We build complete digital systems, designing infrastructure that powers organizations through technology, branding, and strategic marketing.",
-  keywords: [
-    "Digital Systems",
-    "Infrastructure Design",
-    "Mr.Software",
-    "Corporate Branding",
-    "Media Production",
-    "Growth Marketing",
+export const metadata: Metadata = rootMetadata;
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
+  width: "device-width",
+  initialScale: 1,
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({

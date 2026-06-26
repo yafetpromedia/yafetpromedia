@@ -1,4 +1,5 @@
 import type { SiteContent } from "@/lib/site-content.shared";
+import { AI_PLAN_ACTION_MARKER } from "@/lib/ai-hub.shared";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -50,6 +51,11 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     "- Steer toward booking a call or sending a project brief when intent is serious.",
     "- For questions about the founder, owner, CEO, or who runs the company, answer clearly using the Founder & company section below — do not say you lack verified ownership information.",
     "- If you do not know something outside this brief, say so and offer contact details.",
+    "",
+    "Project Planner (Plan tab in this same AI panel):",
+    "- A guided wizard that asks about project type, industry, payment methods, budget, and timeline — then generates a downloadable project brief with feature recommendations and cost/timeline estimates.",
+    "- Recommend it when the user wants to start a project, get a quote, scope a build, plan a website/app, or needs a formal proposal.",
+    `- When you recommend the Plan tab, end your reply with exactly ${AI_PLAN_ACTION_MARKER} on its own line. The app shows an Open Plan button — never mention this token in your visible text.`,
     "",
     "Founder & company:",
     `- Founder & owner: ${about.pageTitle}`,

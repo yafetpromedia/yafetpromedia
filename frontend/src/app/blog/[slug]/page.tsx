@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { readSiteContent } from "@backend/site-content";
+import JsonLd from "@/components/seo/JsonLd";
 import { normalizeArticles } from "@/lib/publications";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
+import { SITE_NAME, buildPageMetadata, siteUrl } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -17,11 +19,18 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const content = await readSiteContent();
   const article = normalizeArticles(content.publicationsCards).find((a) => a.slug === slug);
-  if (!article) return { title: "Article | YafetPromedia" };
-  return {
-    title: `${article.title} | YafetPromedia`,
-    description: article.articleBody.slice(0, 160),
-  };
+  if (!article) return buildPageMetadata({ title: `Article | ${SITE_NAME}`, path: `/blog/${slug}` });
+
+  const description = article.articleBody.replace(/\s+/g, " ").trim().slice(0, 160);
+
+  return buildPageMetadata({
+    title: `${article.title} | ${SITE_NAME}`,
+    description,
+    path: `/blog/${slug}`,
+    ogType: "article",
+    ogImage: article.imageSrc.trim() || undefined,
+    keywords: [article.category, article.title, SITE_NAME, "digital insights"],
+  });
 }
 
 export default async function BlogArticlePage({ params }: Props) {
@@ -31,9 +40,30 @@ export default async function BlogArticlePage({ params }: Props) {
   if (!article) notFound();
 
   const paragraphs = article.articleBody.split(/\n\n+/).filter(Boolean);
+  const articleUrl = siteUrl(`/blog/${slug}`);
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.articleBody.replace(/\s+/g, " ").trim().slice(0, 200),
+    author: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: siteUrl("/icon") },
+    },
+    mainEntityOfPage: articleUrl,
+    url: articleUrl,
+    articleSection: article.category,
+    ...(article.imageSrc.trim()
+      ? { image: [siteUrl(article.imageSrc.startsWith("/") ? article.imageSrc : `/${article.imageSrc}`)] }
+      : {}),
+  };
 
   return (
     <main className="min-h-screen bg-background pt-28 pb-20">
+      <JsonLd data={articleJsonLd} />
       <article className="mx-auto max-w-3xl px-5 sm:px-7">
         <Link href="/#insights" className="mb-10 inline-flex items-center gap-2 text-sm text-foreground/55 transition hover:text-primary">
           <ArrowLeft className="size-4" /> Back to insights
@@ -45,7 +75,7 @@ export default async function BlogArticlePage({ params }: Props) {
 
         {article.imageSrc.trim() && (
           <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-3xl border border-border">
-            <Image src={article.imageSrc} alt="" fill className="object-cover" unoptimized={shouldUseUnoptimizedImage(article.imageSrc)} sizes="(max-width: 768px) 100vw, 768px" priority />
+            <Image src={article.imageSrc} alt={article.title} fill className="object-cover" unoptimized={shouldUseUnoptimizedImage(article.imageSrc)} sizes="(max-width: 768px) 100vw, 768px" priority />
           </div>
         )}
 

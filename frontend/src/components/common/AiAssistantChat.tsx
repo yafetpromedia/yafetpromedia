@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bot,
+  ClipboardList,
   Loader2,
   Mic,
   MicOff,
@@ -18,9 +19,10 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import { stripPlanActionMarker } from "@/lib/ai-hub.shared";
 import { cn } from "@/lib/utils";
 
-type Message = { id: string; role: "user" | "assistant"; content: string };
+type Message = { id: string; role: "user" | "assistant"; content: string; suggestPlan?: boolean };
 
 type SpeechRecognitionInstance = {
   start: () => void;
@@ -40,6 +42,7 @@ const QUICK_PROMPT_KEYS = [
   "aiPromptServices",
   "aiPromptPricing",
   "aiPromptTimeline",
+  "aiPromptPlan",
   "aiPromptMrSoftware",
 ] as const;
 
@@ -72,9 +75,10 @@ type Props = {
   className?: string;
   embedded?: boolean;
   active?: boolean;
+  onOpenPlan?: () => void;
 };
 
-export default function AiAssistantChat({ open, onClose, className, embedded, active }: Props) {
+export default function AiAssistantChat({ open, onClose, className, embedded, active, onOpenPlan }: Props) {
   const { t } = useLanguage();
   const { content } = useSiteContent();
   const assistantName = content.aiName.trim() || "Yafet AI";
@@ -109,11 +113,12 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
         id: uid(),
         role: "assistant",
         content: t("greeting").replace("{name}", assistantName),
+        suggestPlan: Boolean(onOpenPlan),
       },
     ]);
     setError("");
     setInput("");
-  }, [assistantName, t]);
+  }, [assistantName, onOpenPlan, t]);
 
   useEffect(() => {
     setMounted(true);
@@ -176,6 +181,17 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
       abortRef.current = new AbortController();
 
       let accumulated = "";
+      let suggestPlan = false;
+
+      const updateAssistant = (content: string, planAction?: boolean) => {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? { ...m, content, suggestPlan: planAction ?? m.suggestPlan }
+              : m
+          )
+        );
+      };
 
       try {
         const response = await fetch("/api/ai-chat", {
@@ -217,10 +233,9 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
               if (data.error) throw new Error(data.error);
               if (data.delta) {
                 accumulated += data.delta;
-                const next = accumulated;
-                setMessages((prev) =>
-                  prev.map((m) => (m.id === assistantId ? { ...m, content: next } : m))
-                );
+                const parsed = stripPlanActionMarker(accumulated);
+                if (parsed.suggestPlan) suggestPlan = true;
+                updateAssistant(parsed.content, suggestPlan);
               }
             }
           }
@@ -228,18 +243,22 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
           if (!accumulated.trim()) {
             throw new Error("Empty response");
           }
-          speak(accumulated.trim());
+          const parsed = stripPlanActionMarker(accumulated);
+          accumulated = parsed.content;
+          suggestPlan = parsed.suggestPlan;
+          updateAssistant(parsed.content, suggestPlan);
+          speak(parsed.content);
         } else {
           const data = (await response.json()) as { reply?: string; error?: string };
           if (!response.ok) throw new Error(data.error ?? "Request failed");
           const reply =
             data.reply ??
             "I can help with services, timelines, and the right setup for your business. What are you building?";
-          accumulated = reply;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, content: reply } : m))
-          );
-          speak(reply);
+          const parsed = stripPlanActionMarker(reply);
+          accumulated = parsed.content;
+          suggestPlan = parsed.suggestPlan;
+          updateAssistant(parsed.content, suggestPlan);
+          speak(parsed.content);
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;
@@ -393,6 +412,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
             const isUser = message.role === "user";
             const paragraphs = formatMessageContent(message.content);
             const isTyping = !isUser && isStreaming && !message.content;
+            const showPlanAction = !isUser && Boolean(onOpenPlan && message.suggestPlan);
 
             return (
               <motion.div
@@ -406,23 +426,35 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
                     <Bot className="size-3.5" />
                   </span>
                 ) : null}
-                <div
-                  className={cn(
-                    "max-w-[86%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed",
-                    isUser
-                      ? "rounded-br-md bg-gradient-to-br from-[#ff6a00] to-[#ff7d22] text-white shadow-[0_10px_30px_-16px_rgba(255,106,0,0.55)]"
-                      : "rounded-bl-md border border-border/70 bg-card text-foreground/90"
-                  )}
-                >
-                  {isTyping ? (
-                    <TypingIndicator />
-                  ) : (
-                    paragraphs.map((paragraph, index) => (
-                      <p key={index} className={index > 0 ? "mt-2" : undefined}>
-                        {paragraph}
-                      </p>
-                    ))
-                  )}
+                <div className={cn("flex max-w-[86%] flex-col gap-2", isUser ? "items-end" : "items-start")}>
+                  <div
+                    className={cn(
+                      "rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed",
+                      isUser
+                        ? "rounded-br-md bg-gradient-to-br from-[#ff6a00] to-[#ff7d22] text-white shadow-[0_10px_30px_-16px_rgba(255,106,0,0.55)]"
+                        : "rounded-bl-md border border-border/70 bg-card text-foreground/90"
+                    )}
+                  >
+                    {isTyping ? (
+                      <TypingIndicator />
+                    ) : (
+                      paragraphs.map((paragraph, index) => (
+                        <p key={index} className={index > 0 ? "mt-2" : undefined}>
+                          {paragraph}
+                        </p>
+                      ))
+                    )}
+                  </div>
+                  {showPlanAction && !isTyping ? (
+                    <button
+                      type="button"
+                      onClick={onOpenPlan}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-primary/35 bg-primary/[0.08] px-3 py-2 text-[11px] font-semibold text-primary transition hover:border-primary/55 hover:bg-primary/[0.12]"
+                    >
+                      <ClipboardList className="size-3.5" />
+                      {t("aiOpenPlan")}
+                    </button>
+                  ) : null}
                 </div>
               </motion.div>
             );
@@ -448,7 +480,13 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
               key={prompt.key}
               type="button"
               disabled={isStreaming}
-              onClick={() => void sendMessage(prompt.label)}
+              onClick={() => {
+                if (prompt.key === "aiPromptPlan" && onOpenPlan) {
+                  onOpenPlan();
+                  return;
+                }
+                void sendMessage(prompt.label);
+              }}
               className="rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium leading-snug text-foreground/75 transition hover:border-primary/35 hover:bg-primary/[0.06] hover:text-foreground disabled:opacity-40"
             >
               {prompt.label}

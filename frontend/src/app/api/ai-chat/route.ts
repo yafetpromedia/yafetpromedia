@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai-chat-provider";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
 import { csrfGuard } from "@/lib/request-security";
+import { AI_PLAN_ACTION_MARKER } from "@/lib/ai-hub.shared";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 export const runtime = "nodejs";
@@ -42,10 +43,22 @@ function offlineReply(userMessage: string, businessName: string, siteContent?: A
     return `${about.pageTitle} is the founder and owner of ${businessName} — ${about.pageSubtitle}. ${about.heroTagline} Read the full story at /about/yafet or contact us at ${siteContent?.contactEmail ?? "hello@yafetpromedia.com"}.`;
   }
   if (lower.includes("price") || lower.includes("cost") || lower.includes("budget")) {
-    return "Pricing depends on scope — websites, automation, and branding bundles are quoted after a short discovery call. Share your goals and timeline and we can suggest a realistic range.";
+    return `Pricing depends on scope — websites, automation, and branding bundles are quoted after a short discovery call. For a tailored estimate, open the Plan tab in this chat panel — it walks you through scope and generates a project brief.\n${AI_PLAN_ACTION_MARKER}`;
   }
   if (lower.includes("time") || lower.includes("timeline") || lower.includes("how long")) {
     return "Most website and brand projects land in 3–8 weeks. Larger systems with integrations or Mr.Software rollout can take longer — we map milestones in discovery.";
+  }
+  if (
+    lower.includes("project") ||
+    lower.includes("quote") ||
+    lower.includes("proposal") ||
+    lower.includes("build") ||
+    lower.includes("start") ||
+    lower.includes("plan my") ||
+    lower.includes("website") ||
+    lower.includes("app")
+  ) {
+    return `Great — the Plan tab in this panel is built for that. It asks a few quick questions and generates a project brief with features, timeline, and cost range.\n${AI_PLAN_ACTION_MARKER}`;
   }
   if (lower.includes("service") || lower.includes("what do you do") || lower.includes("mr.software")) {
     return "We design and build full digital systems: websites, automation workflows, brand and media pipelines, and our Mr.Software platform for operations. What are you trying to launch or fix first?";

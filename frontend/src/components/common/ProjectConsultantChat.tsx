@@ -9,7 +9,6 @@ import {
   Calendar,
   Download,
   Layers,
-  Loader2,
   RotateCcw,
   SendHorizontal,
   Sparkles,
@@ -27,6 +26,22 @@ type Message = { id: string; role: "user" | "assistant"; content: string };
 
 function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function PlanTypingIndicator({ label }: { label?: string }) {
+  return (
+    <div className="mb-3 mr-auto flex max-w-[92%] items-center gap-2 rounded-2xl border border-border/70 bg-card/80 px-3.5 py-2.5">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="size-1.5 rounded-full bg-primary/70"
+          animate={{ opacity: [0.35, 1, 0.35], y: [0, -3, 0] }}
+          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
+      {label ? <span className="text-xs text-foreground/50">{label}</span> : null}
+    </div>
+  );
 }
 
 function BriefCard({ brief, leadScore }: { brief: ProjectBrief; leadScore?: number }) {
@@ -279,9 +294,7 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
             )}
 
             {loading && (
-              <div className="flex items-center gap-2 text-sm text-foreground/50">
-                <Loader2 className="size-4 animate-spin" /> Thinking…
-              </div>
+              <PlanTypingIndicator label={phase === "contact" ? "Building your brief…" : undefined} />
             )}
           </div>
 

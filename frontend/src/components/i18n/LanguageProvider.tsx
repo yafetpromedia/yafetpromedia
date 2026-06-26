@@ -53,8 +53,11 @@ const messages: Record<Language, Dictionary> = {
     aiPromptPricing: "How does pricing work?",
     aiPromptTimeline: "Typical project timeline?",
     aiPromptMrSoftware: "Tell me about Mr.Software",
+    aiPromptPlan: "Help me plan my project",
+    aiOpenPlan: "Open Project Planner",
+    aiPlanHint: "Switch to the Plan tab for a guided brief with estimates.",
     greeting:
-      "Hi — I'm {name}, your Yafetpromedia assistant. Ask me about services, pricing, timelines, or the right setup for your business.",
+      "Hi — I'm {name}, your Yafetpromedia assistant. Ask about services, pricing, or timelines — or switch to the Plan tab for a guided project brief.",
   },
   am: {
     navSystems: "ሲስተሞች",
@@ -102,8 +105,11 @@ const messages: Record<Language, Dictionary> = {
     aiPromptPricing: "ዋጋ እንዴት ይሰራል?",
     aiPromptTimeline: "ተራ ፕሮጀክት ጊዜ?",
     aiPromptMrSoftware: "ስለ Mr.Software ንገረኝ",
+    aiPromptPlan: "ፕሮጀክቴን እቅድ አዘጋጅ",
+    aiOpenPlan: "የፕሮጀክት Planner ክፈት",
+    aiPlanHint: "ለመመሪያ brief እና ግምቶች Plan ትር ይጠቀሙ።",
     greeting:
-      "ሰላም — እኔ {name} ነኝ፣ የYafetpromedia ረዳት። ስለ አገልግሎቶች፣ ዋጋ፣ ጊዜ ወይም ለቢዝነስዎ የሚመች መፍትሄ ይጠይቁኝ።",
+      "ሰላም — እኔ {name} ነኝ፣ የYafetpromedia ረዳት። ስለ አገልግሎቶች፣ ዋጋ ወይም ጊዜ ይጠይቁ — ወይም ለመመሪያ brief Plan ትር ይጠቀሙ።",
   },
 };
 

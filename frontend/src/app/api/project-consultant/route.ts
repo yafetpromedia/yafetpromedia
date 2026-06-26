@@ -14,7 +14,6 @@ import {
 import { briefMarkdownForTeam } from "@/lib/project-consultant.shared";
 import {
   generateConsultantBrief,
-  generateConsultantStepReply,
   isConsultantLlmAvailable,
 } from "@/lib/project-consultant-llm";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
@@ -115,24 +114,12 @@ export async function POST(request: Request) {
   let workingSession = nextSession;
 
   const llmEnabled = isConsultantLlmAvailable();
+  let briefLlmUsed = false;
 
-  if (llmEnabled) {
-    if (!response.complete) {
-      const llmReply = await generateConsultantStepReply(
-        workingSession,
-        userTurn,
-        response.phase,
-        response.reply
-      );
-      response = { ...response, reply: llmReply };
-    } else if (response.brief) {
-      const enhanced = await generateConsultantBrief(workingSession, response.brief);
-      response = {
-        ...response,
-        brief: enhanced,
-        leadScore: response.leadScore,
-      };
-    }
+  if (llmEnabled && response.complete && response.brief) {
+    const enhanced = await generateConsultantBrief(workingSession, response.brief);
+    response = { ...response, brief: enhanced };
+    briefLlmUsed = true;
   }
 
   if (response.reply?.trim()) {
@@ -178,7 +165,7 @@ export async function POST(request: Request) {
         session: workingSession,
         consultationId,
         leadId,
-        llmPowered: llmEnabled,
+        llmPowered: briefLlmUsed,
       });
     }
 
@@ -187,7 +174,7 @@ export async function POST(request: Request) {
       ...response,
       sessionId,
       session: workingSession,
-      llmPowered: llmEnabled,
+      llmPowered: false,
     });
   } catch (err) {
     console.error("[project-consultant] persistence failed:", err);
@@ -195,7 +182,7 @@ export async function POST(request: Request) {
       ...response,
       sessionId,
       session: workingSession,
-      llmPowered: llmEnabled,
+      llmPowered: briefLlmUsed,
     });
   }
 }

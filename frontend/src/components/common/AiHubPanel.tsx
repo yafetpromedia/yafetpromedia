@@ -124,7 +124,13 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
 
           <div className="flex min-h-0 flex-1 flex-col">
             <div className={cn("flex min-h-0 flex-1 flex-col", tab !== "chat" && "hidden")}>
-              <AiAssistantChat embedded open={open} active={tab === "chat"} onClose={onClose} />
+              <AiAssistantChat
+                embedded
+                open={open}
+                active={tab === "chat"}
+                onClose={onClose}
+                onOpenPlan={() => setTab("plan")}
+              />
             </div>
             <div className={cn("flex min-h-0 flex-1 flex-col", tab !== "plan" && "hidden")}>
               <ProjectConsultantChat embedded open={open} active={tab === "plan"} onClose={onClose} />
