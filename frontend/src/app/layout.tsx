@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/components/i18n/LanguageProvider";
 import { SiteContentProvider } from "@/components/common/SiteContentProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { rootMetadata } from "@/lib/seo";
+import { readSiteContent } from "@backend/site-content";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,7 +19,17 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-export const metadata: Metadata = rootMetadata;
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await readSiteContent();
+  const bust = encodeURIComponent(content.siteLogoSrc || "a");
+  return {
+    ...rootMetadata,
+    icons: {
+      icon: [{ url: `/icon?v=${bust}`, type: "image/png" }],
+      apple: [{ url: `/apple-icon?v=${bust}`, sizes: "180x180", type: "image/png" }],
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

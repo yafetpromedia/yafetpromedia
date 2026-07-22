@@ -301,24 +301,19 @@ export default function Navbar() {
               })}
             </div>
 
-            <div className="hidden lg:flex items-center gap-4 shrink-0">
-              <GoogleTranslateWidget />
-              <ThemeToggle />
+            <div className="flex items-center gap-2 shrink-0 lg:gap-4">
+              <GoogleTranslateWidget className="scale-90 origin-right lg:scale-100 lg:origin-center" />
+              <ThemeToggle className="size-9 lg:size-10" />
               <Link
                 href={pathname === "/" ? "#contact" : "/#contact"}
-                className="rounded-full px-6 h-10 inline-flex items-center bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 group text-sm font-medium"
+                className="hidden lg:inline-flex rounded-full px-6 h-10 items-center bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 group text-sm font-medium"
               >
                 {t("startProject")}
                 <ChevronRight className="ml-1 size-4 group-hover:translate-x-1 transition-transform" />
               </Link>
-            </div>
-
-            <div className="flex lg:hidden items-center gap-2">
-              <GoogleTranslateWidget className="scale-90 origin-right" />
-              <ThemeToggle className="size-9" />
               <button
                 type="button"
-                className="relative z-50 p-2 text-foreground/70 hover:text-foreground"
+                className="relative z-50 p-2 text-foreground/70 hover:text-foreground lg:hidden"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >

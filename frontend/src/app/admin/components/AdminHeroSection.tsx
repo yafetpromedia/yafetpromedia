@@ -129,13 +129,14 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <Images className="size-4 text-primary/90" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">
-            Site logo (navbar, footer & login)
+            Site logo (navbar, footer, login & favicon)
           </h4>
         </div>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-foreground/55">
-          Main mark next to the brand name. Use a path like{" "}
+          Main mark next to the brand name. This same image also powers the browser tab favicon
+          after save. Use a path like{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
-            /uploads/hero/yafetpromedia_logo-….png
+            /uploads/hero/your-logo.jpg
           </code>
           , an uploaded URL under{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
