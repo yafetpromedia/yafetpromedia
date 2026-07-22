@@ -200,7 +200,7 @@ export default function Navbar() {
               <div className="relative size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1 group-hover:border-primary/50 group-hover:bg-primary/15 transition-all duration-300">
                 <Image
                   src={logoSrc}
-                  alt="Yafetpromedia Logo"
+                  alt="Awud Digitals Logo"
                   width={32}
                   height={32}
                   className="object-contain w-full h-full"
@@ -209,7 +209,7 @@ export default function Navbar() {
                 />
               </div>
               <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 hidden sm:block">
-                Yafetpromedia
+                Awud Digitals
               </span>
             </Link>
 

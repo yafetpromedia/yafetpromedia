@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Login | YafetPromedia",
+  title: "Login | Awud Digitals",
   noIndex: true,
 });
 

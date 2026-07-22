@@ -365,7 +365,7 @@ export default function LoginPage() {
                     <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-background/90 to-muted/30 p-1.5 shadow-inner ring-1 ring-white/[0.04]">
                       <Image
                         src={logoSrc}
-                        alt="Yafetpromedia"
+                        alt="Awud Digitals"
                         width={36}
                         height={36}
                         className="object-contain"
@@ -374,8 +374,10 @@ export default function LoginPage() {
                       />
                     </div>
                     <div>
-                      <p className="font-display text-lg font-semibold tracking-tight">Yafetpromedia</p>
-                      <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-foreground/45">Dashboard</p>
+                      <p className="font-display text-lg font-semibold tracking-tight">Awud Digitals</p>
+                      <p className="text-[11px] text-foreground/45">
+                        Founded by {content.aboutYafet.pageTitle}
+                      </p>
                     </div>
                   </div>
                   <div>

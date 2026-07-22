@@ -286,7 +286,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
             {filteredLeads.map((lead) => {
               const parsed = parseLeadMessage(lead.message);
               const expanded = expandedIds.has(lead.id);
-              const replySubject = encodeURIComponent(`Re: Your message to Yafetpromedia`);
+              const replySubject = encodeURIComponent(`Re: Your message to Awud Digitals`);
               const replyBody = encodeURIComponent(`Hi ${displayName(lead)},\n\nThank you for reaching out.\n\n`);
               const mailtoHref = `mailto:${lead.email}?subject=${replySubject}&body=${replyBody}`;
               const telHref = lead.phone.trim() !== "" ? `tel:${lead.phone.replace(/\s+/g, "")}` : null;

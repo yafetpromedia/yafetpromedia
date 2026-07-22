@@ -9,6 +9,9 @@ const monorepoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 loadEnvConfig(monorepoRoot);
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{ source: "/app", destination: "/", permanent: false }];
+  },
   turbopack: {
     /** Workspace: lockfile lives at monorepo root; include `frontend/`, `backend/`, `db/` in resolution. */
     root: monorepoRoot,
@@ -59,9 +62,9 @@ const nextConfig: NextConfig = {
           "img-src 'self' data: blob: https:",
           "style-src 'self' 'unsafe-inline' https:",
           "font-src 'self' data: https:",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://www.gstatic.com",
-          "connect-src 'self' https://translate.googleapis.com https://translate.google.com https://www.gstatic.com",
-          "frame-src https://translate.google.com https://translate.googleapis.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://www.google.com",
+          "connect-src 'self' https://translate.googleapis.com https://translate.google.com https://translate-pa.googleapis.com https://www.gstatic.com https://www.google.com",
+          "frame-src https://translate.google.com https://translate.googleapis.com https://www.google.com https://www.gstatic.com",
         ].join("; "),
       },
     ];

@@ -36,7 +36,7 @@ export default function OpenGraphImage() {
               fontWeight: 800,
             }}
           >
-            Y
+            A
           </div>
           <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5 }}>{SITE_NAME}</span>
         </div>
@@ -50,7 +50,7 @@ export default function OpenGraphImage() {
           </p>
         </div>
 
-        <p style={{ fontSize: 22, margin: 0, color: "#ff9139", fontWeight: 600 }}>yafetpromedia.com</p>
+        <p style={{ fontSize: 22, margin: 0, color: "#ff9139", fontWeight: 600 }}>awuddigitals.com</p>
       </div>
     ),
     { ...size }

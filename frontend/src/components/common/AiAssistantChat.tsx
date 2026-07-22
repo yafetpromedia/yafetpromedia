@@ -81,7 +81,7 @@ type Props = {
 export default function AiAssistantChat({ open, onClose, className, embedded, active, onOpenPlan }: Props) {
   const { t } = useLanguage();
   const { content } = useSiteContent();
-  const assistantName = content.aiName.trim() || "Yafet AI";
+  const assistantName = content.aiName.trim() || "Awud AI";
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -201,7 +201,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
           body: JSON.stringify({
             message: text,
             history,
-            businessName: "Yafetpromedia",
+            businessName: "Awud Digitals",
             stream: true,
           }),
         });

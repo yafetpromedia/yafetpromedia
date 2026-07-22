@@ -87,7 +87,7 @@ export default function Footer() {
               <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.08] to-transparent p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ring-1 ring-black/[0.04] transition-all duration-300 group-hover:border-primary/35 dark:ring-white/[0.06]">
                 <Image
                   src={logoSrc}
-                  alt="Yafetpromedia Logo"
+                  alt="Awud Digitals Logo"
                   width={30}
                   height={30}
                   className="size-full object-contain"
@@ -95,13 +95,13 @@ export default function Footer() {
                 />
               </div>
               <span className="text-xl font-semibold tracking-tight text-foreground md:text-[1.35rem]">
-                Yafetpromedia
+                Awud Digitals
               </span>
             </Link>
 
             <p className="mb-8 max-w-[26rem] text-[15px] leading-relaxed text-foreground/58 md:text-base">
-              Designing and engineering the underlying digital ecosystems that drive modern business operations and brand
-              authority.
+              Awud Digitals — founded and owned by {content.aboutYafet.pageTitle} — builds modern digital solutions
+              for businesses, schools, startups, and organizations across Africa and globally.
             </p>
 
             <a
@@ -194,7 +194,7 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-row flex-nowrap items-center justify-between gap-4 border-t border-border/60 pt-8">
           <p className="min-w-0 flex-1 truncate text-[12px] text-foreground/45 sm:overflow-visible sm:flex-none sm:whitespace-normal sm:text-[13px]">
-            © {year} Yafetpromedia. All rights reserved.
+            © {year} Awud Digitals. All Rights Reserved.
           </p>
           <div className="flex shrink-0 flex-row flex-nowrap items-center gap-5 sm:gap-8">
             <Link

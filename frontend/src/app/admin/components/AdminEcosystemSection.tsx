@@ -86,7 +86,7 @@ export default function AdminEcosystemSection({ draft, setDraft }: Props) {
           </span>
           <div>
             <h3 className="font-display text-xl font-bold">Ecosystem hierarchy</h3>
-            <p className="text-sm text-foreground/55">YafetPromedia parent company → product cards on homepage</p>
+            <p className="text-sm text-foreground/55">Awud Digitals parent company → product cards on homepage</p>
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

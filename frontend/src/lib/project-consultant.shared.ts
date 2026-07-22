@@ -110,7 +110,7 @@ export type ConsultantApiResponse = {
   sessionId: string;
 };
 
-export const CONSULTANT_SYSTEM_PROMPT = `You are YafetPromedia's AI Project Consultant.
+export const CONSULTANT_SYSTEM_PROMPT = `You are Awud Digitals' AI Project Consultant.
 
 Your job is to:
 1. Understand client requirements.

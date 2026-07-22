@@ -16,8 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
     description: description.slice(0, 160),
     path: "/about/yafet",
     keywords: [
-      "Yafet founder",
-      "YafetPromedia founder",
+      "Yafet Tesfaye",
+      "Awud Digitals founder",
+      "Yafet Tesfaye Awud Digitals",
       "African software entrepreneur",
       "Ethiopia tech founder",
       about.pageTitle,

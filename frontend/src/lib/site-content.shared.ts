@@ -111,7 +111,7 @@ export type TrustLogoItem = {
   imageSrc: string;
 };
 
-/** Product under the YafetPromedia parent company (ecosystem hierarchy). */
+/** Product under the Awud Digitals parent company (ecosystem hierarchy). */
 export type EcosystemProductCard = {
   title: string;
   tagline: string;
@@ -179,7 +179,7 @@ export type SiteContent = {
   ecosystemSectionTag: string;
   ecosystemSectionTitle: string;
   ecosystemSectionDescription: string;
-  /** Label above the product tree, e.g. "YafetPromedia — The parent company" */
+  /** Label above the product tree, e.g. "Awud Digitals — The parent company" */
   ecosystemParentLabel: string;
   ecosystemCards: EcosystemProductCard[];
   caseStudiesSectionTag: string;
@@ -239,7 +239,7 @@ export type SiteContent = {
 
 export const defaultSiteContent: SiteContent = {
   exploreArchitecture: defaultExploreArchitectureContent,
-  siteLogoSrc: "/images/navbar/hero image.svg",
+  siteLogoSrc: "/uploads/hero/yafetpromedia_logo-1782318588782-mrlyfi.png",
   /** Filled from CMS / admin; kept empty so shipped defaults never override site copy. */
   heroHeadline: "",
   heroHighlight: "",
@@ -248,18 +248,13 @@ export const defaultSiteContent: SiteContent = {
   heroCarouselSlides: [
     {
       id: "hero-slide-brand",
-      src: "/images/hero/hero image.svg",
-      alt: "Yafetpromedia — digital systems and infrastructure",
+      src: "/uploads/hero/hero3-1782318880327-jx6ebq.png",
+      alt: "Awud Digitals — digital systems and infrastructure",
     },
     {
-      id: "hero-slide-partnership",
-      src: "/images/contact-illustration.webp",
-      alt: "Partnership, delivery, and engineering illustration",
-    },
-    {
-      id: "hero-slide-mark",
-      src: "/images/navbar/hero image.svg",
-      alt: "Yafetpromedia brand mark",
+      id: "hero-slide-delivery",
+      src: "/uploads/hero/hero2-1782318368011-9mrfqg.png",
+      alt: "Product delivery and engineering systems",
     },
   ],
   systemsSectionTag: "Ecosystem Architecture",
@@ -337,7 +332,7 @@ export const defaultSiteContent: SiteContent = {
       description:
         "Our flagship: a centralized operating system for your business—dashboards, workflows, and team alignment in one place. Built to scale from growing teams to multi-site orgs, with a focus on clarity, speed, and day-to-day usability.",
       label: "FLAGSHIP",
-      imageSrc: "/images/contact-illustration.webp",
+      imageSrc: "/uploads/products/Screenshot2026-06-24at21-42-18HomeSPOONH-1782326558864-7e5wjv.png",
       href: "#contact",
       linkLabel: "Request a walkthrough",
       featured: true,
@@ -379,17 +374,17 @@ export const defaultSiteContent: SiteContent = {
     },
   ],
   ecosystemSectionTag: "Company Platform",
-  ecosystemSectionTitle: "YafetPromedia — the parent company.",
+  ecosystemSectionTitle: "Awud Digitals — the parent company.",
   ecosystemSectionDescription:
-    "YafetPromedia is the holding company and delivery studio. Mr.Software, CampusOne, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
-  ecosystemParentLabel: "YafetPromedia · Parent company",
+    "Founded by Yafet Tesfaye, Awud Digitals is the holding company and delivery studio. Mr.Software, CampusOne, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
+  ecosystemParentLabel: "Awud Digitals · Founded by Yafet Tesfaye",
   ecosystemCards: [
     {
       title: "Mr.Software",
       tagline: "Software publishing platform",
       description:
         "Our flagship operating system for business—dashboards, workflows, and team alignment in one place. Built to scale from growing teams to multi-site organizations.",
-      imageSrc: "/images/contact-illustration.webp",
+      imageSrc: "/uploads/products/Screenshot2026-06-24at21-42-18HomeSPOONH-1782326558864-7e5wjv.png",
       href: "#products",
       linkLabel: "Explore Mr.Software",
       status: "live",
@@ -484,29 +479,29 @@ export const defaultSiteContent: SiteContent = {
   ],
   aboutYafet: {
     pageTitle: "Yafet Tesfaye",
-    pageSubtitle: "Founder, Builder & Product Designer",
+    pageSubtitle: "Founder & Owner · Awud Digitals",
     heroTagline:
       "Building digital products, software ecosystems, and technology companies from Ethiopia for the world.",
     introTitle: "Student. Founder. Builder.",
     introBody:
-      "I am Yafet Tesfaye, a student entrepreneur and the founder of YafetPromedia—a technology company focused on building software platforms, digital infrastructure, and AI-powered ecosystems that solve real-world problems across Africa.\n\nMy journey began with a passion for design, development, and technology. What started as creating websites and digital experiences quickly evolved into a larger vision: building products that can serve thousands of users, empower organizations, and create opportunities for the next generation of African innovators.\n\nToday, I lead the development of multiple platforms under the YafetPromedia ecosystem, combining technology, design, business strategy, and artificial intelligence to create solutions that scale beyond individual projects.",
+      "I am Yafet Tesfaye, a student entrepreneur and the founder of Awud Digitals—a technology company focused on building software platforms, digital infrastructure, and AI-powered ecosystems that solve real-world problems across Africa.\n\nMy journey began with a passion for design, development, and technology. What started as creating websites and digital experiences quickly evolved into a larger vision: building products that can serve thousands of users, empower organizations, and create opportunities for the next generation of African innovators.\n\nToday, I lead the development of multiple platforms under the Awud Digitals ecosystem, combining technology, design, business strategy, and artificial intelligence to create solutions that scale beyond individual projects.",
     journeyTitle: "Building in Public",
     journeyQuote: "What infrastructure is missing, and how can we build it better?",
     journey:
-      "That mindset led to the creation of YafetPromedia—not as a freelance brand, but as a founder-led technology company focused on long-term product development.\n\nAlong the journey, I have worked on websites, digital platforms, creative systems, educational technology, AI integrations, and software products designed to help organizations operate more efficiently and grow faster.\n\nI also had the opportunity to represent a startup initiative at a national technology event attended by the Ethiopian Prime Minister, an experience that reinforced my belief that African innovators can build products capable of competing on a global stage.\n\nToday, every project, platform, and innovation contributes to one larger mission: creating technology that empowers people, businesses, and institutions across Africa.",
+      "That mindset led to the creation of Awud Digitals—not as a freelance brand, but as a founder-led technology company focused on long-term product development.\n\nAlong the journey, I have worked on websites, digital platforms, creative systems, educational technology, AI integrations, and software products designed to help organizations operate more efficiently and grow faster.\n\nI also had the opportunity to represent a startup initiative at a national technology event attended by the Ethiopian Prime Minister, an experience that reinforced my belief that African innovators can build products capable of competing on a global stage.\n\nToday, every project, platform, and innovation contributes to one larger mission: creating technology that empowers people, businesses, and institutions across Africa.",
     mission:
-      "To build world-class software, platforms, and digital ecosystems that help African organizations innovate faster, operate smarter, and compete globally.",
+      "To build innovative digital solutions that help businesses grow through technology, creativity, and excellence.",
     vision:
-      "To create a future where African founders are recognized not only for providing services, but for building products, platforms, and technologies that shape the digital experiences of millions of people worldwide.",
+      "To become one of Africa's leading technology companies, recognized globally for creating world-class digital products and experiences.",
     achievements: [
-      "Founded YafetPromedia while still a student, transforming a passion for technology into a growing software and product company.",
+      "Founded Awud Digitals while still a student, transforming a passion for technology into a growing software and product company.",
       "Created Mr.Software, a software business ecosystem designed to help developers, startups, and organizations build, deploy, manage, and monetize digital products.",
       "Represented a startup initiative during a national innovation event attended by the Ethiopian Prime Minister, gaining exposure to Ethiopia's growing technology ecosystem.",
       "Launched CampusOne, an education-focused platform built to modernize digital experiences for schools, colleges, and universities.",
-      "Continuing to expand the YafetPromedia ecosystem through AI-powered products, digital infrastructure, and future technology ventures.",
+      "Continuing to expand the Awud Digitals ecosystem through AI-powered products, digital infrastructure, and future technology ventures.",
     ],
     projectsHighlight:
-      "Everything begins with YafetPromedia.\n\nYafetPromedia serves as the parent company and innovation hub behind every platform we build. Rather than creating isolated projects, we focus on developing connected ecosystems that solve meaningful problems and create lasting impact.",
+      "Everything begins with Awud Digitals.\n\nAwud Digitals serves as the parent company and innovation hub behind every platform we build. Rather than creating isolated projects, we focus on developing connected ecosystems that solve meaningful problems and create lasting impact.",
     ecosystemProducts: [
       {
         title: "Mr.Software",
@@ -523,7 +518,7 @@ export const defaultSiteContent: SiteContent = {
     ],
     closingTitle: "Beyond the Products",
     closingBody:
-      "Technology is only part of the story.\n\nI believe the future belongs to builders who combine creativity, engineering, business thinking, and a willingness to solve difficult problems. Through YafetPromedia, my goal is not simply to launch products, but to contribute to a stronger technology ecosystem for Africa—one platform, one innovation, and one opportunity at a time.",
+      "Technology is only part of the story.\n\nI believe the future belongs to builders who combine creativity, engineering, business thinking, and a willingness to solve difficult problems. Through Awud Digitals, my goal is not simply to launch products, but to contribute to a stronger technology ecosystem for Africa—one platform, one innovation, and one opportunity at a time.",
     closingTagline: "Building the future from Ethiopia. Scaling it to the world.",
     heroImageSrc: "",
   },
@@ -586,7 +581,7 @@ export const defaultSiteContent: SiteContent = {
   contactSectionTitle: "Let's build your next growth engine.",
   contactSectionDescription:
     "Tell us what you are building, your timeline, and where you need support. We will come back with a clear plan and next steps.",
-  contactEmail: "hello@yafetpromedia.com",
+  contactEmail: "hello@awuddigitals.com",
   contactPhone: "+251 991 185 321",
   contactWhatsappLabel: "WhatsApp Chat",
   contactNamePlaceholder: "Your Name",
@@ -606,35 +601,35 @@ export const defaultSiteContent: SiteContent = {
     },
     {
       label: "Email",
-      url: "mailto:hello@yafetpromedia.com",
+      url: "mailto:hello@awuddigitals.com",
       icon: "email",
       enabled: true,
     },
     {
       label: "LinkedIn",
-      url: "https://www.linkedin.com/company/yafetpromedia",
+      url: "https://www.linkedin.com/company/awuddigitals",
       icon: "linkedin",
       enabled: true,
     },
     {
       label: "Instagram",
-      url: "https://www.instagram.com/yafetpromedia",
+      url: "https://www.instagram.com/awuddigitals",
       icon: "instagram",
       enabled: true,
     },
     {
       label: "YouTube",
-      url: "https://www.youtube.com/@yafetpromedia",
+      url: "https://www.youtube.com/@awuddigitals",
       icon: "youtube",
       enabled: true,
     },
     {
       label: "GitHub",
-      url: "https://github.com/yafetpromedia",
+      url: "https://github.com/awuddigitals",
       icon: "github",
       enabled: true,
     },
   ],
-  aiName: "Yafet AI",
+  aiName: "Awud AI",
   whatsappNumber: "251991185321",
 };

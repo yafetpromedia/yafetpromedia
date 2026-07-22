@@ -92,7 +92,7 @@ export const defaultExploreArchitectureContent: ExploreArchitectureContent = {
   eyebrow: "Blueprint",
   title: "How your full digital system runs",
   description:
-    "Yafetpromedia delivers the whole loop—strategy, design, build, media, and growth—on one architecture so nothing gets lost between agencies or tools.",
+    "Awud Digitals delivers the whole loop—strategy, design, build, media, and growth—on one architecture so nothing gets lost between agencies or tools.",
   serviceStrip: [
     { label: "Strategy & UX", icon: "LayoutGrid" },
     { label: "Build & integrate", icon: "Server" },
@@ -121,7 +121,7 @@ export const defaultExploreArchitectureContent: ExploreArchitectureContent = {
       flowFooter:
         "Every step is instrumented: logs, alerts, and rollbacks so your live digital services stay safe in production.",
       terminalLines: [
-        `// yafetpromedia — product & data`,
+        `// awuddigitals — product & data`,
         `type ServiceLoop = {`,
         `  touchpoints: "web" | "social" | "ads" | "forms"`,
         `  stack: { surface: "Next.js", runtime: "edge", data: "SQL + cache" }`,
@@ -152,7 +152,7 @@ export const defaultExploreArchitectureContent: ExploreArchitectureContent = {
       flowFooter:
         "Each stage is versioned and reviewed: exports match what you approved, from offline to delivery formats.",
       terminalLines: [
-        `// yafetpromedia — post & motion`,
+        `// awuddigitals — post & motion`,
         `type PostPipeline = {`,
         `  edit: "Premiere"`,
         `  comp: "After Effects"`,
@@ -183,7 +183,7 @@ export const defaultExploreArchitectureContent: ExploreArchitectureContent = {
       flowFooter:
         "From brief to launch in one line: files, messaging, and guidelines stay linked to the brand you sign off on.",
       terminalLines: [
-        `// yafetpromedia — brand system`,
+        `// awuddigitals — brand system`,
         `type BrandKit = {`,
         `  ui: "Figma"`,
         `  vector: "Illustrator"`,

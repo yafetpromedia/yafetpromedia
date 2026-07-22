@@ -152,7 +152,7 @@ export default function AdminAboutSection({ draft, setDraft }: Props) {
                   />
                 </div>
                 <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-primary/90">
-                  YafetPromedia
+                  Awud Digitals
                 </p>
                 <p className="mt-1 text-center text-xs text-foreground/50">Parent company · Founder-led</p>
               </div>

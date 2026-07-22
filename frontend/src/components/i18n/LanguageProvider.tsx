@@ -57,7 +57,7 @@ const messages: Record<Language, Dictionary> = {
     aiOpenPlan: "Open Project Planner",
     aiPlanHint: "Switch to the Plan tab for a guided brief with estimates.",
     greeting:
-      "Hi — I'm {name}, your Yafetpromedia assistant. Ask about services, pricing, or timelines — or switch to the Plan tab for a guided project brief.",
+      "Hi — I'm {name}, your Awud Digitals assistant. Ask about services, pricing, or timelines — or switch to the Plan tab for a guided project brief.",
   },
   am: {
     navSystems: "ሲስተሞች",
@@ -109,7 +109,7 @@ const messages: Record<Language, Dictionary> = {
     aiOpenPlan: "የፕሮጀክት Planner ክፈት",
     aiPlanHint: "ለመመሪያ brief እና ግምቶች Plan ትር ይጠቀሙ።",
     greeting:
-      "ሰላም — እኔ {name} ነኝ፣ የYafetpromedia ረዳት። ስለ አገልግሎቶች፣ ዋጋ ወይም ጊዜ ይጠይቁ — ወይም ለመመሪያ brief Plan ትር ይጠቀሙ።",
+      "ሰላም — እኔ {name} ነኝ፣ የAwud Digitals ረዳት። ስለ አገልግሎቶች፣ ዋጋ ወይም ጊዜ ይጠይቁ — ወይም ለመመሪያ brief Plan ትር ይጠቀሙ።",
   },
 };
 

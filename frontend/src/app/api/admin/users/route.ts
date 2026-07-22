@@ -86,7 +86,7 @@ export async function GET() {
   const denied = await jsonForbiddenUnlessPermission("team.view");
   if (denied) return denied;
 
-  const envPrimaryEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  const envPrimaryEmail = (process.env.ADMIN_EMAIL ?? "admin@awuddigitals.com").trim().toLowerCase();
   const rows = await query<{ id: number; email: string; role: string; permissions: unknown }>(
     `SELECT id, email, role, permissions FROM admin_users ORDER BY id ASC`
   );
@@ -193,7 +193,7 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Role must be owner or messages." }, { status: 400 });
   }
 
-  const envPrimaryEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  const envPrimaryEmail = (process.env.ADMIN_EMAIL ?? "admin@awuddigitals.com").trim().toLowerCase();
   const targetRows = await query<{ email: string }>(`SELECT email FROM admin_users WHERE id = $1 LIMIT 1`, [id]);
   const target = targetRows[0];
   if (!target) {
@@ -251,7 +251,7 @@ export async function DELETE(request: Request) {
   if (target.email.trim().toLowerCase() === selfEmail) {
     return Response.json({ error: "You cannot remove your own account." }, { status: 400 });
   }
-  const envPrimaryEmail = (process.env.ADMIN_EMAIL ?? "admin@yafetpromedia.com").trim().toLowerCase();
+  const envPrimaryEmail = (process.env.ADMIN_EMAIL ?? "admin@awuddigitals.com").trim().toLowerCase();
   if (target.email.trim().toLowerCase() === envPrimaryEmail) {
     return Response.json({ error: "Primary admin account cannot be removed." }, { status: 400 });
   }

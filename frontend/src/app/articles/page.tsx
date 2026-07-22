@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Articles | YafetPromedia",
+  title: "Articles | Awud Digitals",
   description: "Articles and publications on web development, automation, and digital growth.",
   path: "/articles",
 });

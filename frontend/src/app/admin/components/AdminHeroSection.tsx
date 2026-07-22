@@ -46,7 +46,7 @@ function defaultSlideSrc(slides: HeroCarouselSlide[]): string {
   return (
     slides[0]?.src ??
     defaultSiteContent.heroCarouselSlides[0]?.src ??
-    "/images/hero/hero image.svg"
+    "/uploads/hero/hero3-1782318880327-jx6ebq.png"
   );
 }
 
@@ -135,7 +135,7 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-foreground/55">
           Main mark next to the brand name. Use a path like{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
-            /images/navbar/hero image.svg
+            /uploads/hero/yafetpromedia_logo-….png
           </code>
           , an uploaded URL under{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
@@ -228,7 +228,7 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-foreground/55">
               Up to 8 slides. Use paths like{" "}
               <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
-                /images/hero/hero image.svg
+                /uploads/hero/hero3-….png
               </code>
               , upload a file, or paste an HTTPS image URL.
             </p>
@@ -335,7 +335,7 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
                       value={slide.src}
                       onChange={(e) => patchHeroSlide(setDraft, index, { src: e.target.value })}
                       className={compactInputCls}
-                      placeholder="/images/hero/hero image.svg"
+                      placeholder="/uploads/hero/hero3-….png"
                     />
                   </label>
                   <label className="block">

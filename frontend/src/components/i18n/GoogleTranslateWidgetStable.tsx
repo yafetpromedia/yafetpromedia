@@ -47,6 +47,7 @@ const INCLUDED_LANGS = LANG_OPTIONS.map((l) => l.code)
   .map((c) => c.toLowerCase())
   .join(",");
 const GLOBAL_HOST_ID = "google_translate_element_global";
+let translateElementBootstrapped = false;
 
 function ensureTranslateScript() {
   if (document.querySelector('script[data-google-translate="true"]')) return;
@@ -135,7 +136,13 @@ export default function GoogleTranslateWidgetStable({ className }: { className?:
     const init = () => {
       if (!window.google?.translate?.TranslateElement) return;
       const target = ensureGlobalHost();
-      if (target.querySelector(".goog-te-gadget")) return;
+      if (translateElementBootstrapped || target.querySelector(".goog-te-gadget")) {
+        translateElementBootstrapped = true;
+        const pending = getCookieLang();
+        if (pending !== "en") applyGoogleCombo(pending);
+        return;
+      }
+      translateElementBootstrapped = true;
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "en",
@@ -144,13 +151,17 @@ export default function GoogleTranslateWidgetStable({ className }: { className?:
         },
         GLOBAL_HOST_ID
       );
+      const pending = getCookieLang();
+      if (pending !== "en") {
+        window.setTimeout(() => applyGoogleCombo(pending), 120);
+      }
     };
 
     window.googleTranslateElementInit = init;
     init();
     ensureTranslateScript();
     const timer = window.setInterval(init, 400);
-    const timeout = window.setTimeout(() => window.clearInterval(timer), 8000);
+    const timeout = window.setTimeout(() => window.clearInterval(timer), 12000);
     return () => {
       window.clearInterval(timer);
       window.clearTimeout(timeout);
@@ -166,17 +177,29 @@ export default function GoogleTranslateWidgetStable({ className }: { className?:
       window.location.reload();
       return;
     }
-    if (!applyGoogleCombo(next)) {
-      window.setTimeout(() => {
-        if (applyGoogleCombo(next)) return;
-        if (!canUseGoogleProxyTranslate()) return;
+    if (applyGoogleCombo(next)) return;
+
+    let attempts = 0;
+    const retry = window.setInterval(() => {
+      attempts += 1;
+      if (applyGoogleCombo(next)) {
+        window.clearInterval(retry);
+        return;
+      }
+      if (attempts < 12) return;
+      window.clearInterval(retry);
+      // Cookie is already set. Reload so TranslateElement applies it.
+      // On production, fall back to Google's translate proxy if needed.
+      if (canUseGoogleProxyTranslate() && !document.querySelector(".goog-te-combo")) {
         const url = new URL("https://translate.google.com/translate");
         url.searchParams.set("sl", "auto");
         url.searchParams.set("tl", next);
         url.searchParams.set("u", window.location.href);
         window.location.href = url.toString();
-      }, 180);
-    }
+        return;
+      }
+      window.location.reload();
+    }, 200);
   }, []);
 
   const options = useMemo(() => LANG_OPTIONS, []);

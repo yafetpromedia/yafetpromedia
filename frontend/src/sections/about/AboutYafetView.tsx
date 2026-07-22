@@ -126,7 +126,7 @@ export default function AboutYafetView({ about, siteLogoSrc, ecosystemCards }: P
                   >
                     <Image
                       src={portraitSrc}
-                      alt={hasCustomPortrait ? about.pageTitle : "YafetPromedia"}
+                      alt={about.pageTitle}
                       fill
                       className={cn(
                         hasCustomPortrait
@@ -139,9 +139,9 @@ export default function AboutYafetView({ about, siteLogoSrc, ecosystemCards }: P
                     />
                   </div>
                   <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.24em] text-primary/90">
-                    YafetPromedia
+                    {about.pageTitle}
                   </p>
-                  <p className="mt-1 text-center text-sm text-foreground/55">Parent company · Founder-led</p>
+                  <p className="mt-1 text-center text-sm text-foreground/55">Founder & Owner · Awud Digitals</p>
                 </div>
               </div>
             </motion.div>
@@ -266,7 +266,7 @@ export default function AboutYafetView({ about, siteLogoSrc, ecosystemCards }: P
           >
             <div className="max-w-3xl">
               <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">The ecosystem</p>
-              <h2 className="mt-3 font-display text-2xl font-bold md:text-3xl">Everything begins with YafetPromedia</h2>
+              <h2 className="mt-3 font-display text-2xl font-bold md:text-3xl">Everything begins with Awud Digitals</h2>
               <div className="mt-4 space-y-4">
                 {ecosystemIntro.map((paragraph, i) => (
                   <p key={i} className="leading-relaxed text-foreground/68">

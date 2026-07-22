@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const SESSION_COOKIE = "yafet_session";
+const SESSION_COOKIE = "awud_session";
 const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function getAuthSecret(): string {

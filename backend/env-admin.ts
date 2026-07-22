@@ -10,7 +10,7 @@ export function getBootstrapAdminEmail(): string {
   if (isProductionEnv()) {
     throw new Error("ADMIN_EMAIL must be set in production.");
   }
-  return "admin@yafetpromedia.com";
+  return "admin@awuddigitals.com";
 }
 
 export function hasAdminBootstrapSecret(): boolean {

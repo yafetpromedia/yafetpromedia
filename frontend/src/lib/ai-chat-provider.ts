@@ -62,7 +62,7 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     `- Role: ${about.pageSubtitle}`,
     about.heroTagline.trim() ? `- Tagline: ${about.heroTagline.trim()}` : "",
     founderIntro ? `- About the founder: ${founderIntro}` : "",
-    `- ${businessName} is the parent company and product studio behind Mr.Software, CampusOne, and client delivery work.`,
+    `- ${businessName} is the parent company and product studio behind Mr.Software, CampusOne, and client delivery work — founded and owned by ${about.pageTitle}.`,
     about.mission.trim() ? `- Mission: ${about.mission.trim()}` : "",
     ecosystemProducts ? `- Ecosystem products:\n${ecosystemProducts}` : "",
     "- Full founder story: /about/yafet",

@@ -29,7 +29,11 @@ async function logChat(userMessage: string, reply: string) {
 }
 
 function offlineReply(userMessage: string, businessName: string, siteContent?: Awaited<ReturnType<typeof readSiteContent>>) {
-  const lower = userMessage.toLowerCase();
+  const lower = userMessage.toLowerCase().trim();
+  const assistantName = siteContent?.aiName?.trim() || "Awud AI";
+  if (/^(hi|hello|hey|good morning|good afternoon|good evening|selam)\b/.test(lower)) {
+    return `Hi! I'm ${assistantName} from ${businessName}. Ask about our services, pricing, timelines, or Mr.Software — or switch to the Plan tab for a guided project brief.`;
+  }
   const about = siteContent?.aboutYafet;
   if (
     about &&
@@ -40,7 +44,7 @@ function offlineReply(userMessage: string, businessName: string, siteContent?: A
       lower.includes("who started") ||
       lower.includes("ceo"))
   ) {
-    return `${about.pageTitle} is the founder and owner of ${businessName} — ${about.pageSubtitle}. ${about.heroTagline} Read the full story at /about/yafet or contact us at ${siteContent?.contactEmail ?? "hello@yafetpromedia.com"}.`;
+    return `${about.pageTitle} is the founder and owner of ${businessName} — ${about.pageSubtitle}. ${about.heroTagline} Read the full story at /about/yafet or contact us at ${siteContent?.contactEmail ?? "hello@awuddigitals.com"}.`;
   }
   if (lower.includes("price") || lower.includes("cost") || lower.includes("budget")) {
     return `Pricing depends on scope — websites, automation, and branding bundles are quoted after a short discovery call. For a tailored estimate, open the Plan tab in this chat panel — it walks you through scope and generates a project brief.\n${AI_PLAN_ACTION_MARKER}`;
@@ -136,7 +140,7 @@ export async function POST(request: Request) {
       stream?: boolean;
     };
     const userMessage = (body.message ?? "").trim();
-    const businessName = (body.businessName ?? "Yafetpromedia").slice(0, 80);
+    const businessName = (body.businessName ?? "Awud Digitals").slice(0, 80);
     const siteContent = await readSiteContent();
     const wantsStream = Boolean(body.stream);
 
@@ -273,10 +277,7 @@ export async function POST(request: Request) {
     }
 
     if (providerError) {
-      const reply =
-        "Our AI is temporarily unavailable. Please try again in a moment or contact us directly — the team can help right away.";
-      await logChat(userMessage, reply);
-      return Response.json({ reply, provider: "error" });
+      console.error("All AI providers failed, using offline fallback:", providerError);
     }
 
     const reply = offlineReply(userMessage, businessName, siteContent);

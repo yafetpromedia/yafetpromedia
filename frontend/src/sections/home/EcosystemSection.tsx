@@ -87,7 +87,7 @@ function MobileStackConnector() {
   );
 }
 
-function ParentCompanyCard({ label }: { label: string }) {
+function ParentCompanyCard({ label, founderName }: { label: string; founderName: string }) {
   return (
     <div className="relative w-full max-w-[min(100%,22rem)] sm:max-w-md">
       <div
@@ -105,8 +105,10 @@ function ParentCompanyCard({ label }: { label: string }) {
         <p className="relative font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/90">
           {label}
         </p>
-        <h3 className="relative mt-2 font-display text-xl font-bold text-foreground sm:text-2xl">YafetPromedia</h3>
-        <p className="relative mt-2 text-sm leading-relaxed text-foreground/58">Parent company · agency + product studio</p>
+        <h3 className="relative mt-2 font-display text-xl font-bold text-foreground sm:text-2xl">Awud Digitals</h3>
+        <p className="relative mt-2 text-sm leading-relaxed text-foreground/58">
+          Founded by {founderName} · Parent company & product studio
+        </p>
       </div>
     </div>
   );
@@ -215,7 +217,10 @@ export default function EcosystemSection() {
         <div className="relative mt-12 sm:mt-14 md:mt-16">
           <FadeIn delay={0.08}>
             <div className="flex flex-col items-center">
-              <ParentCompanyCard label={content.ecosystemParentLabel} />
+              <ParentCompanyCard
+                label={content.ecosystemParentLabel}
+                founderName={content.aboutYafet.pageTitle}
+              />
               <MobileStackConnector />
               <TreeConnector columnCount={cards.length} />
             </div>

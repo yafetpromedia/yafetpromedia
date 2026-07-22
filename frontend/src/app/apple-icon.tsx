@@ -22,7 +22,7 @@ export default function AppleIcon() {
           color: "#fff",
         }}
       >
-        Y
+        A
       </div>
     ),
     { ...size }

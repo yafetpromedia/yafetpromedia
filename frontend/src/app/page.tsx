@@ -61,11 +61,14 @@ export default async function Home() {
     },
     areaServed: ["Ethiopia", "Africa", "Worldwide"],
     knowsAbout: [
+      "Software Development",
       "Web Development",
-      "Digital Marketing",
-      "Business Automation",
+      "Mobile App Development",
+      "Artificial Intelligence",
+      "Cloud Solutions",
+      "UI/UX Design",
       "Branding",
-      "SaaS",
+      "Digital Transformation",
     ],
   };
 

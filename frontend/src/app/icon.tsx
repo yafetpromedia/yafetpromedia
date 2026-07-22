@@ -22,7 +22,7 @@ export default function Icon() {
           color: "#fff",
         }}
       >
-        Y
+        A
       </div>
     ),
     { ...size }

@@ -219,7 +219,7 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "yafetpromedia-project-brief.md";
+    a.download = "awuddigitals-project-brief.md";
     a.click();
     URL.revokeObjectURL(url);
   };

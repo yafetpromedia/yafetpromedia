@@ -22,7 +22,7 @@ type Props = {
 export default function AiHubPanel({ open, onClose, initialTab = "chat", className }: Props) {
   const { t } = useLanguage();
   const { content } = useSiteContent();
-  const assistantName = content.aiName.trim() || "Yafet AI";
+  const assistantName = content.aiName.trim() || "Awud AI";
   const [tab, setTab] = useState<AiHubTab>(initialTab);
   const [mounted, setMounted] = useState(false);
 

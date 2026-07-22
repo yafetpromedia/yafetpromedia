@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Admin | YafetPromedia",
+  title: "Admin | Awud Digitals",
   noIndex: true,
 });
 

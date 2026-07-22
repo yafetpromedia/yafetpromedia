@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "YafetPromedia";
-export const SITE_TAGLINE = "Digital Infrastructure & System Solutions";
+export const SITE_NAME = "Awud Digitals";
+export const SITE_TAGLINE = "Building the Future, Digitally.";
 export const DEFAULT_TITLE = `${SITE_NAME} | ${SITE_TAGLINE}`;
 export const DEFAULT_DESCRIPTION =
-  "YafetPromedia builds complete digital systems — websites, automation, branding, media, and growth infrastructure for businesses in Ethiopia, Africa, and worldwide. Powered by Mr.Software.";
+  "Awud Digitals is a technology company founded and owned by Yafet Tesfaye, focused on building modern digital solutions for businesses, schools, startups, and organizations. We specialize in software development, artificial intelligence, cloud solutions, web and mobile applications, UI/UX design, branding, and digital transformation.";
 
 export const DEFAULT_KEYWORDS = [
-  "YafetPromedia",
+  "Awud Digitals",
+  "Yafet Tesfaye",
   "digital agency Ethiopia",
   "web development Addis Ababa",
   "website design Ethiopia",
@@ -23,12 +24,12 @@ export const DEFAULT_KEYWORDS = [
 
 const DEFAULT_OG_IMAGE_PATH = "/opengraph-image";
 
-/** Canonical site origin — set NEXT_PUBLIC_SITE_URL in production (e.g. https://yafetpromedia.com). */
+/** Canonical site origin — set NEXT_PUBLIC_SITE_URL in production (e.g. https://awuddigitals.com). */
 export function siteUrl(path = ""): string {
   const base = (
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
     process.env.VERCEL_URL?.trim() ||
-    "https://yafetpromedia.com"
+    "https://awuddigitals.com"
   ).replace(/\/$/, "");
   const origin = base.startsWith("http") ? base : `https://${base}`;
   if (!path) return origin;
@@ -105,8 +106,8 @@ export function buildPageMetadata({
       title: pageTitle,
       description,
       images: [image],
-      creator: "@yafetpromedia",
-      site: "@yafetpromedia",
+      creator: "@awuddigitals",
+      site: "@awuddigitals",
     },
     category: "technology",
   };
