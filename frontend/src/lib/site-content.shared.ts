@@ -239,7 +239,7 @@ export type SiteContent = {
 
 export const defaultSiteContent: SiteContent = {
   exploreArchitecture: defaultExploreArchitectureContent,
-  siteLogoSrc: "/uploads/hero/yafetpromedia_logo-1782318588782-mrlyfi.png",
+  siteLogoSrc: "/uploads/hero/ModernLuxuriousLogoDesignElevateYourBran-1784749041698-wm2dps.jpg",
   /** Filled from CMS / admin; kept empty so shipped defaults never override site copy. */
   heroHeadline: "",
   heroHighlight: "",
