@@ -197,7 +197,7 @@ export async function listConsultations(limit = 100): Promise<DbConsultation[]> 
              complexity, estimated_cost, estimated_timeline, status, created_at::text
       FROM project_consultations
       WHERE status = 'completed'
-      ORDER BY created_at DESC
+      ORDER BY lead_score DESC, created_at DESC
       LIMIT $1
     `,
     [limit]

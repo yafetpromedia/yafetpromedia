@@ -39,8 +39,22 @@ export default function AdminConsultationsSection() {
     setError("");
     try {
       const res = await fetch("/api/admin/consultations");
-      const data = (await res.json()) as { consultations?: ConsultationRecord[]; error?: string };
-      if (!res.ok) throw new Error(data.error ?? "Failed to load consultations");
+      const raw = await res.text();
+      let data: { consultations?: ConsultationRecord[]; error?: string } = {};
+      if (raw.trim()) {
+        try {
+          data = JSON.parse(raw) as { consultations?: ConsultationRecord[]; error?: string };
+        } catch {
+          throw new Error(
+            res.ok
+              ? "Invalid response from consultations API."
+              : `Failed to load consultations (${res.status}).`
+          );
+        }
+      } else if (!res.ok) {
+        throw new Error(`Failed to load consultations (${res.status}).`);
+      }
+      if (!res.ok) throw new Error(data.error ?? `Failed to load consultations (${res.status}).`);
       setRows(data.consultations ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load");
