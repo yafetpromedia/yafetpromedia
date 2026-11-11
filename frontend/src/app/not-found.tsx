@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
-import { DEFAULT_TITLE, SITE_NAME } from "@/lib/seo";
+import { SITE_NAME, buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = buildPageMetadata({
   title: `Page not found | ${SITE_NAME}`,
-};
+  description: `The page you requested could not be found on ${SITE_NAME}.`,
+  path: "/404",
+  noIndex: true,
+});
 
 export default function NotFound() {
   return (

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { readSiteContent } from "@backend/site-content";
 import JsonLd from "@/components/seo/JsonLd";
 import AboutYafetView from "@/sections/about/AboutYafetView";
-import { SITE_NAME, buildPageMetadata, siteUrl } from "@/lib/seo";
+import { SITE_NAME, breadcrumbJsonLd, buildPageMetadata, siteUrl } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await readSiteContent();
@@ -37,16 +37,29 @@ export default async function AboutYafetPage() {
     jobTitle: about.pageSubtitle,
     description: about.heroTagline,
     url: siteUrl("/about/yafet"),
+    image: content.siteLogoSrc ? siteUrl(content.siteLogoSrc) : undefined,
     worksFor: {
       "@type": "Organization",
       name: SITE_NAME,
       url: siteUrl(),
     },
+    nationality: "Ethiopian",
+    knowsAbout: [
+      "Software entrepreneurship",
+      "Digital transformation",
+      "Product design",
+      "Mr.Software",
+    ],
   };
+
+  const crumbs = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: `About ${about.pageTitle}`, path: "/about/yafet" },
+  ]);
 
   return (
     <>
-      <JsonLd data={personJsonLd} />
+      <JsonLd data={[personJsonLd, crumbs]} />
       <AboutYafetView
         about={about}
         siteLogoSrc={content.siteLogoSrc}

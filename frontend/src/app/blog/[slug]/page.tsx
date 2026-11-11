@@ -6,7 +6,7 @@ import { readSiteContent } from "@backend/site-content";
 import JsonLd from "@/components/seo/JsonLd";
 import { normalizeArticles } from "@/lib/publications";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
-import { SITE_NAME, buildPageMetadata, siteUrl } from "@/lib/seo";
+import { SITE_NAME, breadcrumbJsonLd, buildPageMetadata, siteUrl } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -55,15 +55,22 @@ export default async function BlogArticlePage({ params }: Props) {
     },
     mainEntityOfPage: articleUrl,
     url: articleUrl,
+    inLanguage: "en-US",
     articleSection: article.category,
     ...(article.imageSrc.trim()
       ? { image: [siteUrl(article.imageSrc.startsWith("/") ? article.imageSrc : `/${article.imageSrc}`)] }
       : {}),
   };
 
+  const crumbs = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Insights", path: "/blog" },
+    { name: article.title, path: `/blog/${slug}` },
+  ]);
+
   return (
     <main className="min-h-screen bg-background pt-28 pb-20">
-      <JsonLd data={articleJsonLd} />
+      <JsonLd data={[articleJsonLd, crumbs]} />
       <article className="mx-auto max-w-3xl px-5 sm:px-7">
         <Link href="/#insights" className="mb-10 inline-flex items-center gap-2 text-sm text-foreground/55 transition hover:text-primary">
           <ArrowLeft className="size-4" /> Back to insights

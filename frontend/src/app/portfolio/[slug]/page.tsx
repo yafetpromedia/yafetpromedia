@@ -6,7 +6,7 @@ import { readSiteContent } from "@backend/site-content";
 import JsonLd from "@/components/seo/JsonLd";
 import { normalizePortfolioCases } from "@/lib/portfolio";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
-import { SITE_NAME, buildPageMetadata, siteUrl } from "@/lib/seo";
+import { SITE_NAME, breadcrumbJsonLd, buildPageMetadata, siteUrl } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -57,12 +57,19 @@ export default async function PortfolioCasePage({ params }: Props) {
     url: pageUrl,
     creator: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
     about: item.category,
+    keywords: [item.category, ...(item.technologies ?? [])].join(", "),
     ...(cover ? { image: [siteUrl(cover.startsWith("/") ? cover : `/${cover}`)] } : {}),
   };
 
+  const crumbs = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Portfolio", path: "/portfolio" },
+    { name: item.title, path: `/portfolio/${slug}` },
+  ]);
+
   return (
     <main className="min-h-screen bg-background pt-28 pb-24">
-      <JsonLd data={caseJsonLd} />
+      <JsonLd data={[caseJsonLd, crumbs]} />
       <article className="mx-auto max-w-4xl px-5 sm:px-7">
         <Link
           href="/portfolio"

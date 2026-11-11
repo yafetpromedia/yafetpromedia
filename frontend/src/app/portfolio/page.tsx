@@ -5,7 +5,7 @@ import { readSiteContent } from "@backend/site-content";
 import JsonLd from "@/components/seo/JsonLd";
 import { normalizePortfolioCases } from "@/lib/portfolio";
 import { shouldUseUnoptimizedImage } from "@/lib/image-src";
-import { SITE_NAME, buildPageMetadata, siteUrl } from "@/lib/seo";
+import { SITE_NAME, breadcrumbJsonLd, buildPageMetadata, siteUrl } from "@/lib/seo";
 
 const STATUS_LABEL = {
   live: "Live",
@@ -36,11 +36,17 @@ export default async function PortfolioPage() {
     description: content.caseStudiesSectionDescription,
     url: siteUrl("/portfolio"),
     isPartOf: { "@type": "WebSite", name: SITE_NAME, url: siteUrl() },
+    about: { "@type": "Organization", name: SITE_NAME },
   };
+
+  const crumbs = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Portfolio", path: "/portfolio" },
+  ]);
 
   return (
     <main className="min-h-screen bg-background pt-28 pb-24">
-      <JsonLd data={collectionJsonLd} />
+      <JsonLd data={[collectionJsonLd, crumbs]} />
       <div className="mx-auto max-w-6xl px-5 sm:px-7">
         <Link
           href="/#case-studies"
