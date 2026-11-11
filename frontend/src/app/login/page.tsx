@@ -359,7 +359,7 @@ export default function LoginPage() {
               >
                 <div className="mb-8 flex flex-col gap-5">
                   <div className="flex items-center gap-3.5">
-                    <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-muted/40 p-1.5">
+                    <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-white p-1.5 shadow-sm dark:border-white/20">
                       <Image
                         src={logoSrc}
                         alt="Awud Digitals"

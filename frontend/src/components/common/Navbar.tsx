@@ -197,7 +197,7 @@ export default function Navbar() {
             )}
           >
             <Link href="/" className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5">
-              <div className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/50 p-1 transition-colors group-hover:border-foreground/20 sm:size-9">
+              <div className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-border bg-white p-1 shadow-sm transition-colors group-hover:border-foreground/20 sm:size-9 dark:border-white/20">
                 <Image
                   src={logoSrc}
                   alt="Awud Digitals Logo"

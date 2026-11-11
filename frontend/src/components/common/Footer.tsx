@@ -74,7 +74,7 @@ export default function Footer() {
           {/* Brand + contact */}
           <div className={trioSpan}>
             <Link href="/" className="group mb-7 inline-flex items-center gap-3">
-              <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/40 p-1.5 transition-colors group-hover:border-primary/35">
+              <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm transition-colors group-hover:border-accent/35 dark:border-white/20">
                 <Image
                   src={logoSrc}
                   alt="Awud Digitals Logo"

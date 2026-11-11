@@ -145,7 +145,7 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
           , or an HTTPS image URL.
         </p>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="flex aspect-square w-full max-w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-muted/20 lg:w-40">
+          <div className="flex aspect-square w-full max-w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm dark:border-white/20 lg:w-40">
             <img src={draft.siteLogoSrc} alt="" className="max-h-full max-w-full object-contain p-3" />
           </div>
           <div className="min-w-0 flex-1 space-y-4">
