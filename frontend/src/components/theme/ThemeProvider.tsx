@@ -12,7 +12,7 @@ type ThemeContextType = {
 
 const ThemeContext = React.createContext<ThemeContextType | null>(null);
 
-const THEME_STORAGE_KEY = "theme";
+const THEME_STORAGE_KEY = "theme-v2";
 const THEME_CHANGE_EVENT = "theme-change";
 
 function readStoredTheme(defaultTheme: Theme): Theme {

@@ -51,7 +51,7 @@ export default function TrustSection() {
         <FadeIn>
           <div className="inline-flex items-center gap-2 mb-6">
             <div className="h-[1px] w-8 bg-primary" />
-            <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">{content.trustSectionTag}</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">{content.trustSectionTag}</span>
             <div className="h-[1px] w-8 bg-primary" />
           </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight mb-6 leading-tight">

@@ -14,19 +14,19 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const textareaCls = cn(inputCls, "min-h-[100px] resize-y py-3 leading-relaxed");
 
 const reorderBtn = cn(
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card/80 text-foreground/80 transition",
-  "hover:border-primary/35 hover:bg-primary/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card text-foreground/80 transition",
+  "hover:border-accent/35 hover:bg-accent/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
 );
 
 const ghostBtn =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-primary/35 hover:bg-primary/[0.07] disabled:pointer-events-none disabled:opacity-35";
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-accent/35 hover:bg-accent/[0.07] disabled:pointer-events-none disabled:opacity-35";
 
 const SERVICE_CARD_MIN = 1;
 const SERVICE_CARD_MAX = 8;
@@ -58,7 +58,7 @@ export default function AdminServicesSection({ draft, setDraft }: Props) {
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-primary/[0.09] via-card/92 to-violet-500/[0.06] p-6 shadow-[0_28px_80px_-44px_rgba(255,106,0,0.4)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-primary/[0.12] blur-[100px]" />
         <div className="pointer-events-none absolute -right-32 bottom-0 size-[220px] rounded-full bg-violet-500/[0.1] blur-[90px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -79,7 +79,7 @@ export default function AdminServicesSection({ draft, setDraft }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <MessageSquareText className="size-3.5 text-primary/75" />
             {draft.servicesCards.length} cards · reorder preserved on save
           </div>
@@ -87,7 +87,7 @@ export default function AdminServicesSection({ draft, setDraft }: Props) {
       </div>
 
       {/* Section copy */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <MessageSquareText className="size-4 text-primary/75" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Section header</h4>
@@ -157,14 +157,14 @@ export default function AdminServicesSection({ draft, setDraft }: Props) {
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           {filteredCards.length === 0 ? (
-            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-muted/20">
               No cards match this filter.
             </p>
           ) : null}
           {filteredCards.map(({ card, index }) => (
             <div
               key={`svc-${index}`}
-              className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-card/95 to-card/72 p-5 shadow-[0_22px_68px_-36px_rgba(0,0,0,0.62)] ring-1 ring-black/[0.04] transition hover:border-primary/18 dark:from-card/[0.93] dark:to-card/56 dark:shadow-[0_28px_80px_-40px_rgba(0,0,0,0.82)] sm:p-6"
+              className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-b from-card to-muted/30 p-5 shadow-sm ring-1 ring-black/[0.04] transition hover:border-primary/18   sm:p-6"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border/45 pb-4">
                 <div className="flex min-w-0 items-center gap-3">
@@ -272,9 +272,9 @@ export default function AdminServicesSection({ draft, setDraft }: Props) {
                     placeholder="Longer copy when visitors tap Learn more…"
                     spellCheck={false}
                     className={cn(
-                      "w-full min-h-[11rem] resize-y rounded-2xl border border-violet-500/15 bg-[#0c0f1a] px-4 py-3 font-mono text-[12px] leading-relaxed text-violet-50/95 outline-none ring-1 ring-white/[0.06]",
+                      "w-full min-h-[11rem] resize-y rounded-2xl border border-violet-500/15 bg-muted/50 px-4 py-3 font-mono text-[12px] leading-relaxed text-foreground/90 outline-none ring-1 ring-border/50",
                       "placeholder:text-violet-950/50 focus:border-violet-500/35 focus:ring-2 focus:ring-violet-500/12",
-                      "dark:bg-[#070a14]"
+                      ""
                     )}
                   />
                 </div>

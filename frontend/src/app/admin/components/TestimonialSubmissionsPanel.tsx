@@ -69,7 +69,7 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
 
   if (submissions.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border/80 bg-muted/15 px-5 py-8 text-center text-sm text-foreground/55 dark:bg-white/[0.03]">
+      <div className="rounded-2xl border border-dashed border-border/80 bg-muted/15 px-5 py-8 text-center text-sm text-foreground/55 ">
         <p className="mx-auto max-w-md leading-relaxed">
           No pending or live testimonials yet. New submissions appear here after visitors use the homepage form.
         </p>
@@ -93,14 +93,14 @@ export default function TestimonialSubmissionsPanel({ submissions }: { submissio
       />
       <ul className="space-y-4">
         {filteredSubmissions.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+          <li className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-muted/20">
             No submissions match this filter.
           </li>
         ) : null}
         {filteredSubmissions.map((row) => (
         <li
           key={row.id}
-          className="rounded-3xl border border-white/[0.07] bg-gradient-to-b from-card/98 to-card/78 p-5 text-sm shadow-[0_16px_48px_-28px_rgba(0,0,0,0.45)] ring-1 ring-black/[0.04] dark:from-card/[0.94] dark:to-card/60"
+          className="rounded-3xl border border-border/70 bg-gradient-to-b from-card to-muted/30 p-5 text-sm shadow-sm ring-1 ring-black/[0.04] "
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>

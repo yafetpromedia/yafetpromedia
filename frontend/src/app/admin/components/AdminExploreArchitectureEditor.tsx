@@ -35,15 +35,15 @@ const emptyFlowStep = (): ExploreFlowStep => ({ label: "", detail: "", icon: "La
 const emptyStackCard = (): ExploreStackCard => ({ name: "", value: "", note: "", icon: "LayoutGrid" });
 
 const ghostBtn =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-primary/35 hover:bg-primary/[0.07] disabled:pointer-events-none disabled:opacity-35";
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-accent/35 hover:bg-accent/[0.07] disabled:pointer-events-none disabled:opacity-35";
 
 const labelCls =
   "mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/48";
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const textareaCls = cn(inputCls, "min-h-[88px] resize-y py-3 font-normal leading-relaxed");
@@ -143,7 +143,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
         {flowPairs.map(({ step, i }) => (
           <div
             key={`${rowKey}-${i}-${step.label}`}
-            className="rounded-2xl border border-white/[0.06] bg-background/40 p-4 shadow-sm ring-1 ring-black/[0.03] dark:bg-white/[0.03]"
+            className="rounded-2xl border border-border/60 bg-background/40 p-4 shadow-sm ring-1 ring-black/[0.03] "
           >
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <span className="inline-flex rounded-full bg-primary/12 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -236,7 +236,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
           {stackPairs.map(({ c, i }) => (
             <div
               key={i}
-              className="rounded-2xl border border-white/[0.07] bg-gradient-to-b from-card/90 to-card/65 p-5 shadow-[0_16px_50px_-32px_rgba(0,0,0,0.55)] ring-1 ring-black/[0.04] transition hover:border-primary/18 dark:shadow-[0_20px_60px_-36px_rgba(0,0,0,0.75)]"
+              className="rounded-2xl border border-border/70 bg-gradient-to-b from-card to-muted/25 p-5 shadow-sm ring-1 ring-black/[0.04] transition hover:border-primary/18 "
             >
               <div className="mb-4 flex items-center justify-between gap-2 border-b border-border/45 pb-3">
                 <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/45">
@@ -316,7 +316,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
 
   return (
     <div className="max-w-5xl space-y-10 pb-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-sky-500/[0.07] via-card/90 to-primary/[0.06] p-6 shadow-[0_24px_70px_-42px_rgba(56,189,248,0.35)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-32 top-0 size-[280px] rounded-full bg-sky-400/[0.09] blur-[100px]" />
         <div className="pointer-events-none absolute -right-24 bottom-0 size-[240px] rounded-full bg-primary/[0.1] blur-[90px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -335,7 +335,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 rounded-2xl border border-white/[0.07] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex flex-wrap gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Sparkles className="size-3.5 text-primary/75" />
             {ex.tracks.length} stacks · {ex.serviceStrip.length} pills
           </div>
@@ -343,7 +343,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
       </div>
 
       {/* Header & global labels */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <ListOrdered className="size-4 text-primary/75" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Header & sections</h4>
@@ -418,7 +418,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
       </section>
 
       {/* Service strip */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-5">
           <div className="flex items-center gap-2">
             <Layers className="size-4 text-primary/75" />
@@ -454,14 +454,14 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
         />
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {serviceStripPairs.length === 0 ? (
-            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-8 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-8 text-center text-sm text-foreground/55 dark:bg-muted/20">
               No pills match this filter.
             </p>
           ) : null}
           {serviceStripPairs.map(({ s, i }) => (
             <div
               key={i}
-              className="rounded-2xl border border-white/[0.06] bg-background/50 p-4 ring-1 ring-black/[0.03] dark:bg-white/[0.03]"
+              className="rounded-2xl border border-border/60 bg-background/50 p-4 ring-1 ring-black/[0.03] "
             >
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <span className="inline-flex rounded-full bg-foreground/[0.06] px-2 py-0.5 font-mono text-[10px] font-semibold text-foreground/55">
@@ -512,7 +512,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
       </section>
 
       {/* Before / after */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-5">
           <div className="flex items-center gap-2">
             <GitCompare className="size-4 text-primary/75" />
@@ -544,7 +544,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
           </div>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-red-500/15 bg-red-500/[0.04] p-5 ring-1 ring-red-500/10 dark:bg-red-500/[0.06]">
+          <div className="rounded-2xl border border-red-500/15 bg-red-500/[0.04] p-5 ring-1 ring-red-500/10 ">
             <p className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-red-600/95 dark:text-red-400/90">
               <span className="size-1.5 rounded-full bg-red-500/90" />
               {ex.beforeLabel || "Before"}
@@ -589,7 +589,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
               ))}
             </div>
           </div>
-          <div className="rounded-2xl border border-emerald-500/18 bg-emerald-500/[0.05] p-5 ring-1 ring-emerald-500/12 dark:bg-emerald-500/[0.07]">
+          <div className="rounded-2xl border border-emerald-500/18 bg-emerald-500/[0.05] p-5 ring-1 ring-emerald-500/12 ">
             <p className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700/95 dark:text-emerald-400/95">
               <span className="size-1.5 rounded-full bg-emerald-500/90" />
               {ex.afterLabel || "After"}
@@ -638,7 +638,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
       </section>
 
       {/* Per-track */}
-      <section className="space-y-8 rounded-3xl border border-white/[0.07] bg-gradient-to-b from-card/80 to-card/50 p-6 shadow-[0_28px_80px_-44px_rgba(0,0,0,0.65)] sm:p-8 dark:from-card/55 dark:to-card/35 dark:shadow-[0_32px_90px_-48px_rgba(0,0,0,0.85)]">
+      <section className="space-y-8 rounded-3xl border border-border/70 bg-gradient-to-b from-card to-muted/35 p-6 shadow-sm sm:p-8  ">
         <div className="flex flex-col gap-4 border-b border-border/50 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Terminal className="size-5 text-primary/85" />
@@ -653,7 +653,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 rounded-2xl border border-white/[0.06] bg-background/60 p-1.5 dark:bg-white/[0.03]">
+        <div className="flex flex-wrap gap-2 rounded-2xl border border-border/60 bg-background/60 p-1.5 ">
           {ex.tracks.map((t, i) => (
             <button
               key={t.id}
@@ -662,7 +662,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
               className={cn(
                 "min-h-[2.75rem] flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:min-w-[140px]",
                 tIdx === i
-                  ? "bg-gradient-to-br from-primary to-[#ff8533] text-primary-foreground shadow-[0_10px_36px_-12px_rgba(255,106,0,0.65)]"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-foreground/65 hover:bg-foreground/[0.06] hover:text-foreground"
               )}
             >
@@ -679,7 +679,7 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
           value={trackDetailFilter}
           onChange={setTrackDetailFilter}
           placeholder="Filter data-flow steps & stack cards on this tab…"
-          className="rounded-2xl border border-white/[0.06] bg-background/40 px-4 py-3"
+          className="rounded-2xl border border-border/60 bg-background/40 px-4 py-3"
         />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -732,9 +732,9 @@ export default function AdminExploreArchitectureEditor({ draft, setDraft }: Prop
               })
             }
             className={cn(
-              "w-full max-h-[28rem] min-h-[220px] rounded-2xl border border-emerald-500/15 bg-[#0b1220] px-4 py-4 font-mono text-[12px] leading-relaxed text-emerald-100/95 outline-none ring-1 ring-white/[0.06]",
+              "w-full max-h-[28rem] min-h-[220px] rounded-2xl border border-emerald-500/15 bg-muted/50 px-4 py-4 font-mono text-[12px] leading-relaxed text-foreground/90 outline-none ring-1 ring-border/50",
               "placeholder:text-emerald-900/40 focus:border-emerald-500/35 focus:ring-2 focus:ring-emerald-500/15",
-              "dark:bg-[#070d18]"
+              ""
             )}
             spellCheck={false}
           />

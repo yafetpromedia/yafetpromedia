@@ -28,12 +28,12 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const ghostBtn =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-primary/35 hover:bg-primary/[0.07] disabled:pointer-events-none disabled:opacity-35";
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-accent/35 hover:bg-accent/[0.07] disabled:pointer-events-none disabled:opacity-35";
 
 const compactLabel =
   "mb-1 block text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground/45";
@@ -41,12 +41,12 @@ const compactLabel =
 const compactInput = cn(
   "w-full rounded-xl border border-border/85 bg-background/85 px-2.5 py-1.5 text-[13px] leading-snug text-foreground outline-none transition",
   "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-1 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  ""
 );
 
 const tileReorderBtn = cn(
-  "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/75 bg-card/80 text-foreground/80 transition",
-  "hover:border-primary/35 hover:bg-primary/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+  "inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/75 bg-card text-foreground/80 transition",
+  "hover:border-accent/35 hover:bg-accent/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
 );
 
 const LOGO_MAX = 12;
@@ -84,7 +84,7 @@ export default function AdminTrustSection({ draft, setDraft }: Props) {
   return (
     <div className="max-w-6xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-slate-500/[0.09] via-card/92 to-cyan-500/[0.06] p-6 shadow-[0_28px_80px_-44px_rgba(34,211,238,0.22)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-slate-400/[0.1] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-cyan-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -105,7 +105,7 @@ export default function AdminTrustSection({ draft, setDraft }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Building2 className="size-3.5 text-cyan-600/85 dark:text-cyan-400/90" />
             {draft.trustLogoItems.length} logos
           </div>
@@ -113,7 +113,7 @@ export default function AdminTrustSection({ draft, setDraft }: Props) {
       </div>
 
       {/* Testimonials pointer */}
-      <div className="rounded-2xl border border-cyan-500/18 bg-cyan-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-cyan-500/12 dark:bg-cyan-500/[0.08]">
+      <div className="rounded-2xl border border-cyan-500/18 bg-cyan-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-cyan-500/12 ">
         <span className="mr-1 inline-flex items-center gap-1.5 align-middle">
           <Sparkles className="size-3.5 text-cyan-600 dark:text-cyan-400" />
         </span>
@@ -125,7 +125,7 @@ export default function AdminTrustSection({ draft, setDraft }: Props) {
       </div>
 
       {/* Section header */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <LayoutGrid className="size-4 text-cyan-600/85 dark:text-cyan-400/90" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Section header</h4>
@@ -200,14 +200,14 @@ export default function AdminTrustSection({ draft, setDraft }: Props) {
           )}
         >
           {filteredLogos.length === 0 && draft.trustLogoItems.length > 0 ? (
-            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-muted/20">
               No logos match this filter.
             </p>
           ) : null}
           {filteredLogos.map(({ logo, index }) => (
             <div
               key={`trust-logo-${index}`}
-              className="flex flex-col rounded-2xl border border-white/[0.08] bg-card/75 p-3 shadow-sm ring-1 ring-black/[0.03] dark:bg-card/40"
+              className="flex flex-col rounded-2xl border border-border/70 bg-card p-3 shadow-sm ring-1 ring-black/[0.03] "
             >
               <div className="mb-2 flex items-center justify-between gap-2 border-b border-border/40 pb-2">
                 <div className="flex min-w-0 items-center gap-2">
@@ -253,7 +253,7 @@ export default function AdminTrustSection({ draft, setDraft }: Props) {
                 </div>
               </div>
 
-              <div className="mb-3 flex h-16 items-center justify-center overflow-hidden rounded-xl border border-white/[0.06] bg-background/70 px-2 py-1.5 dark:bg-white/[0.03]">
+              <div className="mb-3 flex h-16 items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-background/70 px-2 py-1.5 ">
                 {logo.imageSrc.trim() ? (
                   <img src={logo.imageSrc} alt="" className="max-h-12 w-auto max-w-full object-contain" />
                 ) : (

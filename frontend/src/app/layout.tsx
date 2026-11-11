@@ -1,22 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { cookies } from "next/headers";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/common/SmoothScrollProvider";
 import GlobalChrome from "@/components/common/GlobalChrome";
 import { LanguageProvider } from "@/components/i18n/LanguageProvider";
+import {
+  LANG_COOKIE,
+  htmlDirFor,
+  htmlLangFor,
+  parseAppLanguage,
+} from "@/lib/app-language";
 import { SiteContentProvider } from "@/components/common/SiteContentProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { rootMetadata } from "@/lib/seo";
 import { readSiteContent } from "@backend/site-content";
 
-const inter = Inter({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-plus-jakarta",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-outfit",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,33 +40,36 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f4f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0b" },
   ],
   width: "device-width",
   initialScale: 1,
-  colorScheme: "dark light",
+  colorScheme: "light dark",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Matches ThemeProvider defaultTheme so SSR/first paint use dark CSS variables (no white hero flash).
+  const cookieStore = await cookies();
+  const initialLanguage = parseAppLanguage(cookieStore.get(LANG_COOKIE)?.value);
+  // Matches ThemeProvider defaultTheme — light-first modern look.
   return (
     <html
-      lang="en"
-      className="dark"
+      lang={htmlLangFor(initialLanguage)}
+      dir={htmlDirFor(initialLanguage)}
+      className="light"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}
+        className={`${plusJakarta.variable} ${outfit.variable} font-sans antialiased`}
       >
-        <ThemeProvider defaultTheme="dark">
-          <LanguageProvider>
+        <ThemeProvider defaultTheme="light">
+          <LanguageProvider initialLanguage={initialLanguage}>
             <SiteContentProvider>
               <SmoothScrollProvider>
                 <GlobalChrome>{children}</GlobalChrome>

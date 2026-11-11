@@ -28,15 +28,17 @@ function digitsToDisplayPhone(digits: string): string {
 }
 
 export default function Footer() {
-  const year = new Date().getFullYear();
   const { content, isLoading } = useSiteContent();
   const hydrated = useHydrated();
-  const logoSrc =
-    (hydrated && !isLoading ? content.siteLogoSrc : defaultSiteContent.siteLogoSrc) ||
-    defaultSiteContent.siteLogoSrc;
-  const phoneFromWhatsApp = digitsToDisplayPhone(content.whatsappNumber);
+  // Keep SSR + first client paint on defaults to avoid hydration mismatch
+  // when CMS content arrives after mount.
+  const live = hydrated && !isLoading ? content : defaultSiteContent;
+  const year = 2026;
+  const logoSrc = live.siteLogoSrc || defaultSiteContent.siteLogoSrc;
+  const founderName = live.aboutYafet.pageTitle || defaultSiteContent.aboutYafet.pageTitle;
+  const phoneFromWhatsApp = digitsToDisplayPhone(live.whatsappNumber);
   const phoneDisplay =
-    content.contactPhone.trim() ||
+    live.contactPhone.trim() ||
     phoneFromWhatsApp ||
     defaultSiteContent.contactPhone.trim();
   const iconMap = {
@@ -48,7 +50,7 @@ export default function Footer() {
     github: FolderGit2,
     website: Globe,
   } as const;
-  const socials = content.socialLinks
+  const socials = live.socialLinks
     .filter((item) => item.enabled && item.url.trim().length > 0)
     .map((item) => {
       const Icon = iconMap[item.icon] ?? Globe;
@@ -66,25 +68,13 @@ export default function Footer() {
   const trioSpan = hasSocials ? "lg:col-span-3" : "lg:col-span-4";
 
   return (
-    <footer className="relative overflow-hidden border-t border-border/40 bg-gradient-to-b from-muted/[0.45] via-background to-muted/55 pb-12 pt-16 dark:from-muted/[0.22] dark:via-background dark:to-muted/[0.38] md:pb-14 md:pt-20">
-      {/* Ambient — warm primary glow, no cool blue */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-45 dark:opacity-35"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 90% 55% at 50% -12%, rgba(255, 106, 0, 0.09), transparent 58%), radial-gradient(ellipse 55% 42% at 92% 96%, rgba(255, 106, 0, 0.045), transparent 52%), radial-gradient(ellipse 40% 35% at 8% 88%, rgba(249, 115, 22, 0.04), transparent 55%)",
-        }}
-      />
-      {/* Fine neutral dot texture */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:radial-gradient(rgba(148,163,184,0.55)_1px,transparent_1px)] [background-size:22px_22px] dark:opacity-[0.055] dark:[background-image:radial-gradient(rgba(255,255,255,0.12)_1px,transparent_1px)]" />
-
+    <footer className="relative overflow-hidden border-t border-border/50 bg-background pb-12 pt-16 md:pb-14 md:pt-20">
       <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-7 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-10 xl:gap-12">
           {/* Brand + contact */}
           <div className={trioSpan}>
             <Link href="/" className="group mb-7 inline-flex items-center gap-3">
-              <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.08] to-transparent p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ring-1 ring-black/[0.04] transition-all duration-300 group-hover:border-primary/35 dark:ring-white/[0.06]">
+              <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/40 p-1.5 transition-colors group-hover:border-primary/35">
                 <Image
                   src={logoSrc}
                   alt="Awud Digitals Logo"
@@ -100,24 +90,24 @@ export default function Footer() {
             </Link>
 
             <p className="mb-8 max-w-[26rem] text-[15px] leading-relaxed text-foreground/58 md:text-base">
-              Awud Digitals — founded and owned by {content.aboutYafet.pageTitle} — builds modern digital solutions
+              Awud Digitals — founded and owned by {founderName} — builds modern digital solutions
               for businesses, schools, startups, and organizations across Africa and globally.
             </p>
 
             <a
-              href={`mailto:${content.contactEmail}`}
+              href={`mailto:${live.contactEmail}`}
               className="inline-flex w-fit max-w-full items-center gap-2.5 text-[15px] text-foreground/75 transition-colors hover:text-foreground"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card/50 text-primary shadow-sm backdrop-blur-sm">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card/50 text-foreground/70">
                 <Mail className="size-[17px]" strokeWidth={1.75} />
               </span>
-              <span className="break-all sm:break-normal">{content.contactEmail}</span>
+              <span className="break-all sm:break-normal">{live.contactEmail}</span>
             </a>
           </div>
 
           {/* Solutions */}
           <nav className={`${trioSpan} lg:border-l lg:border-border/40 lg:pl-8 xl:pl-10`} aria-label="Solutions">
-            <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Solutions</h2>
+            <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/45">Solutions</h2>
             <ul className="flex flex-col gap-1">
               {[
                 { label: "Ecosystem", href: "#ecosystem" },
@@ -129,7 +119,7 @@ export default function Footer() {
                 <li key={item.label}>
                   <Link href={item.href} className={linkCls}>
                     <span>{item.label}</span>
-                    <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:-translate-y-0.5 text-primary" />
+                    <ArrowUpRight className="size-3.5 text-foreground/40 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
                   </Link>
                 </li>
               ))}
@@ -139,7 +129,7 @@ export default function Footer() {
                 href={`tel:${phoneDisplay.replace(/\s+/g, "")}`}
                 className="mt-8 inline-flex w-full max-w-[26rem] items-center gap-2.5 text-[15px] text-foreground/75 transition-colors hover:text-foreground"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card/50 text-primary shadow-sm backdrop-blur-sm">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card/50 text-foreground/70">
                   <Phone className="size-[17px]" strokeWidth={1.75} />
                 </span>
                 {phoneDisplay}
@@ -149,7 +139,7 @@ export default function Footer() {
 
           {/* Company */}
           <nav className={`${trioSpan} lg:border-l lg:border-border/40 lg:pl-8 xl:pl-10`} aria-label="Company">
-            <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">Company</h2>
+            <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/45">Company</h2>
             <ul className="flex flex-col gap-1">
               {[
                 { label: "About Yafet", href: "/about/yafet" },
@@ -160,7 +150,7 @@ export default function Footer() {
                 <li key={item.label}>
                   <Link href={item.href} className={linkCls}>
                     <span>{item.label}</span>
-                    <ArrowUpRight className="size-3.5 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 group-hover:-translate-y-0.5 text-primary" />
+                    <ArrowUpRight className="size-3.5 text-foreground/40 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
                   </Link>
                 </li>
               ))}
@@ -170,7 +160,7 @@ export default function Footer() {
           {/* Connect — right column */}
           {socials.length > 0 && (
             <div className="flex min-w-0 flex-col items-center lg:col-span-3 lg:border-l lg:border-border/40 lg:pl-8 xl:pl-10">
-              <h2 className="mb-5 w-full text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+              <h2 className="mb-5 w-full text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/45">
                 Connect
               </h2>
               <div className="grid w-full grid-cols-2 gap-x-2 gap-y-2 justify-items-center">
@@ -183,7 +173,7 @@ export default function Footer() {
                     className="inline-flex min-w-0 max-w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border/55 bg-card/[0.35] px-2.5 py-1.5 text-[11px] font-medium text-foreground/75 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-primary/35 hover:bg-card/80 hover:text-foreground hover:shadow-md dark:bg-white/[0.03] sm:gap-2 sm:px-3 sm:text-[12px] md:text-[13px]"
                     aria-label={social.label}
                   >
-                    <social.icon className="size-[14px] shrink-0 text-primary/85 sm:size-[15px]" strokeWidth={2} />
+                    <social.icon className="size-[14px] shrink-0 text-foreground/55 sm:size-[15px]" strokeWidth={2} />
                     <span>{social.label}</span>
                   </Link>
                 ))}

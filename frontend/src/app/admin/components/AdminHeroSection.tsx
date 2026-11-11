@@ -20,27 +20,27 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const compactInputCls = cn(
   "mt-1.5 w-full rounded-xl border border-border/85 bg-background/85 px-3 py-2 text-sm outline-none transition",
-  "focus:border-primary/55 focus:ring-2 focus:ring-primary/15 dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "focus:border-accent/45 focus:ring-2 focus:ring-accent/15 "
 );
 
 const reorderBtn = cn(
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card/80 text-foreground/80 transition",
-  "hover:border-primary/35 hover:bg-primary/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card text-foreground/80 transition",
+  "hover:border-accent/35 hover:bg-accent/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
 );
 
 const ghostBtn = cn(
   "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-4 py-2.5 text-sm font-semibold text-foreground/85 transition",
-  "hover:border-primary/35 hover:bg-primary/[0.07] disabled:pointer-events-none disabled:opacity-35"
+  "hover:border-accent/35 hover:bg-accent/[0.07] disabled:pointer-events-none disabled:opacity-35"
 );
 
 const sectionShell =
-  "rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm dark:bg-card/35 sm:p-8";
+  "rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm  sm:p-8";
 
 function defaultSlideSrc(slides: HeroCarouselSlide[]): string {
   return (
@@ -91,16 +91,16 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-orange-500/[0.12] via-card/92 to-amber-500/[0.07] p-6 shadow-[0_28px_80px_-44px_rgba(255,106,0,0.28)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-orange-400/[0.11] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-amber-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex gap-4">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
               <Home className="size-6" />
             </span>
             <div>
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-primary/95">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-accent">
                 Homepage · Above the fold
               </p>
               <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">Hero</h3>
@@ -109,16 +109,16 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Images className="size-3.5 text-primary/90" />
             {slideCount} / 8 slides
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-orange-500/18 bg-orange-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-orange-500/12 dark:bg-orange-500/[0.08]">
+      <div className="rounded-2xl border border-orange-500/18 bg-orange-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-orange-500/12 ">
         <span className="mr-1 inline-flex items-center gap-1.5 align-middle">
-          <Sparkles className="size-3.5 text-orange-600 dark:text-orange-400" />
+          <Sparkles className="size-3.5 text-orange-600 " />
         </span>
         Copy saves with <strong className="font-medium text-foreground/85">Save changes</strong>. Carousel images accept paths,
         uploads, or HTTPS URLs—optimize assets for fast first paint.
@@ -270,14 +270,14 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
 
         <div className="space-y-4">
           {filteredSlides.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-8 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            <p className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-8 text-center text-sm text-foreground/55 dark:bg-muted/20">
               No slides match this filter.
             </p>
           ) : null}
           {filteredSlides.map(({ slide, index }) => (
             <div
               key={slide.id}
-              className="rounded-2xl border border-border/65 bg-background/65 p-5 shadow-sm transition hover:border-primary/20 dark:bg-white/[0.03] sm:p-6"
+              className="rounded-2xl border border-border/65 bg-background/65 p-5 shadow-sm transition hover:border-primary/20  sm:p-6"
             >
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/45">

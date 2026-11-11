@@ -49,13 +49,12 @@ function ProductImage({ src, className, priority }: { src: string; className?: s
     return (
       <div
         className={cn(
-          "relative flex h-full w-full items-end justify-center overflow-hidden bg-gradient-to-br from-primary/20 via-primary/5 to-muted/30",
+          "relative flex h-full w-full items-end justify-center overflow-hidden bg-gradient-to-br from-accent/10 via-muted/40 to-muted/20",
           className
         )}
         aria-hidden
       >
-        <div className="h-32 w-32 rounded-3xl bg-primary/10 blur-2xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,106,0,0.2),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(232,93,4,0.08),transparent_55%)]" />
       </div>
     );
   }
@@ -70,7 +69,6 @@ function ProductImage({ src, className, priority }: { src: string; className?: s
         unoptimized={shouldUseUnoptimizedImage(src)}
         priority={priority}
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
     </div>
   );
 }
@@ -89,13 +87,12 @@ function ProductCardBlock({
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card/80 text-foreground shadow-sm transition duration-500",
-        "hover:border-primary/35 hover:shadow-[0_20px_50px_-24px_rgba(0,0,0,0.2)]",
-        "supports-[backdrop-filter]:backdrop-blur-sm",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card text-foreground shadow-[0_10px_40px_-18px_rgba(12,12,12,0.18)] transition duration-300 dark:shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)]",
+        "hover:border-accent/30",
         className
       )}
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[5/3]">
+      <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-border/50 sm:aspect-[5/3]">
         <div className="absolute inset-0">
           <ProductImage src={card.imageSrc} priority={index < 2} />
         </div>
@@ -106,7 +103,7 @@ function ProductCardBlock({
         </div>
       </div>
       <div className="flex flex-1 flex-col p-5 md:p-6">
-        <h4 className="mb-2 font-display text-lg font-bold tracking-tight text-foreground transition group-hover:text-primary md:text-xl">
+        <h4 className="mb-2 font-display text-lg font-bold tracking-tight text-foreground transition group-hover:text-accent md:text-xl">
           {card.title}
         </h4>
         <p className="mb-4 flex-1 text-sm leading-relaxed text-foreground/65">{card.description}</p>
@@ -114,7 +111,7 @@ function ProductCardBlock({
           <button
             type="button"
             onClick={onLearnMore}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition hover:gap-2"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition hover:gap-2"
           >
             Learn more
             <ArrowUpRight className="size-4" />
@@ -147,22 +144,10 @@ export default function ProductsPreview() {
   return (
     <SectionWrapper id="products" className="overflow-hidden bg-background">
       <div className="relative">
-        <div
-          className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-primary/[0.07] blur-3xl"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-primary/[0.05] blur-3xl"
-          aria-hidden
-        />
-
         <div className="relative z-10 mb-10 flex flex-col gap-8 text-foreground md:flex-row md:items-end md:justify-between">
           <FadeIn className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-foreground/[0.03] px-3 py-1.5 text-[10px] font-mono font-semibold uppercase tracking-[0.2em] text-foreground/70">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-              </span>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/65">
+              <span className="size-1.5 rounded-full bg-accent" />
               {content.productsSectionTag}
             </div>
             <h3 className="text-3xl font-bold leading-[1.1] tracking-tight text-foreground md:text-4xl lg:text-5xl">
@@ -179,7 +164,7 @@ export default function ProductsPreview() {
               <button
                 type="button"
                 onClick={() => setCatalogOpen(true)}
-                className="group inline-flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-primary hover:text-primary"
+                className="group inline-flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-bold uppercase tracking-wider text-foreground transition-colors hover:border-accent hover:text-accent"
               >
                 {content.productsCatalogCtaLabel}
                 <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -190,18 +175,18 @@ export default function ProductsPreview() {
 
         {featured && (
           <FadeIn delay={0.06} className="relative z-10 mb-6">
-            <div className="group relative overflow-hidden rounded-[1.5rem] border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.06] shadow-[0_24px_60px_-28px_rgba(255,106,0,0.25)] ring-1 ring-primary/10">
+            <div className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_10px_40px_-18px_rgba(12,12,12,0.18)] dark:shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)]">
               <div className="grid gap-0 md:grid-cols-12 md:items-stretch">
                 <div className="relative min-h-[220px] md:col-span-5">
                   <div className="absolute inset-0 min-h-[220px] md:min-h-full">
                     <ProductImage src={featured.imageSrc} priority />
                   </div>
                   <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-primary">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-accent">
                       <Sparkles className="size-3.5" />
                       Flagship
                     </span>
-                    <span className="rounded-full border border-white/20 bg-background/75 px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-foreground/80 backdrop-blur-md">
+                    <span className="rounded-full border border-border/70 bg-card/90 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-foreground/75">
                       {featured.label}
                     </span>
                   </div>
@@ -215,7 +200,7 @@ export default function ProductsPreview() {
                     <button
                       type="button"
                       onClick={() => setDialogIndex(featured.originalIndex)}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-5 py-2.5 text-sm font-semibold text-foreground/80 backdrop-blur-sm transition hover:border-primary/40 hover:text-primary"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground/80 transition hover:border-accent/40 hover:text-accent"
                     >
                       Learn more
                       <ArrowUpRight className="size-4" />
@@ -223,7 +208,7 @@ export default function ProductsPreview() {
                     {featured.href ? (
                       <ProductCtaLink
                         href={featured.href}
-                        className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+                        className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-bold text-background transition hover:opacity-90"
                       >
                         {featured.linkLabel}
                         <ArrowUpRight className="size-4" />

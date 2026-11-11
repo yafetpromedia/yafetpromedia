@@ -33,15 +33,16 @@ export const NAV_SECTION_GROUPS: NavSectionGroup[] = [
     href: "#products",
     children: [
       { labelKey: "navProductsCatalog", href: "#products", descriptionKey: "navProductsDesc" },
-      { labelKey: "navContact", href: "#contact", descriptionKey: "navContactDesc" },
+      { labelKey: "navPricing", href: "#pricing", descriptionKey: "navPricingDesc" },
     ],
   },
   {
     labelKey: "navCaseStudies",
-    href: "#case-studies",
+    href: "/portfolio",
     children: [
-      { labelKey: "navCaseStudies", href: "#case-studies", descriptionKey: "navCaseStudiesDesc" },
+      { labelKey: "navCaseStudies", href: "/portfolio", descriptionKey: "navCaseStudiesDesc" },
       { labelKey: "navTrust", href: "#trust", descriptionKey: "navTrustDesc" },
+      { labelKey: "navContact", href: "#contact", descriptionKey: "navContactDesc" },
     ],
   },
   {

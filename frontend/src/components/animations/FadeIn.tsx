@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface FadeInProps {
@@ -11,8 +11,7 @@ interface FadeInProps {
   distance?: number;
   /**
    * Play enter animation on mount instead of when scrolled into view.
-   * Use for above-the-fold sections: `whileInView` + tight viewport margins can fail to fire for hero content,
-   * leaving text stuck at opacity 0 until scroll/layout changes.
+   * Use for above-the-fold sections.
    */
   revealOnMount?: boolean;
 }
@@ -22,9 +21,15 @@ export default function FadeIn({
   className,
   delay = 0,
   direction = "up",
-  distance = 20,
+  distance = 12,
   revealOnMount = false,
 }: FadeInProps) {
+  const reduceMotion = useReducedMotion();
+
+  if (reduceMotion) {
+    return <div className={cn(className)}>{children}</div>;
+  }
+
   const directions = {
     up: { y: distance },
     down: { y: -distance },
@@ -35,21 +40,19 @@ export default function FadeIn({
 
   const initial = {
     opacity: 0,
-    scale: 0.98,
     ...directions[direction],
   };
 
   const animateTarget = {
     opacity: 1,
-    scale: 1,
     x: 0,
     y: 0,
   };
 
   const transition = {
-    duration: 0.8,
+    duration: 0.45,
     delay,
-    ease: [0.16, 1, 0.3, 1] as const,
+    ease: [0.22, 1, 0.36, 1] as const,
   };
 
   if (revealOnMount) {
@@ -64,7 +67,7 @@ export default function FadeIn({
     <motion.div
       initial={initial}
       whileInView={animateTarget}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: "-40px" }}
       transition={transition}
       className={cn(className)}
     >

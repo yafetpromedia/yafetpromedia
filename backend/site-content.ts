@@ -310,9 +310,13 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
       const images = Array.isArray(c.images)
         ? c.images.map((img) => sanitizeOptionalImageUrl(img)).filter(Boolean).slice(0, 8)
         : def?.images ?? [];
+      const title = String(c.title ?? def?.title ?? "").slice(0, 120);
+      const slugRaw = String(c.slug ?? def?.slug ?? "").trim();
+      const slug = slugify(slugRaw || title) || `case-${index + 1}`;
       return {
-        title: String(c.title ?? def?.title ?? "").slice(0, 120),
+        title,
         category: String(c.category ?? def?.category ?? "").slice(0, 80),
+        slug,
         problem: String(c.problem ?? def?.problem ?? "").slice(0, 300),
         solution: String(c.solution ?? def?.solution ?? "").slice(0, 300),
         result: String(c.result ?? def?.result ?? "").slice(0, 220),
@@ -325,6 +329,36 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
         images,
       };
     }),
+    pricingSectionTag: String(input.pricingSectionTag ?? defaultSiteContent.pricingSectionTag).slice(0, 120),
+    pricingSectionTitle: String(input.pricingSectionTitle ?? defaultSiteContent.pricingSectionTitle).slice(0, 180),
+    pricingSectionDescription: String(
+      input.pricingSectionDescription ?? defaultSiteContent.pricingSectionDescription
+    ).slice(0, 400),
+    pricingPackages: (() => {
+      const raw = Array.isArray(input.pricingPackages)
+        ? input.pricingPackages
+        : defaultSiteContent.pricingPackages;
+      return raw.slice(0, 6).map((pkg, index) => {
+        const def =
+          defaultSiteContent.pricingPackages[
+            Math.min(index, defaultSiteContent.pricingPackages.length - 1)
+          ]!;
+        const p = pkg as Partial<(typeof defaultSiteContent.pricingPackages)[number]>;
+        const features = Array.isArray(p.features)
+          ? p.features.map((f) => String(f ?? "").trim()).filter(Boolean).slice(0, 12)
+          : def.features;
+        return {
+          name: String(p.name ?? def.name).slice(0, 80),
+          priceLabel: String(p.priceLabel ?? def.priceLabel).slice(0, 80),
+          description: String(p.description ?? def.description).slice(0, 280),
+          features,
+          ctaLabel: String(p.ctaLabel ?? def.ctaLabel).slice(0, 80),
+          highlighted: Boolean(p.highlighted ?? def.highlighted),
+        };
+      });
+    })(),
+    bookingUrl: sanitizeProductHref(input.bookingUrl ?? defaultSiteContent.bookingUrl).slice(0, 500),
+    bookingBlurb: String(input.bookingBlurb ?? defaultSiteContent.bookingBlurb).slice(0, 400),
     publicationsSectionTag: String(
       input.publicationsSectionTag ?? defaultSiteContent.publicationsSectionTag
     ).slice(0, 120),
@@ -515,6 +549,12 @@ export async function readSiteContent(): Promise<SiteContent> {
       case_studies_section_description: string;
       case_studies_section_cta_label: string;
       case_studies_cards: unknown;
+      pricing_section_tag?: string | null;
+      pricing_section_title?: string | null;
+      pricing_section_description?: string | null;
+      pricing_packages?: unknown;
+      booking_url?: string | null;
+      booking_blurb?: string | null;
       publications_section_tag?: string | null;
       publications_section_title?: string | null;
       publications_section_description?: string | null;
@@ -564,6 +604,8 @@ export async function readSiteContent(): Promise<SiteContent> {
                products_section_tag, products_section_title, products_section_description, products_catalog_cta_label, products_cards,
                ecosystem_section_tag, ecosystem_section_title, ecosystem_section_description, ecosystem_parent_label, ecosystem_cards,
                case_studies_section_tag, case_studies_section_title, case_studies_section_description, case_studies_section_cta_label, case_studies_cards,
+               pricing_section_tag, pricing_section_title, pricing_section_description, pricing_packages,
+               booking_url, booking_blurb,
                publications_section_tag, publications_section_title, publications_section_description, publications_catalog_cta_label, publications_cards,
                about_yafet,
                trust_section_tag, trust_section_title, trust_logo_items, trust_testimonials,
@@ -629,6 +671,16 @@ export async function readSiteContent(): Promise<SiteContent> {
       caseStudiesCards: Array.isArray(row.case_studies_cards) && row.case_studies_cards.length > 0
         ? (row.case_studies_cards as SiteContent["caseStudiesCards"])
         : defaultSiteContent.caseStudiesCards,
+      pricingSectionTag: row.pricing_section_tag || defaultSiteContent.pricingSectionTag,
+      pricingSectionTitle: row.pricing_section_title || defaultSiteContent.pricingSectionTitle,
+      pricingSectionDescription:
+        row.pricing_section_description || defaultSiteContent.pricingSectionDescription,
+      pricingPackages:
+        Array.isArray(row.pricing_packages) && row.pricing_packages.length > 0
+          ? (row.pricing_packages as SiteContent["pricingPackages"])
+          : defaultSiteContent.pricingPackages,
+      bookingUrl: row.booking_url ?? defaultSiteContent.bookingUrl,
+      bookingBlurb: row.booking_blurb || defaultSiteContent.bookingBlurb,
       publicationsSectionTag:
         row.publications_section_tag || defaultSiteContent.publicationsSectionTag,
       publicationsSectionTitle:
@@ -723,6 +775,12 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
             contact_lead_phone_placeholder = $62,
             login_password_reset_help = $63,
             site_logo_src = $64,
+            pricing_section_tag = $65,
+            pricing_section_title = $66,
+            pricing_section_description = $67,
+            pricing_packages = $68::jsonb,
+            booking_url = $69,
+            booking_blurb = $70,
             updated_at = NOW()
         WHERE id = 1
       `,
@@ -791,6 +849,12 @@ export async function writeSiteContent(input: Partial<SiteContent>): Promise<Sit
         content.contactLeadPhonePlaceholder,
         content.loginPasswordResetHelp,
         content.siteLogoSrc,
+        content.pricingSectionTag,
+        content.pricingSectionTitle,
+        content.pricingSectionDescription,
+        JSON.stringify(content.pricingPackages),
+        content.bookingUrl,
+        content.bookingBlurb,
       ]
     );
   } catch {

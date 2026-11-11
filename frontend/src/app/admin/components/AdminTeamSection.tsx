@@ -65,7 +65,7 @@ function detectTemplate(perms: AdminPermission[]): AccessTemplate {
 }
 
 const actionBtn = cn(
-  "inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-border/75 bg-card/80 px-4 text-sm font-semibold text-foreground/85 transition",
+  "inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-border/75 bg-card px-4 text-sm font-semibold text-foreground/85 transition",
   "hover:border-primary/40 hover:bg-primary/[0.07] hover:text-foreground"
 );
 
@@ -77,8 +77,8 @@ const dangerBtn = cn(
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 const selectTriggerCls = cn(
   inputCls,
@@ -148,7 +148,7 @@ function MenuSelect({
         <ChevronDown className={cn("size-4 shrink-0 text-foreground/55 transition-transform", open && "rotate-180")} />
       </button>
       {open ? (
-        <div className="absolute z-[90] isolate mt-2 max-h-64 w-full overflow-auto rounded-xl border border-border/80 bg-background p-1 shadow-[0_22px_48px_-18px_rgba(0,0,0,0.65)] ring-1 ring-black/25 backdrop-blur-xl dark:ring-white/10">
+        <div className="absolute z-[90] isolate mt-2 max-h-64 w-full overflow-auto rounded-xl border border-border/80 bg-background p-1 shadow-lg ring-1 ring-black/25 backdrop-blur-xl ">
           {options.map((opt) => {
             const active = opt.value === value;
             return (
@@ -336,7 +336,7 @@ export default function AdminTeamSection() {
 
   return (
     <div className="max-w-5xl space-y-10 pb-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-indigo-500/[0.14] via-card/92 to-violet-500/[0.1] p-6 shadow-[0_28px_80px_-44px_rgba(99,102,241,0.28)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-indigo-400/[0.11] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-violet-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -363,7 +363,7 @@ export default function AdminTeamSection() {
         </div>
       ) : null}
 
-      <div className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm dark:bg-card/35 sm:p-8">
+      <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm  sm:p-8">
         <div className="flex flex-col gap-2 border-b border-border/40 pb-6">
           <h4 className="font-display text-lg font-semibold tracking-tight">Add dashboard user</h4>
           <p className="text-sm text-foreground/55">
@@ -507,7 +507,7 @@ export default function AdminTeamSection() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-white/[0.06] bg-card/40 p-6 backdrop-blur-sm dark:bg-card/25 sm:p-8">
+      <div className="rounded-3xl border border-border/60 bg-card/40 p-6 backdrop-blur-sm  sm:p-8">
         <h4 className="font-display text-lg font-semibold tracking-tight">People ({loading ? "…" : users.length})</h4>
         <ul className="mt-6 divide-y divide-border/40">
           {loading ? (

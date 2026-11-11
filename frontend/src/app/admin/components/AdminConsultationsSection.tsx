@@ -22,7 +22,7 @@ function scoreTone(score: number): string {
 }
 
 const dangerBtn = cn(
-  "inline-flex h-8 shrink-0 items-center gap-1 rounded-lg border border-red-500/25 bg-card/80 px-2.5 text-[11px] font-semibold text-red-600 transition",
+  "inline-flex h-8 shrink-0 items-center gap-1 rounded-lg border border-red-500/25 bg-card px-2.5 text-[11px] font-semibold text-red-600 transition",
   "hover:border-red-500/45 hover:bg-red-500/[0.09] dark:text-red-400"
 );
 
@@ -120,7 +120,7 @@ export default function AdminConsultationsSection() {
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-card/50 px-4 py-8 text-sm text-foreground/55">
+        <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-card px-4 py-8 text-sm text-foreground/55">
           <Loader2 className="size-4 animate-spin" /> Loading consultations…
         </div>
       ) : error ? (
@@ -138,7 +138,7 @@ export default function AdminConsultationsSection() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border/75 bg-card/50 shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border/75 bg-card shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>

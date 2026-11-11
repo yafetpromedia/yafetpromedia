@@ -172,48 +172,49 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", closeMenusOnScroll);
   }, []);
 
-  const pillActive =
-    "text-primary-foreground bg-gradient-to-r from-primary to-[#ff9b4d] shadow-[0_8px_24px_rgba(255,106,0,0.35)]";
-  const pillIdle = "text-foreground/70 hover:text-foreground hover:bg-foreground/10";
+  const pillActive = "bg-foreground text-background shadow-sm";
+  const pillIdle = "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.06]";
 
   return (
     <>
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "fixed left-0 right-0 z-50 transition-all duration-500",
-          isScrolled ? "top-4" : "top-6"
+          // Always notranslate: nav uses t() dictionaries (avoids hydration mismatch)
+          "notranslate fixed left-0 right-0 z-50 transition-all duration-500",
+          isScrolled ? "top-3" : "top-5"
         )}
       >
-        <div className="w-full px-4 flex justify-center">
+        <div className="flex w-full justify-center px-3 sm:px-4">
           <div
             className={cn(
-              "flex items-center justify-between w-full max-w-7xl transition-all duration-500 rounded-full border",
+              "flex w-full max-w-7xl items-center justify-between gap-2 rounded-full border transition-all duration-500",
               isScrolled
-                ? "bg-background/60 backdrop-blur-xl border-border py-3 px-6 shadow-2xl"
-                : "bg-transparent border-transparent py-4 px-0"
+                ? "border-border/70 bg-card/95 px-3 py-2 shadow-sm backdrop-blur-xl sm:px-4 sm:py-2.5"
+                : "border-border/50 bg-card/80 px-3 py-2 backdrop-blur-md sm:px-4 sm:py-2.5"
             )}
           >
-            <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <div className="relative size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1 group-hover:border-primary/50 group-hover:bg-primary/15 transition-all duration-300">
+            <Link href="/" className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5">
+              <div className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-border bg-muted/50 p-1 transition-colors group-hover:border-foreground/20 sm:size-9">
                 <Image
                   src={logoSrc}
                   alt="Awud Digitals Logo"
                   width={32}
                   height={32}
-                  className="object-contain w-full h-full"
+                  className="h-full w-full object-contain"
                   priority
                   unoptimized={shouldUseUnoptimizedImage(logoSrc)}
                 />
               </div>
-              <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300 hidden sm:block">
+              <span className="hidden truncate text-base font-semibold tracking-tight text-foreground md:block xl:text-lg">
                 Awud Digitals
               </span>
             </Link>
 
-            <div className="hidden lg:flex items-center gap-0.5 bg-foreground/5 rounded-full px-1.5 py-1 border border-border">
+            {/* Desktop links only from xl (1280+) — prevents crush at ~1024 */}
+            <div className="hidden min-w-0 items-center gap-0.5 rounded-full border border-border/60 bg-background/50 px-1 py-1 xl:flex">
               {navGroups.map((group) => {
                 const active = isGroupActive(group);
                 const isOpen = openDropdown === group.name;
@@ -226,7 +227,7 @@ export default function Navbar() {
                       key={group.name}
                       href={resolveHref(only.href)}
                       className={cn(
-                        "text-sm font-medium px-3.5 py-2 rounded-full transition-all duration-300",
+                        "rounded-full px-2.5 py-1.5 text-[13px] font-medium transition-all duration-300 2xl:px-3.5 2xl:text-sm",
                         isHrefActive(only.href) ? pillActive : pillIdle
                       )}
                     >
@@ -245,7 +246,7 @@ export default function Navbar() {
                     <button
                       type="button"
                       className={cn(
-                        "inline-flex items-center gap-1 text-sm font-medium px-3.5 py-2 rounded-full transition-all duration-300",
+                        "inline-flex items-center gap-0.5 rounded-full px-2.5 py-1.5 text-[13px] font-medium transition-all duration-300 2xl:gap-1 2xl:px-3.5 2xl:text-sm",
                         active || isOpen ? pillActive : pillIdle
                       )}
                       aria-expanded={isOpen}
@@ -270,7 +271,7 @@ export default function Navbar() {
                           onMouseEnter={() => openMenu(group.name)}
                           onMouseLeave={scheduleCloseMenu}
                         >
-                          <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/95 p-1.5 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)] backdrop-blur-xl ring-1 ring-white/[0.06]">
+                          <div className="overflow-hidden rounded-2xl border border-border/70 bg-card p-1.5 shadow-sm">
                             {group.children.map((child) => (
                               <Link
                                 key={`${group.name}-${child.href}`}
@@ -279,8 +280,8 @@ export default function Navbar() {
                                 className={cn(
                                   "block rounded-xl px-3.5 py-2.5 transition-colors",
                                   isHrefActive(child.href)
-                                    ? "bg-primary/12 text-foreground"
-                                    : "text-foreground/80 hover:bg-foreground/[0.06] hover:text-foreground"
+                                    ? "bg-muted text-foreground"
+                                    : "text-foreground/75 hover:bg-muted/70 hover:text-foreground"
                                 )}
                                 onClick={() => setOpenDropdown(null)}
                               >
@@ -301,19 +302,19 @@ export default function Navbar() {
               })}
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 lg:gap-4">
-              <GoogleTranslateWidget className="scale-90 origin-right lg:scale-100 lg:origin-center" />
-              <ThemeToggle className="size-9 lg:size-10" />
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <GoogleTranslateWidget className="origin-right scale-[0.88] sm:scale-95 xl:scale-100" />
+              <ThemeToggle className="size-9" />
               <Link
                 href={pathname === "/" ? "#contact" : "/#contact"}
-                className="hidden lg:inline-flex rounded-full px-6 h-10 items-center bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(255,106,0,0.3)] hover:shadow-[0_0_30px_rgba(255,106,0,0.5)] transition-all duration-300 group text-sm font-medium"
+                className="group hidden h-9 items-center rounded-full bg-foreground px-4 text-[13px] font-semibold text-background transition-opacity hover:opacity-90 xl:inline-flex 2xl:h-10 2xl:px-5 2xl:text-sm"
               >
                 {t("startProject")}
-                <ChevronRight className="ml-1 size-4 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <button
                 type="button"
-                className="relative z-50 p-2 text-foreground/70 hover:text-foreground lg:hidden"
+                className="relative z-50 inline-flex size-10 items-center justify-center text-foreground/70 hover:text-foreground xl:hidden"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
@@ -341,7 +342,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl lg:hidden pt-28 px-5 pb-8 overflow-y-auto"
+            className="fixed inset-0 z-40 overflow-y-auto bg-background/95 px-5 pb-8 pt-24 backdrop-blur-xl xl:hidden"
           >
             <div className="mx-auto flex max-w-md flex-col gap-2">
               {navGroups.map((group, i) => {
@@ -362,8 +363,8 @@ export default function Navbar() {
                         className={cn(
                           "block rounded-2xl border px-4 py-3.5 text-lg font-display font-bold transition-colors",
                           isHrefActive(only.href)
-                            ? "border-primary/35 bg-primary/10 text-primary"
-                            : "border-border/70 text-foreground/80 hover:border-primary/25 hover:bg-foreground/[0.04]"
+                            ? "border-foreground/20 bg-foreground text-background"
+                            : "border-border/70 text-foreground/80 hover:bg-muted"
                         )}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -385,7 +386,7 @@ export default function Navbar() {
                       type="button"
                       className={cn(
                         "flex w-full items-center justify-between px-4 py-3.5 text-left text-lg font-display font-bold transition-colors",
-                        isGroupActive(group) ? "bg-primary/10 text-primary" : "text-foreground/85"
+                        isGroupActive(group) ? "bg-muted text-foreground" : "text-foreground/85"
                       )}
                       onClick={() => setExpandedMobile((prev) => (prev === group.name ? null : group.name))}
                       aria-expanded={expanded}
@@ -410,8 +411,8 @@ export default function Navbar() {
                                 className={cn(
                                   "block rounded-xl px-3 py-2.5 transition-colors",
                                   isHrefActive(child.href)
-                                    ? "bg-primary/12 text-primary"
-                                    : "text-foreground/75 hover:bg-foreground/[0.05] hover:text-foreground"
+                                    ? "bg-muted text-foreground"
+                                    : "text-foreground/75 hover:bg-muted/70 hover:text-foreground"
                                 )}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
@@ -438,7 +439,7 @@ export default function Navbar() {
             >
               <Link
                 href={pathname === "/" ? "#contact" : "/#contact"}
-                className="w-full rounded-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground inline-flex items-center justify-center font-medium"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-foreground text-base font-semibold text-background transition-opacity hover:opacity-90"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {t("startProject")}

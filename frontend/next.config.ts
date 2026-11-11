@@ -63,7 +63,7 @@ const nextConfig: NextConfig = {
           "style-src 'self' 'unsafe-inline' https:",
           "font-src 'self' data: https:",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://www.google.com",
-          "connect-src 'self' https://translate.googleapis.com https://translate.google.com https://translate-pa.googleapis.com https://www.gstatic.com https://www.google.com",
+          "connect-src 'self' https://translate.googleapis.com https://translate.google.com https://translate-pa.googleapis.com https://clients5.google.com https://www.gstatic.com https://www.google.com https://api.mymemory.translated.net",
           "frame-src https://translate.google.com https://translate.googleapis.com https://www.google.com https://www.gstatic.com https://translate.googleusercontent.com",
           "worker-src 'self' blob:",
           "child-src 'self' blob: https://translate.google.com https://www.google.com",

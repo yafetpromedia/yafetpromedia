@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface SectionWrapperProps {
   children: React.ReactNode;
@@ -10,6 +9,7 @@ interface SectionWrapperProps {
   containerClassName?: string;
 }
 
+/** Quiet section shell — no nested scroll animations (FadeIn handles reveals). */
 export default function SectionWrapper({
   children,
   className,
@@ -17,22 +17,8 @@ export default function SectionWrapper({
   containerClassName,
 }: SectionWrapperProps) {
   return (
-    <section
-      id={id}
-      className={cn("relative overflow-x-clip py-24 md:py-32", className)}
-    >
-      <motion.div 
-        className={cn("max-w-7xl w-full mx-auto px-6", containerClassName)}
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ 
-          duration: 1.2, 
-          ease: [0.16, 1, 0.3, 1] 
-        }}
-      >
-        {children}
-      </motion.div>
+    <section id={id} className={cn("relative overflow-x-clip py-20 md:py-28", className)}>
+      <div className={cn("mx-auto w-full max-w-7xl px-6", containerClassName)}>{children}</div>
     </section>
   );
 }

@@ -22,12 +22,12 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const sectionShell =
-  "rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm dark:bg-card/35 sm:p-8";
+  "rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm  sm:p-8";
 
 const textareaCls = cn(
   inputCls,
@@ -48,7 +48,7 @@ export default function AdminSecuritySection({
   return (
     <div className="max-w-2xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-slate-500/[0.11] via-card/92 to-indigo-500/[0.09] p-6 shadow-[0_28px_80px_-44px_rgba(99,102,241,0.22)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-slate-400/[0.1] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-indigo-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -66,7 +66,7 @@ export default function AdminSecuritySection({
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Lock className="size-3.5 text-indigo-600/85 dark:text-indigo-400/90" />
             Password-only sign-in
           </div>
@@ -74,7 +74,7 @@ export default function AdminSecuritySection({
       </div>
 
       {/* Guidance */}
-      <div className="rounded-2xl border border-indigo-500/18 bg-indigo-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-indigo-500/12 dark:bg-indigo-500/[0.08]">
+      <div className="rounded-2xl border border-indigo-500/18 bg-indigo-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-indigo-500/12 ">
         <span className="mr-1 inline-flex items-center gap-1.5 align-middle">
           <KeyRound className="size-3.5 text-indigo-600 dark:text-indigo-400" />
         </span>
@@ -110,7 +110,7 @@ export default function AdminSecuritySection({
         </p>
       </section>
 
-      <div className="rounded-2xl border border-border/70 bg-muted/25 px-4 py-3.5 text-xs leading-relaxed text-foreground/65 dark:bg-white/[0.02]">
+      <div className="rounded-2xl border border-border/70 bg-muted/25 px-4 py-3.5 text-xs leading-relaxed text-foreground/65 dark:bg-muted/20">
         <p className="font-semibold text-foreground/75">Environment · recovery secret</p>
         <p className="mt-2 font-mono text-[11px] text-foreground/55">
           ADMIN_PASSWORD_RECOVERY_SECRET=<span className="text-foreground/40">long-random-passphrase</span>
@@ -164,7 +164,7 @@ export default function AdminSecuritySection({
           </button>
 
           {passwordStatus ? (
-            <p className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm leading-relaxed text-foreground/75 dark:bg-white/[0.03]">
+            <p className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-sm leading-relaxed text-foreground/75 ">
               {passwordStatus}
             </p>
           ) : null}

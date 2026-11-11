@@ -35,8 +35,8 @@ export default function AdminListFilter({
           aria-label={ariaLabel}
           className={cn(
             "h-10 w-full rounded-xl border border-border/80 bg-background/90 py-2 pl-10 pr-3 text-sm text-foreground outline-none transition",
-            "placeholder:text-foreground/38 focus:border-primary/45 focus:ring-2 focus:ring-primary/12",
-            "dark:border-white/[0.09] dark:bg-white/[0.04]"
+            "placeholder:text-foreground/38 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+            ""
           )}
           autoComplete="off"
           spellCheck={false}

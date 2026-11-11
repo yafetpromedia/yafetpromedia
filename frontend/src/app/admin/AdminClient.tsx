@@ -193,12 +193,12 @@ export default function AdminClient({
   }, [mobileNavOpen]);
 
   return (
-    <main className="bg-gradient-to-b from-background via-background to-muted/15">
+    <main className="min-h-dvh bg-[radial-gradient(ellipse_70%_50%_at_0%_0%,rgba(232,93,4,0.05),transparent_50%),linear-gradient(180deg,var(--background)_0%,var(--muted)_100%)]">
       {mobileNavOpen && (
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden"
+          className="fixed inset-0 z-40 bg-foreground/25 backdrop-blur-[2px] transition-opacity lg:hidden"
           onClick={() => setMobileNavOpen(false)}
         />
       )}
@@ -215,7 +215,7 @@ export default function AdminClient({
 
         <section
           className={cn(
-            "min-w-0 flex-1 border-l border-border/40",
+            "min-w-0 flex-1",
             "pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(0.5rem,env(safe-area-inset-top))]",
             "px-4 sm:px-5 md:px-7 lg:px-8"
           )}

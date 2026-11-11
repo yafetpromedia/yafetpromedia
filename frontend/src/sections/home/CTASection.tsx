@@ -2,59 +2,41 @@
 
 import SectionWrapper from "@/components/common/SectionWrapper";
 import FadeIn from "@/components/animations/FadeIn";
-import { ArrowRight, Terminal } from "lucide-react";
+import { ArrowRight, PhoneCall } from "lucide-react";
 import Link from "next/link";
 
 export default function CTASection() {
   return (
-    <SectionWrapper id="cta" className="pb-32 bg-background">
-      <div className="relative rounded-[3rem] border border-border bg-card p-12 md:p-24 overflow-hidden text-center group">
-        {/* Background Decorative Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-full bg-[radial-gradient(ellipse_at_center,var(--color-primary),transparent_70%)] pointer-events-none group-hover:opacity-20 opacity-10 transition-opacity duration-1000" />
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(currentColor_1px,transparent_1px),linear-gradient(90deg,currentColor_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-        
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-foreground">
-          <FadeIn>
-            <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 text-[11px] font-mono tracking-widest uppercase border border-primary/20 rounded-full bg-primary/5 text-primary backdrop-blur-md">
-              <Terminal className="size-3" />
-              Ready to deploy
-            </div>
-          </FadeIn>
-
-          <FadeIn delay={0.1}>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-8 leading-tight tracking-tight">
-              Build your complete <br className="hidden md:block"/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#ff9b4d]">digital system.</span>
-            </h2>
-          </FadeIn>
-          
-          <FadeIn delay={0.2}>
-            <p className="text-foreground/60 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-              Partner with us to design the infrastructure that will power 
-              your organization&apos;s growth for years to come.
-            </p>
-          </FadeIn>
-          
-          <FadeIn delay={0.3}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-              <Link
-                href="#contact"
-                className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_40px_rgba(255,106,0,0.3)] hover:shadow-[0_0_60px_rgba(255,106,0,0.5)] transition-all duration-300 group/btn inline-flex items-center justify-center"
-              >
-                Send a request
-                <ArrowRight className="ml-2 size-5 transition-transform group-hover/btn:translate-x-1" />
-              </Link>
-              <Link
-                href="#contact"
-                className="w-full sm:w-auto h-16 px-10 text-lg font-bold rounded-full border border-border text-foreground hover:bg-foreground/5 backdrop-blur-md transition-colors duration-300 inline-flex items-center justify-center"
-              >
-                Contact Sales
-              </Link>
-            </div>
-          </FadeIn>
-        </div>
+    <SectionWrapper id="cta" className="bg-background pb-28 pt-8">
+      <div className="mx-auto max-w-3xl text-center">
+        <FadeIn>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Ready to build with Awud Digitals?
+          </h2>
+        </FadeIn>
+        <FadeIn delay={0.08}>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-foreground/60 md:text-lg">
+            Tell us what you need — we&apos;ll map scope, timeline, and the right next step.
+          </p>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="#contact"
+              className="group inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary px-8 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
+            >
+              Send a request
+              <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+            <Link
+              href="#book-call"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-border px-8 text-sm font-semibold text-foreground transition-colors hover:bg-muted/50 sm:w-auto"
+            >
+              <PhoneCall className="size-4" />
+              Book a call
+            </Link>
+          </div>
+        </FadeIn>
       </div>
     </SectionWrapper>
   );

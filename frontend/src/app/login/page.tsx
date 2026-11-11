@@ -132,11 +132,11 @@ export default function LoginPage() {
   };
 
   const inputWrap =
-    "group relative flex items-center gap-3 rounded-2xl border border-border/80 bg-background/60 px-4 transition-[border-color,box-shadow] focus-within:border-primary/55 focus-within:shadow-[0_0_0_3px_rgba(255,106,0,0.12)] dark:bg-white/[0.03] dark:focus-within:shadow-[0_0_0_3px_rgba(255,106,0,0.18)]";
+    "group relative flex items-center gap-3 rounded-2xl border border-border/80 bg-background px-4 transition-[border-color,box-shadow] focus-within:border-accent/45 focus-within:shadow-[0_0_0_3px_rgba(232,93,4,0.12)]";
 
   const helpParagraphs =
     helpText.trim().length > 0 ? (
-      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 text-left text-[13px] leading-relaxed text-foreground/65 dark:bg-white/[0.02]">
+      <div className="mt-6 whitespace-pre-wrap rounded-2xl border border-border/60 bg-muted/30 px-4 py-3 text-left text-[13px] leading-relaxed text-foreground/65">
         {helpText.trim()}
       </div>
     ) : null;
@@ -149,11 +149,11 @@ export default function LoginPage() {
           overlayClassName="bg-foreground/25 backdrop-blur-[8px]"
           className={cn(
             "max-h-[min(90dvh,720px)] gap-0 overflow-y-auto rounded-2xl border border-border/60 p-0 sm:max-w-md",
-            "bg-card shadow-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+            "bg-card shadow-xl ring-1 ring-black/[0.04]"
           )}
         >
           <DialogHeader className="border-b border-border/50 px-6 pb-4 pt-6 text-left">
-            <div className="mb-3 inline-flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+            <div className="mb-3 inline-flex size-11 items-center justify-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
               <KeyRound className="size-5" aria-hidden />
             </div>
             <DialogTitle className="font-display text-lg font-bold tracking-tight">Reset admin password</DialogTitle>
@@ -309,13 +309,11 @@ export default function LoginPage() {
         </DialogContent>
       </Dialog>
 
-      <main className="relative min-h-dvh overflow-hidden bg-background text-foreground antialiased">
+      <main className="relative min-h-dvh overflow-hidden bg-[radial-gradient(ellipse_70%_50%_at_0%_0%,rgba(232,93,4,0.05),transparent_50%),linear-gradient(180deg,var(--background)_0%,var(--muted)_100%)] text-foreground antialiased">
         {/* Atmosphere */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-muted/[0.35]" />
-          <div className="absolute -left-[18%] top-[-12%] h-[min(52vmin,480px)] w-[min(52vmin,480px)] rounded-full bg-primary/[0.09] blur-[110px]" />
-          <div className="absolute -right-[12%] bottom-[-8%] h-[min(48vmin,420px)] w-[min(48vmin,420px)] rounded-full bg-violet-500/[0.07] blur-[100px]" />
-          <div className="absolute left-1/2 top-1/3 h-px w-[120%] -translate-x-1/2 rotate-[12deg] bg-gradient-to-r from-transparent via-primary/15 to-transparent opacity-60" />
+          <div className="absolute -left-[18%] top-[-12%] h-[min(52vmin,480px)] w-[min(52vmin,480px)] rounded-full bg-accent/[0.07] blur-[110px]" />
+          <div className="absolute -right-[12%] bottom-[-8%] h-[min(48vmin,420px)] w-[min(48vmin,420px)] rounded-full bg-sky-500/[0.05] blur-[100px]" />
         </div>
 
         <div
@@ -328,24 +326,24 @@ export default function LoginPage() {
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_minmax(0,420px)] lg:gap-16 xl:gap-24">
             {/* Copy column */}
             <section className="hidden lg:block">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
                 <Shield className="size-3.5 opacity-90" aria-hidden />
                 Secure portal
               </div>
               <h1 className="mt-8 font-display text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.06] tracking-tight">
                 Welcome back to your workspace.
               </h1>
-              <p className="mt-5 max-w-lg text-lg leading-relaxed text-foreground/55">
+              <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
                 Manage landing content, review leads, and keep your brand experience aligned — all in one dashboard.
               </p>
-              <ul className="mt-10 flex flex-wrap gap-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/38">
-                <li className="rounded-full border border-border/70 bg-background/40 px-3 py-1.5 backdrop-blur-sm">
+              <ul className="mt-10 flex flex-wrap gap-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                <li className="rounded-full border border-border/70 bg-card px-3 py-1.5">
                   Session cookie
                 </li>
-                <li className="rounded-full border border-border/70 bg-background/40 px-3 py-1.5 backdrop-blur-sm">
+                <li className="rounded-full border border-border/70 bg-card px-3 py-1.5">
                   HTTPS recommended
                 </li>
-                <li className="rounded-full border border-border/70 bg-background/40 px-3 py-1.5 backdrop-blur-sm">
+                <li className="rounded-full border border-border/70 bg-card px-3 py-1.5">
                   Admin only
                 </li>
               </ul>
@@ -355,14 +353,13 @@ export default function LoginPage() {
             <section className="mx-auto w-full max-w-[420px] lg:mx-0 lg:justify-self-end">
               <div
                 className={cn(
-                  "rounded-[1.75rem] border border-white/[0.07] bg-card/75 p-8 shadow-[0_28px_90px_-36px_rgba(0,0,0,0.55)] backdrop-blur-2xl",
-                  "dark:border-white/[0.06] dark:bg-card/[0.55] dark:shadow-[0_28px_90px_-36px_rgba(0,0,0,0.75)]",
-                  "ring-1 ring-black/[0.04] dark:ring-white/[0.05]"
+                  "rounded-[1.75rem] border border-border/70 bg-card p-8 shadow-sm",
+                  "ring-1 ring-black/[0.03]"
                 )}
               >
                 <div className="mb-8 flex flex-col gap-5">
                   <div className="flex items-center gap-3.5">
-                    <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-background/90 to-muted/30 p-1.5 shadow-inner ring-1 ring-white/[0.04]">
+                    <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-muted/40 p-1.5">
                       <Image
                         src={logoSrc}
                         alt="Awud Digitals"
@@ -447,9 +444,9 @@ export default function LoginPage() {
                     type="submit"
                     disabled={isLoading}
                     className={cn(
-                      "relative flex h-12 w-full items-center justify-center gap-2 rounded-2xl font-semibold transition",
-                      "bg-primary text-primary-foreground shadow-lg shadow-primary/25",
-                      "hover:bg-primary/92 active:scale-[0.99]",
+                      "relative flex h-12 w-full items-center justify-center gap-2 rounded-full font-semibold transition",
+                      "bg-primary text-primary-foreground",
+                      "hover:opacity-90 active:scale-[0.99]",
                       "disabled:pointer-events-none disabled:opacity-55"
                     )}
                   >
@@ -478,7 +475,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setResetOpen(true)}
-                    className="text-sm font-semibold text-primary transition hover:underline"
+                    className="text-sm font-semibold text-accent transition hover:underline"
                   >
                     Forgot password?
                   </button>

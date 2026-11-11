@@ -38,9 +38,9 @@ export default function SystemsOverview() {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-foreground">
         <div className="max-w-2xl">
           <FadeIn>
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-[1px] w-8 bg-primary" />
-              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">{content.systemsSectionTag}</span>
+            <div className="mb-6 flex items-center gap-2">
+              <div className="h-px w-8 bg-accent/70" />
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">{content.systemsSectionTag}</span>
             </div>
             <h2 className="text-[clamp(2rem,4.2vw,3.75rem)] font-display font-bold tracking-tight mb-6 leading-tight">
               {afterFor ? (
@@ -105,8 +105,8 @@ export default function SystemsOverview() {
                 "md:min-h-0 md:h-full",
                 index === 0 ? "min-h-[420px] lg:min-h-full" : "min-h-[300px]",
                 hasImage
-                  ? "border border-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)] hover:border-white/20 hover:shadow-[0_32px_90px_-24px_rgba(0,0,0,0.65)] ring-1 ring-white/5"
-                  : "border border-border bg-card hover:border-primary/35 shadow-sm hover:shadow-md",
+                  ? "border border-white/10 ring-1 ring-white/5 hover:border-white/20"
+                  : "border border-border bg-card hover:border-accent/30",
                 system.className
               )}
             >
@@ -128,7 +128,7 @@ export default function SystemsOverview() {
                     aria-hidden
                   />
                   <div
-                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-br from-primary/25 via-transparent to-transparent opacity-90"
+                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-br from-accent/10 via-transparent to-transparent opacity-80"
                     aria-hidden
                   />
                   <div
@@ -146,7 +146,7 @@ export default function SystemsOverview() {
                     aria-hidden
                   />
                   <div
-                    className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_90%_70%_at_20%_0%,rgba(255,106,0,0.12),transparent_55%)]"
+                    className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_90%_70%_at_20%_0%,rgba(232,93,4,0.05),transparent_55%)]"
                     aria-hidden
                   />
                   <div
@@ -160,8 +160,8 @@ export default function SystemsOverview() {
                 className={cn(
                   "absolute top-6 right-6 z-30 px-3 py-1 rounded-full text-[10px] font-mono tracking-wider backdrop-blur-md transition-all duration-300",
                   hasImage
-                    ? "border border-white/15 bg-black/40 text-white/85 group-hover:border-primary/50 group-hover:bg-black/55 group-hover:text-primary"
-                    : "border border-border bg-background/80 text-foreground/45 group-hover:border-primary/30 group-hover:text-foreground/70"
+                    ? "border border-white/15 bg-black/40 text-white/85 group-hover:border-white/25"
+                    : "border border-border bg-background/80 text-foreground/45 group-hover:border-accent/30 group-hover:text-foreground/70"
                 )}
               >
                 {system.tag}
@@ -170,22 +170,22 @@ export default function SystemsOverview() {
               <div className="relative z-20 flex h-full min-h-0 w-full flex-col justify-between p-8 lg:p-10 pointer-events-auto">
                 <div
                   className={cn(
-                    "shrink-0 size-14 rounded-2xl flex items-center justify-center border transition-all duration-300 shadow-sm",
+                    "flex size-14 shrink-0 items-center justify-center rounded-2xl border transition-colors duration-300",
                     hasImage
-                      ? "bg-white/10 border-white/20 text-white backdrop-blur-md group-hover:scale-110 group-hover:border-primary/60 group-hover:bg-primary/20 group-hover:text-primary group-hover:shadow-[0_0_24px_-4px_rgba(255,106,0,0.55)]"
-                      : "bg-foreground/[0.06] border-border text-foreground/70 group-hover:scale-110 group-hover:bg-primary/10 group-hover:border-primary/35 group-hover:text-primary"
+                      ? "border-white/20 bg-white/10 text-white backdrop-blur-md group-hover:border-accent/50 group-hover:text-accent"
+                      : "border-border bg-muted text-foreground/70 group-hover:border-accent/35 group-hover:text-accent"
                   )}
                 >
-                  {system.icon && <system.icon className="size-6 transition-transform duration-300 group-hover:scale-110" />}
+                  {system.icon && <system.icon className="size-6" />}
                 </div>
 
-                <div className="shrink-0 space-y-3 max-w-[95%] mt-auto pt-10">
+                <div className="mt-auto max-w-[95%] shrink-0 space-y-3 pt-10">
                   <h3
                     className={cn(
-                      "text-2xl md:text-[1.65rem] font-display font-bold tracking-tight leading-tight transition-all duration-300",
+                      "font-display text-2xl font-bold leading-tight tracking-tight transition-colors duration-300 md:text-[1.65rem]",
                       hasImage
-                        ? "text-white [text-shadow:0_1px_24px_rgba(0,0,0,0.5)] group-hover:text-primary group-hover:translate-y-[-1px]"
-                        : "text-foreground group-hover:text-primary"
+                        ? "text-white group-hover:text-accent"
+                        : "text-foreground group-hover:text-accent"
                     )}
                   >
                     {system.title}

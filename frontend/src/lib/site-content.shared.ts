@@ -38,6 +38,8 @@ export type ProductCard = {
 export type CaseStudyCard = {
   title: string;
   category: string;
+  /** URL slug for /portfolio/[slug] — auto-derived from title when empty */
+  slug: string;
   problem: string;
   solution: string;
   result: string;
@@ -53,6 +55,17 @@ export type CaseStudyCard = {
   technologies: string[];
   /** Gallery images — /uploads/... or https */
   images: string[];
+};
+
+/** Homepage pricing tier. */
+export type PricingPackage = {
+  name: string;
+  priceLabel: string;
+  description: string;
+  features: string[];
+  ctaLabel: string;
+  /** Emphasized middle/featured tier */
+  highlighted: boolean;
 };
 
 /** Thought leadership / blog article card. */
@@ -411,6 +424,7 @@ export const defaultSiteContent: SiteContent = {
     {
       title: "National Education System",
       category: "Infrastructure",
+      slug: "national-education-system",
       problem: "Fragmented student data and manual administrative processes leading to high error rates.",
       solution: "Implementation of a centralized digital infrastructure with real-time sync across 50+ institutions.",
       result: "40% reduction in admin overhead and 100% data integrity achievement.",
@@ -425,6 +439,7 @@ export const defaultSiteContent: SiteContent = {
     {
       title: "Global Logistics Brand",
       category: "Identity & Media",
+      slug: "global-logistics-brand",
       problem: "Inconsistent brand representation across 12 countries affecting market authority.",
       solution: "A unified brand identity system and media production pipeline for global marketing.",
       result: "25% increase in brand recognition and centralized asset management.",
@@ -437,11 +452,59 @@ export const defaultSiteContent: SiteContent = {
       images: [],
     },
   ],
-  publicationsSectionTag: "Thought Leadership",
-  publicationsSectionTitle: "Authority & Insights.",
+  pricingSectionTag: "Pricing",
+  pricingSectionTitle: "Clear packages. Serious delivery.",
+  pricingSectionDescription:
+    "Pick a starting point — we refine scope on a short discovery call. Every package includes strategy, design, and implementation support.",
+  pricingPackages: [
+    {
+      name: "Starter",
+      priceLabel: "From $1,500",
+      description: "A focused site or brand landing system for launches and campaigns.",
+      features: [
+        "Conversion-focused website or landing system",
+        "Brand-aligned UI and content structure",
+        "Mobile-first build and basic SEO setup",
+        "2 revision rounds + launch support",
+      ],
+      ctaLabel: "Start with Starter",
+      highlighted: false,
+    },
+    {
+      name: "Growth",
+      priceLabel: "From $4,500",
+      description: "Full product or company site with systems, automation hooks, and analytics.",
+      features: [
+        "Multi-page product or company platform",
+        "CMS-ready content model",
+        "Integrations (forms, CRM, WhatsApp)",
+        "Performance, analytics, and handoff docs",
+      ],
+      ctaLabel: "Choose Growth",
+      highlighted: true,
+    },
+    {
+      name: "Custom",
+      priceLabel: "Let's scope it",
+      description: "Mr.Software, CampusOne-style platforms, or multi-system programs.",
+      features: [
+        "Discovery workshop and architecture map",
+        "Custom product / ops platform build",
+        "Security, roles, and reliability baseline",
+        "Ongoing partnership options",
+      ],
+      ctaLabel: "Book a scoping call",
+      highlighted: false,
+    },
+  ],
+  bookingUrl: "",
+  bookingBlurb:
+    "Book a short discovery call. Tell us what you are building and we will map next steps together.",
+  publicationsSectionTag: "Insights",
+  publicationsSectionTitle: "Notes on systems, brand, and building.",
   publicationsSectionDescription:
-    "Strategic thinking on digital infrastructure and system-level innovation from our engineering and design teams.",
-  publicationsCatalogCtaLabel: "VIEW ALL PUBLICATIONS",
+    "Short essays from the Awud Digitals desk — architecture, identity, and how institutions actually ship.",
+  publicationsCatalogCtaLabel: "View all insights",
   publicationsCards: [
     {
       title: "Why Infrastructure Matters More Than UI in 2026",

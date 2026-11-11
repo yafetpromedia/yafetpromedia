@@ -24,19 +24,19 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const textareaCls = cn(inputCls, "min-h-[88px] resize-y py-3 leading-relaxed");
 
 const reorderBtn = cn(
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card/80 text-foreground/80 transition",
-  "hover:border-primary/35 hover:bg-primary/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card text-foreground/80 transition",
+  "hover:border-accent/35 hover:bg-accent/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
 );
 
 const ghostBtn =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-primary/35 hover:bg-primary/[0.07] disabled:pointer-events-none disabled:opacity-35";
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/75 px-3 py-2 text-xs font-semibold text-foreground/85 transition hover:border-accent/35 hover:bg-accent/[0.07] disabled:pointer-events-none disabled:opacity-35";
 
 const CASE_STUDY_MIN = 1;
 const CASE_STUDY_MAX = 16;
@@ -116,7 +116,7 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-sky-500/[0.08] via-card/92 to-primary/[0.06] p-6 shadow-[0_28px_80px_-44px_rgba(56,189,248,0.35)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-sky-400/[0.11] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-primary/[0.1] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -137,7 +137,7 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <BarChart3 className="size-3.5 text-sky-600/85 dark:text-sky-400/90" />
             {draft.caseStudiesCards.length} studies
           </div>
@@ -145,7 +145,7 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
       </div>
 
       {/* Section header */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <TrendingUp className="size-4 text-sky-600/85 dark:text-sky-400/90" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Section header</h4>
@@ -236,14 +236,14 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           {filteredCases.length === 0 ? (
-            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-muted/20">
               No case studies match this filter.
             </p>
           ) : null}
           {filteredCases.map(({ card, index }) => (
             <div
               key={`case-${index}`}
-              className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-card/95 to-card/72 p-5 shadow-[0_22px_68px_-36px_rgba(0,0,0,0.62)] ring-1 ring-black/[0.04] transition hover:border-sky-500/18 dark:from-card/[0.93] dark:to-card/56 dark:shadow-[0_28px_80px_-40px_rgba(0,0,0,0.82)] sm:p-6"
+              className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-b from-card to-muted/30 p-5 shadow-sm ring-1 ring-black/[0.04] transition hover:border-sky-500/18   sm:p-6"
             >
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border/45 pb-4">
                 <div className="flex min-w-0 items-center gap-3">
@@ -402,7 +402,7 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-rose-500/18 bg-rose-500/[0.04] p-4 ring-1 ring-rose-500/10 dark:bg-rose-500/[0.06]">
+                <div className="rounded-2xl border border-rose-500/18 bg-rose-500/[0.04] p-4 ring-1 ring-rose-500/10 ">
                   <span className={cn(labelCls, "!mb-2 text-rose-800/90 dark:text-rose-300/95")}>Problem</span>
                   <textarea
                     rows={3}
@@ -411,7 +411,7 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
                     placeholder="What was broken or at risk?"
                     className={cn(
                       inputCls,
-                      "border-rose-500/20 bg-background/90 dark:bg-background/40",
+                      "border-rose-500/20 bg-background/90 ",
                       "min-h-[88px] resize-y py-3"
                     )}
                   />
@@ -426,13 +426,13 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
                     placeholder="What we shipped or changed"
                     className={cn(
                       inputCls,
-                      "border-sky-500/22 bg-background/90 dark:bg-background/40",
+                      "border-sky-500/22 bg-background/90 ",
                       "min-h-[88px] resize-y py-3"
                     )}
                   />
                 </div>
 
-                <div className="rounded-2xl border border-amber-500/22 bg-amber-500/[0.05] p-4 ring-1 ring-amber-500/12 dark:bg-amber-500/[0.07]">
+                <div className="rounded-2xl border border-amber-500/22 bg-amber-500/[0.05] p-4 ring-1 ring-amber-500/12 ">
                   <span className={cn(labelCls, "!mb-2 text-amber-950/90 dark:text-amber-200/95")}>Result</span>
                   <textarea
                     rows={2}
@@ -441,7 +441,7 @@ export default function AdminCaseStudiesSection({ draft, setDraft }: Props) {
                     placeholder="Outcome narrative"
                     className={cn(
                       inputCls,
-                      "border-amber-500/22 bg-background/90 dark:bg-background/40",
+                      "border-amber-500/22 bg-background/90 ",
                       "min-h-[72px] resize-y py-3"
                     )}
                   />

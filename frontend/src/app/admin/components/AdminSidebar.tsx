@@ -23,31 +23,31 @@ export default function AdminSidebar({
   return (
     <aside
       className={cn(
-        "flex min-h-0 shrink-0 flex-col overflow-hidden border-r border-border/60 bg-card/50 backdrop-blur-sm",
-        "fixed inset-y-0 left-0 z-50 max-h-dvh transform shadow-2xl transition-[transform,width] duration-300 ease-out",
-        "lg:sticky lg:top-0 lg:h-dvh lg:max-h-dvh lg:translate-x-0 lg:shadow-none",
+        "flex min-h-0 shrink-0 flex-col overflow-hidden border-r border-border/70 bg-card",
+        "fixed inset-y-0 left-0 z-50 max-h-dvh transform transition-[transform,width] duration-300 ease-out",
+        "lg:sticky lg:top-0 lg:h-dvh lg:max-h-dvh lg:translate-x-0",
         "pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))]",
         collapsed
           ? "w-[min(20rem,calc(100vw-1rem))] lg:w-[4.5rem]"
           : "w-[min(20rem,calc(100vw-1rem))] sm:w-72",
-        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        mobileOpen ? "translate-x-0 shadow-xl" : "-translate-x-full lg:translate-x-0 lg:shadow-none"
       )}
     >
       <div
         className={cn(
-          "flex shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-card/50 py-4 lg:border-0",
+          "flex shrink-0 items-center justify-between gap-2 border-b border-border/60 py-4",
           collapsed ? "px-2 lg:justify-center lg:px-2" : "px-4 lg:px-5 lg:py-6"
         )}
       >
-        <div className={cn("min-w-0 flex-1 lg:mb-0 lg:block", collapsed && "lg:hidden")}>
-          <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-foreground/45">Admin</p>
-          <h1 className="mt-1 truncate text-lg font-display font-bold tracking-tight sm:text-xl lg:text-2xl">
+        <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-accent">Admin</p>
+          <h1 className="mt-1 truncate font-display text-lg font-semibold tracking-tight text-foreground sm:text-xl">
             Website Dashboard
           </h1>
         </div>
         {collapsed ? (
           <p
-            className="hidden text-[10px] font-mono uppercase tracking-[0.22em] text-foreground/45 lg:block"
+            className="hidden text-[10px] font-semibold uppercase tracking-[0.18em] text-accent lg:block"
             title="Website Dashboard"
           >
             AD
@@ -55,7 +55,7 @@ export default function AdminSidebar({
         ) : null}
         <button
           type="button"
-          className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-background/80 text-foreground/80 transition hover:bg-foreground/5 lg:hidden"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground/80 transition hover:bg-muted lg:hidden"
           onClick={onCloseMobile}
           aria-label="Close navigation"
         >
@@ -65,7 +65,7 @@ export default function AdminSidebar({
 
       <nav
         className={cn(
-          "min-h-0 flex-[1_1_0%] space-y-1 overflow-y-auto overflow-x-hidden overscroll-y-contain py-3 [-webkit-overflow-scrolling:touch] lg:py-2",
+          "min-h-0 flex-[1_1_0%] space-y-0.5 overflow-y-auto overflow-x-hidden overscroll-y-contain py-3 [-webkit-overflow-scrolling:touch]",
           collapsed ? "px-2" : "px-3 lg:px-4"
         )}
         aria-label="Admin sections"
@@ -83,8 +83,8 @@ export default function AdminSidebar({
                 "flex min-h-[2.75rem] w-full items-center rounded-xl py-2.5 text-left transition-colors",
                 collapsed ? "justify-center px-2" : "justify-between gap-2 px-3",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "text-foreground/80 hover:bg-foreground/[0.06] active:bg-foreground/10"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground/75 hover:bg-muted hover:text-foreground"
               )}
             >
               <span
@@ -99,7 +99,7 @@ export default function AdminSidebar({
               <ChevronRight
                 className={cn(
                   "size-4 shrink-0 transition-opacity",
-                  isActive ? "opacity-100" : "opacity-35",
+                  isActive ? "opacity-100" : "opacity-30",
                   collapsed && "lg:hidden"
                 )}
               />
@@ -110,7 +110,7 @@ export default function AdminSidebar({
 
       <div
         className={cn(
-          "mt-auto shrink-0 space-y-2 border-t border-border/60 bg-card/50 py-4 text-sm",
+          "mt-auto shrink-0 space-y-2 border-t border-border/60 py-4 text-sm",
           collapsed ? "px-2" : "px-4 lg:px-5"
         )}
       >
@@ -119,7 +119,7 @@ export default function AdminSidebar({
           onClick={onLogout}
           title={collapsed ? "Log out" : undefined}
           className={cn(
-            "flex w-full items-center rounded-xl border border-border bg-background/80 py-2.5 text-sm font-medium text-foreground transition hover:bg-foreground/[0.05]",
+            "flex w-full items-center rounded-full border border-border bg-background py-2.5 text-sm font-medium text-foreground transition hover:bg-muted",
             collapsed ? "justify-center px-2" : "justify-center gap-2"
           )}
         >
@@ -132,12 +132,16 @@ export default function AdminSidebar({
           rel="noopener noreferrer"
           title={collapsed ? "View website" : undefined}
           className={cn(
-            "block rounded-lg py-2 text-foreground/65 transition hover:text-foreground",
+            "block rounded-lg py-2 text-foreground/60 transition hover:text-foreground",
             collapsed ? "text-center text-xs lg:px-0" : ""
           )}
         >
           <span className={cn(collapsed && "lg:sr-only")}>View website</span>
-          {collapsed ? <span className="hidden lg:inline" aria-hidden>↗</span> : null}
+          {collapsed ? (
+            <span className="hidden lg:inline" aria-hidden>
+              ↗
+            </span>
+          ) : null}
         </Link>
       </div>
     </aside>

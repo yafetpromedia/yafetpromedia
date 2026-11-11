@@ -28,35 +28,33 @@ export default function ServicesGrid() {
   }));
 
   return (
-    <SectionWrapper id="services" className="bg-background border-t border-border pt-28">
-      <div className="max-w-4xl mb-14 text-foreground">
+    <SectionWrapper id="services" className="border-t border-border/60 bg-background">
+      <div className="mb-12 max-w-3xl text-foreground">
         <FadeIn>
-          <div className="flex items-center gap-2 mb-6">
-            <div className="h-[1px] w-8 bg-primary" />
-            <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-              {content.servicesSectionTag}
-            </span>
-          </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-tight">
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-accent">
+            {content.servicesSectionTag}
+          </p>
+          <h2 className="font-display text-3xl font-semibold leading-tight tracking-tight md:text-4xl lg:text-[2.75rem]">
             {content.servicesSectionTitle}
           </h2>
         </FadeIn>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {services.map((service, index) => (
-          <FadeIn key={`svc-${index}`} delay={index * 0.08}>
-            <article className="group relative rounded-[1.75rem] border border-border bg-card p-8 md:p-10 hover:border-primary/40 hover:bg-card/90 transition-all duration-500 text-foreground h-full overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-transparent to-transparent group-hover:from-primary/10 transition-colors duration-700 pointer-events-none" />
-              <div className="size-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-8 group-hover:scale-105 transition-transform">
-                <service.icon className="size-5 text-primary" />
+          <FadeIn key={`svc-${index}`} delay={index * 0.06}>
+            <article className="group relative h-full overflow-hidden border-t border-border/70 pt-8 text-foreground transition-colors duration-300 hover:border-t-foreground/35">
+              <div className="mb-5 flex size-11 items-center justify-center rounded-2xl bg-muted text-foreground/70">
+                <service.icon className="size-5" />
               </div>
-              <h3 className="text-2xl font-display font-bold mb-4 group-hover:text-primary transition-colors">{service.title}</h3>
-              <p className="text-foreground/65 leading-relaxed">{service.description}</p>
+              <h3 className="mb-3 font-display text-2xl font-semibold tracking-tight">
+                {service.title}
+              </h3>
+              <p className="leading-relaxed text-foreground/60">{service.description}</p>
               <button
                 type="button"
                 onClick={() => setOpenIndex(index)}
-                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-foreground/55 group-hover:text-primary transition-colors cursor-pointer"
+                className="mt-7 inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground/50 transition-colors hover:text-foreground group-hover:text-foreground"
               >
                 Learn more <ArrowUpRight className="size-4" />
               </button>

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 type Props = { initialTestimonialSubmissions: TestimonialSubmission[] };
 
 const workflowCard =
-  "rounded-2xl border border-white/[0.07] bg-gradient-to-b from-card/95 to-card/75 p-4 shadow-sm ring-1 ring-black/[0.04] dark:from-card/[0.92] dark:to-card/55";
+  "rounded-2xl border border-border/70 bg-gradient-to-b from-card to-card/75 p-4 shadow-sm ring-1 ring-black/[0.04] ";
 
 export default function AdminTestimonialsSection({ initialTestimonialSubmissions }: Props) {
   const count = initialTestimonialSubmissions.length;
@@ -17,7 +17,7 @@ export default function AdminTestimonialsSection({ initialTestimonialSubmissions
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-rose-500/[0.08] via-card/92 to-amber-500/[0.07] p-6 shadow-[0_28px_80px_-44px_rgba(251,113,133,0.28)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-rose-400/[0.11] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-amber-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -38,7 +38,7 @@ export default function AdminTestimonialsSection({ initialTestimonialSubmissions
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Inbox className="size-3.5 text-rose-600/85 dark:text-rose-400/90" />
             {count} in queue / live
           </div>
@@ -46,14 +46,14 @@ export default function AdminTestimonialsSection({ initialTestimonialSubmissions
       </div>
 
       {/* Workflow */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <Shield className="size-4 text-rose-600/85 dark:text-rose-400/90" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Moderation workflow</h4>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className={cn(workflowCard, "border-emerald-500/15 bg-emerald-500/[0.04] dark:bg-emerald-500/[0.06]")}>
+          <div className={cn(workflowCard, "border-emerald-500/15 bg-emerald-500/[0.04] ")}>
             <div className="mb-2 flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
               <CheckCircle2 className="size-5 shrink-0" />
               <span className="text-sm font-semibold">Approve</span>
@@ -62,7 +62,7 @@ export default function AdminTestimonialsSection({ initialTestimonialSubmissions
               Publishes the quote to the Trust section with the rating the visitor selected.
             </p>
           </div>
-          <div className={cn(workflowCard, "border-amber-500/18 bg-amber-500/[0.05] dark:bg-amber-500/[0.07]")}>
+          <div className={cn(workflowCard, "border-amber-500/18 bg-amber-500/[0.05] ")}>
             <div className="mb-2 flex items-center gap-2 text-amber-950 dark:text-amber-200">
               <Ban className="size-5 shrink-0" />
               <span className="text-sm font-semibold">Reject / unpublish</span>
@@ -72,7 +72,7 @@ export default function AdminTestimonialsSection({ initialTestimonialSubmissions
               again anytime.
             </p>
           </div>
-          <div className={cn(workflowCard, "border-red-500/15 bg-red-500/[0.04] dark:bg-red-500/[0.06]")}>
+          <div className={cn(workflowCard, "border-red-500/15 bg-red-500/[0.04] ")}>
             <div className="mb-2 flex items-center gap-2 text-red-800 dark:text-red-400">
               <Trash2 className="size-5 shrink-0" />
               <span className="text-sm font-semibold">Delete</span>
@@ -107,7 +107,7 @@ export default function AdminTestimonialsSection({ initialTestimonialSubmissions
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/[0.06] bg-card/40 p-4 shadow-inner backdrop-blur-sm dark:bg-card/25 sm:p-6">
+        <div className="rounded-3xl border border-border/60 bg-card/40 p-4 shadow-inner backdrop-blur-sm  sm:p-6">
           <TestimonialSubmissionsPanel submissions={initialTestimonialSubmissions} />
         </div>
       </section>

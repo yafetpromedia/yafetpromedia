@@ -96,7 +96,7 @@ function initials(name: string): string {
 }
 
 const actionBtn = cn(
-  "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-border/75 bg-card/80 px-3 text-xs font-semibold text-foreground/85 transition",
+  "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-border/75 bg-card px-3 text-xs font-semibold text-foreground/85 transition",
   "hover:border-primary/40 hover:bg-primary/[0.07] hover:text-foreground"
 );
 
@@ -187,7 +187,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-amber-500/[0.12] via-card/92 to-orange-500/[0.08] p-6 shadow-[0_28px_80px_-44px_rgba(245,158,11,0.28)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-amber-400/[0.11] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-orange-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -206,7 +206,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Sparkles className="size-3.5 text-amber-600/90 dark:text-amber-400/90" />
             {count === 0 ? "No messages yet" : `${count} message${count === 1 ? "" : "s"}`}
           </div>
@@ -214,7 +214,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
       </div>
 
       {/* Tip */}
-      <div className="rounded-2xl border border-amber-500/18 bg-amber-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-amber-500/12 dark:bg-amber-500/[0.08]">
+      <div className="rounded-2xl border border-amber-500/18 bg-amber-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-amber-500/12 ">
         <span className="mr-1 inline-flex items-center gap-1.5 align-middle">
           <Mail className="size-3.5 text-amber-700 dark:text-amber-400" />
         </span>
@@ -229,7 +229,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
       </div>
 
       {/* List */}
-      <section className="rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm dark:bg-card/35 sm:p-8">
+      <section className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm  sm:p-8">
         <div className="mb-6 flex flex-col gap-4 border-b border-border/50 pb-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -267,7 +267,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
         </div>
 
         {count === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-background/40 py-16 text-center dark:bg-white/[0.02]">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-background/40 py-16 text-center dark:bg-muted/20">
             <span className="flex size-14 items-center justify-center rounded-2xl bg-foreground/[0.04] text-foreground/35 ring-1 ring-border/60">
               <Inbox className="size-7" />
             </span>
@@ -279,7 +279,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
         ) : (
           <div className="max-h-[min(70vh,560px)] space-y-4 overflow-y-auto overscroll-contain pr-1 -mr-1">
             {filteredLeads.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+              <p className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-muted/20">
                 No messages match this filter.
               </p>
             ) : null}
@@ -294,7 +294,7 @@ export default function AdminMessagesSection({ initialLeads }: Props) {
               return (
                 <article
                   key={lead.id}
-                  className="group relative overflow-hidden rounded-2xl border border-border/65 bg-background/70 shadow-sm transition hover:border-amber-500/22 hover:shadow-md dark:bg-white/[0.03]"
+                  className="group relative overflow-hidden rounded-2xl border border-border/65 bg-background/70 shadow-sm transition hover:border-amber-500/22 hover:shadow-md "
                 >
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/35 to-transparent opacity-0 transition group-hover:opacity-100" />
 

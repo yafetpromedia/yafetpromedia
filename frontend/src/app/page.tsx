@@ -6,12 +6,12 @@ import EcosystemSection from "@/sections/home/EcosystemSection";
 import SystemsOverview from "@/sections/home/SystemsOverview";
 import ServicesGrid from "@/sections/home/ServicesGrid";
 import ProductsPreview from "@/sections/home/ProductsPreview";
+import PricingSection from "@/sections/home/PricingSection";
 import CaseStudiesPreview from "@/sections/home/CaseStudiesPreview";
-import AuthorityPreview from "@/sections/home/AuthorityPreview";
 import TrustSection from "@/sections/home/TrustSection";
 import ProcessAndFaq from "@/sections/home/ProcessAndFaq";
+import BookCallSection from "@/sections/home/BookCallSection";
 import ContactSection from "@/sections/home/ContactSection";
-import CTASection from "@/sections/home/CTASection";
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_TITLE,
@@ -105,12 +105,12 @@ export default async function Home() {
       <SystemsOverview />
       <ServicesGrid />
       <ProductsPreview />
+      <PricingSection />
       <CaseStudiesPreview />
-      <AuthorityPreview />
       <TrustSection />
       <ProcessAndFaq />
+      <BookCallSection />
       <ContactSection />
-      <CTASection />
     </main>
   );
 }

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 type Props = { aiStatus: AIStatus; assistantName: string };
 
 const sectionShell =
-  "rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm dark:bg-card/35 sm:p-8";
+  "rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm  sm:p-8";
 
 function providerAccent(provider: AIStatus["activeProvider"]) {
   switch (provider) {
@@ -56,7 +56,7 @@ export default function AdminAIProviderSection({ aiStatus, assistantName }: Prop
 
   return (
     <div className="max-w-5xl space-y-8 pb-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-violet-500/[0.14] via-card/92 to-orange-500/[0.1] p-6 shadow-[0_28px_80px_-44px_rgba(139,92,246,0.35)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-violet-400/[0.12] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-orange-400/[0.1] blur-[92px]" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -90,7 +90,7 @@ export default function AdminAIProviderSection({ aiStatus, assistantName }: Prop
               <Sparkles className="size-3.5 opacity-90" />
               Active: {activeProvider}
             </div>
-            <div className="flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/50 px-4 py-2.5 text-[11px] font-semibold text-foreground/70">
+            <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-background/50 px-4 py-2.5 text-[11px] font-semibold text-foreground/70">
               <Radio className={cn("size-3.5", isLive ? "text-emerald-400" : "text-amber-400")} />
               {isLive ? "Live responses enabled" : "Offline fallback only"}
             </div>
@@ -105,7 +105,7 @@ export default function AdminAIProviderSection({ aiStatus, assistantName }: Prop
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-white/[0.06] bg-background/45 px-4 py-3.5 dark:bg-white/[0.03]"
+              className="rounded-2xl border border-border/60 bg-background/45 px-4 py-3.5 "
             >
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/45">
                 <item.icon className="size-3.5" />
@@ -147,7 +147,7 @@ export default function AdminAIProviderSection({ aiStatus, assistantName }: Prop
                     "min-w-0 flex-1 rounded-2xl border px-4 py-3",
                     active
                       ? "border-primary/30 bg-primary/[0.08] ring-1 ring-primary/15"
-                      : "border-white/[0.06] bg-background/40"
+                      : "border-border/60 bg-background/40"
                   )}
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/45">
@@ -259,7 +259,7 @@ function ProviderCard({
         "flex gap-3 rounded-2xl border p-4",
         active
           ? "border-primary/25 bg-primary/[0.06] ring-1 ring-primary/12"
-          : "border-white/[0.06] bg-background/55 dark:bg-white/[0.03]"
+          : "border-border/60 bg-background/55 "
       )}
     >
       <CheckCircle2

@@ -175,6 +175,12 @@ async function ensureSchema() {
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_section_description TEXT NOT NULL DEFAULT '';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_catalog_cta_label TEXT NOT NULL DEFAULT 'VIEW ALL PUBLICATIONS';
     ALTER TABLE site_content ADD COLUMN IF NOT EXISTS publications_cards JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS pricing_section_tag TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS pricing_section_title TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS pricing_section_description TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS pricing_packages JSONB NOT NULL DEFAULT '[]'::jsonb;
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS booking_url TEXT NOT NULL DEFAULT '';
+    ALTER TABLE site_content ADD COLUMN IF NOT EXISTS booking_blurb TEXT NOT NULL DEFAULT '';
     ALTER TABLE testimonial_submissions ADD COLUMN IF NOT EXISTS rating SMALLINT NOT NULL DEFAULT 5;
     ALTER TABLE testimonial_submissions ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending';
     ALTER TABLE testimonial_submissions ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ NULL;

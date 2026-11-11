@@ -10,38 +10,31 @@ export default function ProcessAndFaq() {
   const { content } = useSiteContent();
 
   return (
-    <SectionWrapper id="process-faq" className="bg-background border-t border-border pt-28">
-      <div className="max-w-3xl mb-10 text-foreground">
+    <SectionWrapper id="process-faq" className="border-t border-border/60 bg-background">
+      <div className="mb-10 max-w-2xl text-foreground">
         <FadeIn>
-          <div className="flex items-center gap-2 mb-5">
-            <div className="h-[1px] w-8 bg-primary" />
-            <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-              {content.processFaqSectionTag}
-            </span>
-          </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight mb-4 leading-tight">
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/45">
+            {content.processFaqSectionTag}
+          </p>
+          <h2 className="mb-3 font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
             {content.processFaqSectionTitle}
           </h2>
-          <p className="text-foreground/60 text-lg leading-relaxed font-light">
+          <p className="text-base leading-relaxed text-foreground/60 md:text-lg">
             {content.processFaqSectionDescription}
           </p>
         </FadeIn>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 text-foreground">
+      <div className="grid grid-cols-1 gap-8 text-foreground lg:grid-cols-2 lg:gap-10">
         <FadeIn>
-          <div className="rounded-[2rem] border border-border bg-card p-8 md:p-10 h-full relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-transparent to-transparent group-hover:from-primary/5 transition-colors duration-700 pointer-events-none" />
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-[1px] w-8 bg-primary" />
-              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-                {content.processFaqProcessCardLabel}
-              </span>
-            </div>
+          <div className="relative h-full rounded-2xl border border-border bg-card p-7 md:p-8">
+            <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/45">
+              {content.processFaqProcessCardLabel}
+            </p>
             <ul className="space-y-5">
               {content.processSteps.map((step, index) => (
                 <li key={`step-${index}`} className="flex items-start gap-3">
-                  <CheckCircle2 className="size-5 text-primary shrink-0 mt-0.5" />
+                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-foreground/40" />
                   <span className="text-foreground/70">{step.text}</span>
                 </li>
               ))}

@@ -60,7 +60,7 @@ function TypingIndicator() {
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="size-1.5 rounded-full bg-primary/70"
+          className="size-1.5 rounded-full bg-accent/80"
           animate={{ opacity: [0.35, 1, 0.35], y: [0, -3, 0] }}
           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
         />
@@ -327,40 +327,33 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
         embedded
           ? "flex min-h-0 flex-1 flex-col"
           : [
-              "fixed z-[80] flex flex-col overflow-hidden rounded-[1.35rem]",
-              "border border-border/80 bg-background/95 shadow-[0_28px_70px_-28px_rgba(0,0,0,0.18)] backdrop-blur-2xl",
-              "ring-1 ring-border/40 dark:shadow-[0_32px_80px_-24px_rgba(0,0,0,0.65)]",
-              "inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] top-auto",
-              "h-[min(620px,calc(100dvh-1.5rem-env(safe-area-inset-bottom)-env(safe-area-inset-top)))]",
-              "sm:inset-x-auto sm:right-6 sm:bottom-6 sm:left-auto sm:w-[min(400px,calc(100vw-3rem))]",
+              "fixed z-[80] flex flex-col overflow-hidden bg-card",
+              "border border-border/70 shadow-lg",
+              "inset-x-0 bottom-0 top-[max(0.75rem,env(safe-area-inset-top))] rounded-t-[1.5rem]",
+              "sm:inset-auto sm:right-6 sm:bottom-6 sm:top-auto sm:h-[min(680px,calc(100dvh-3rem))] sm:w-[min(420px,calc(100vw-3rem))] sm:rounded-[1.5rem]",
             ],
         className
       )}
     >
       {!embedded ? (
-      <div className="relative shrink-0 overflow-hidden border-b border-border/60 px-4 py-4">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_120%_at_0%_0%,rgba(255,106,0,0.14),transparent_55%),radial-gradient(circle_at_100%_0%,rgba(99,102,241,0.1),transparent_45%)] dark:bg-[radial-gradient(ellipse_80%_120%_at_0%_0%,rgba(255,106,0,0.22),transparent_55%),radial-gradient(circle_at_100%_0%,rgba(99,102,241,0.18),transparent_45%)]"
-        />
+      <div className="relative shrink-0 border-b border-border/60 px-4 py-3.5">
         <div className="relative flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-start gap-3">
-            <span className="relative flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff6a00] to-[#ff9139] text-white shadow-[0_8px_24px_-8px_rgba(255,106,0,0.55)] ring-1 ring-orange-400/25">
-              <Bot className="size-5" />
-              <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-background bg-emerald-500" />
+            <span className="relative flex size-10 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+              <Bot className="size-4" />
+              <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-card bg-emerald-500" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-display text-[15px] font-bold leading-tight tracking-tight text-foreground">
+              <p className="font-display text-[15px] font-semibold leading-tight tracking-tight text-foreground">
                 {assistantName}
               </p>
-              <div className="mt-1.5 flex flex-col gap-1 text-[11px] leading-none text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2 sm:gap-y-1">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-none text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="size-2 shrink-0 rounded-full bg-emerald-500" />
+                  <span className="size-1.5 shrink-0 rounded-full bg-emerald-500" />
                   {t("aiOnline")}
                 </span>
-                <span className="hidden text-border sm:inline">·</span>
                 <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                  <Sparkles className="size-3 shrink-0 text-primary" />
+                  <Sparkles className="size-3 shrink-0 text-accent" />
                   {t("aiPowered")}
                 </span>
               </div>
@@ -370,7 +363,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
             <button
               type="button"
               onClick={seedGreeting}
-              className="rounded-xl p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="inline-flex size-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
               aria-label={t("aiReset")}
             >
               <RotateCcw className="size-4" />
@@ -378,7 +371,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="inline-flex size-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
               aria-label="Close chat"
             >
               <X className="size-4" />
@@ -387,11 +380,12 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
         </div>
       </div>
       ) : (
-        <div className="flex shrink-0 items-center justify-end border-b border-border/60 px-3 py-1.5">
+        <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-2 sm:px-4">
+          <p className="text-[11px] text-muted-foreground">Ask anything about Awud Digitals</p>
           <button
             type="button"
             onClick={seedGreeting}
-            className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="inline-flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
             aria-label={t("aiReset")}
           >
             <RotateCcw className="size-3.5" />
@@ -404,74 +398,74 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
         data-lenis-prevent
         onScroll={handleMessagesScroll}
         onWheel={(e) => e.stopPropagation()}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-4 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-foreground/15"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 sm:px-4 sm:py-4 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-foreground/15"
       >
         <AnimatePresence initial={false}>
-          <div className="flex flex-col gap-3">
-          {messages.map((message) => {
-            const isUser = message.role === "user";
-            const paragraphs = formatMessageContent(message.content);
-            const isTyping = !isUser && isStreaming && !message.content;
-            const showPlanAction = !isUser && Boolean(onOpenPlan && message.suggestPlan);
+          <div className="flex flex-col gap-3.5">
+            {messages.map((message) => {
+              const isUser = message.role === "user";
+              const paragraphs = formatMessageContent(message.content);
+              const isTyping = !isUser && isStreaming && !message.content;
+              const showPlanAction = !isUser && Boolean(onOpenPlan && message.suggestPlan);
 
-            return (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}
-              >
-                {!isUser ? (
-                  <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20">
-                    <Bot className="size-3.5" />
-                  </span>
-                ) : null}
-                <div className={cn("flex max-w-[86%] flex-col gap-2", isUser ? "items-end" : "items-start")}>
-                  <div
-                    className={cn(
-                      "rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed",
-                      isUser
-                        ? "rounded-br-md bg-gradient-to-br from-[#ff6a00] to-[#ff7d22] text-white shadow-[0_10px_30px_-16px_rgba(255,106,0,0.55)]"
-                        : "rounded-bl-md border border-border/70 bg-card text-foreground/90"
-                    )}
-                  >
-                    {isTyping ? (
-                      <TypingIndicator />
-                    ) : (
-                      paragraphs.map((paragraph, index) => (
-                        <p key={index} className={index > 0 ? "mt-2" : undefined}>
-                          {paragraph}
-                        </p>
-                      ))
-                    )}
-                  </div>
-                  {showPlanAction && !isTyping ? (
-                    <button
-                      type="button"
-                      onClick={onOpenPlan}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-primary/35 bg-primary/[0.08] px-3 py-2 text-[11px] font-semibold text-primary transition hover:border-primary/55 hover:bg-primary/[0.12]"
-                    >
-                      <ClipboardList className="size-3.5" />
-                      {t("aiOpenPlan")}
-                    </button>
+              return (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}
+                >
+                  {!isUser ? (
+                    <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent ring-1 ring-accent/20">
+                      <Bot className="size-3.5" />
+                    </span>
                   ) : null}
-                </div>
-              </motion.div>
-            );
-          })}
+                  <div className={cn("flex max-w-[min(92%,22rem)] flex-col gap-2 sm:max-w-[85%]", isUser ? "items-end" : "items-start")}>
+                    <div
+                      className={cn(
+                        "rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed sm:text-sm",
+                        isUser
+                          ? "rounded-br-md bg-foreground text-background"
+                          : "rounded-bl-md border border-border/70 bg-muted/50 text-foreground/90"
+                      )}
+                    >
+                      {isTyping ? (
+                        <TypingIndicator />
+                      ) : (
+                        paragraphs.map((paragraph, index) => (
+                          <p key={index} className={index > 0 ? "mt-2" : undefined}>
+                            {paragraph}
+                          </p>
+                        ))
+                      )}
+                    </div>
+                    {showPlanAction && !isTyping ? (
+                      <button
+                        type="button"
+                        onClick={onOpenPlan}
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-2 text-[11px] font-semibold text-accent transition hover:bg-accent/15"
+                      >
+                        <ClipboardList className="size-3.5" />
+                        {t("aiOpenPlan")}
+                      </button>
+                    ) : null}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </AnimatePresence>
 
         {error ? (
-          <p className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-center text-xs text-red-600 dark:text-red-300">
+          <p className="mt-3 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-center text-xs text-red-600 dark:text-red-300">
             {error}
           </p>
         ) : null}
       </div>
 
-      <div className="shrink-0 border-t border-border/70 bg-muted/30 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="shrink-0 border-t border-border/60 bg-background/80 px-3 pt-3 pb-[max(0.85rem,env(safe-area-inset-bottom))] sm:px-4">
         <div
-          className="mb-2.5 flex flex-wrap gap-1.5"
+          className="-mx-1 mb-3 flex gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           data-lenis-prevent
           onWheel={(e) => e.stopPropagation()}
         >
@@ -487,7 +481,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
                 }
                 void sendMessage(prompt.label);
               }}
-              className="rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium leading-snug text-foreground/75 transition hover:border-primary/35 hover:bg-primary/[0.06] hover:text-foreground disabled:opacity-40"
+              className="shrink-0 rounded-full border border-border/70 bg-card px-3 py-2 text-[11px] font-medium leading-none text-foreground/70 transition hover:border-accent/35 hover:text-foreground disabled:opacity-40"
             >
               {prompt.label}
             </button>
@@ -495,7 +489,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
         </div>
 
         <form onSubmit={handleSubmit} className="flex items-end gap-2">
-          <div className="relative min-w-0 flex-1 rounded-2xl border border-border/70 bg-card/60 ring-1 ring-border/40 focus-within:border-primary/40 focus-within:ring-primary/15">
+          <div className="relative min-w-0 flex-1 rounded-2xl border border-border/70 bg-muted/40 focus-within:border-accent/40">
             <textarea
               ref={inputRef}
               rows={1}
@@ -504,22 +498,22 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
               onKeyDown={handleKeyDown}
               placeholder={t("typeMessage")}
               disabled={isStreaming}
-              className="max-h-28 min-h-[48px] w-full resize-none bg-transparent px-3.5 py-2.5 pr-10 text-sm leading-normal text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-60"
+              className="max-h-28 min-h-[48px] w-full resize-none bg-transparent px-3.5 py-3 pr-11 text-sm leading-normal text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-60"
             />
             <button
               type="button"
               onClick={toggleListening}
               disabled={!canUseSpeech || isStreaming}
-              className="absolute bottom-2 right-2 rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-30"
+              className="absolute bottom-2 right-2 inline-flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-30"
               aria-label={isListening ? t("stop") : t("talk")}
             >
-              {isListening ? <MicOff className="size-4 text-primary" /> : <Mic className="size-4" />}
+              {isListening ? <MicOff className="size-4 text-accent" /> : <Mic className="size-4" />}
             </button>
           </div>
           <button
             type="submit"
             disabled={isStreaming || !input.trim()}
-            className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#ff6a00] to-[#ff9139] text-white shadow-[0_10px_28px_-12px_rgba(255,106,0,0.85)] transition hover:brightness-105 disabled:opacity-45"
+            className="grid size-12 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground transition hover:opacity-90 disabled:opacity-45"
             aria-label={t("send")}
           >
             {isStreaming ? <Loader2 className="size-4 animate-spin" /> : <SendHorizontal className="size-4" />}
@@ -530,12 +524,16 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
           <button
             type="button"
             onClick={() => setVoiceReply((v) => !v)}
-            className="inline-flex items-center gap-1 transition hover:text-foreground"
+            className="inline-flex min-h-8 items-center gap-1.5 transition hover:text-foreground"
           >
-            {voiceReply ? <Volume2 className="size-3" /> : <VolumeX className="size-3" />}
+            {voiceReply ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
             {voiceReply ? t("aiVoiceOn") : t("aiVoiceOff")}
           </button>
-          <Link href="#contact" onClick={onClose} className="font-medium text-primary hover:text-primary/80">
+          <Link
+            href="#book-call"
+            onClick={onClose}
+            className="inline-flex min-h-8 items-center font-medium text-accent hover:opacity-80"
+          >
             {t("bookCall")} →
           </Link>
         </div>

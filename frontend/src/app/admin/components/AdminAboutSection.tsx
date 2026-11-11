@@ -11,11 +11,11 @@ type Props = { draft: SiteContent; setDraft: Dispatch<SetStateAction<SiteContent
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "focus:border-primary/55 focus:ring-2 focus:ring-primary/15"
+  "focus:border-accent/45 focus:ring-2 focus:ring-accent/15"
 );
 
 const sectionShell =
-  "rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm dark:bg-card/35 sm:p-8";
+  "rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm  sm:p-8";
 
 export default function AdminAboutSection({ draft, setDraft }: Props) {
   const about = draft.aboutYafet;
@@ -50,14 +50,14 @@ export default function AdminAboutSection({ draft, setDraft }: Props) {
 
   return (
     <div className="max-w-5xl space-y-8 pb-6">
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-orange-500/[0.1] via-card/92 to-violet-500/[0.06] p-6 shadow-[0_28px_80px_-44px_rgba(255,106,0,0.22)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-24 top-0 size-[220px] rounded-full bg-orange-400/10 blur-[90px]" />
         <div className="relative flex gap-4">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
             <User className="size-6" />
           </span>
           <div>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-primary/95">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-accent">
               Public page · /about/yafet
             </p>
             <h3 className="mt-1 font-display text-xl font-bold tracking-tight text-foreground">About Yafet</h3>
@@ -138,7 +138,7 @@ export default function AdminAboutSection({ draft, setDraft }: Props) {
             </p>
             <div className="relative w-full max-w-[280px]">
               <div aria-hidden className="absolute -inset-4 rounded-[2rem] bg-primary/15 blur-2xl" />
-              <div className="relative overflow-hidden rounded-[1.75rem] border border-primary/20 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 shadow-[0_24px_60px_-28px_rgba(255,106,0,0.4)] ring-1 ring-primary/15">
+              <div className="relative overflow-hidden rounded-[1.75rem] border border-primary/20 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 shadow-sm ring-1 ring-primary/15">
                 <div className="relative mx-auto aspect-[4/5] w-full max-w-[180px] overflow-hidden rounded-2xl bg-muted/30">
                   <Image
                     src={previewSrc}

@@ -20,8 +20,8 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/38 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/38 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const textareaCls = cn(inputCls, "min-h-[96px] resize-y py-3 leading-relaxed");
@@ -44,11 +44,11 @@ export default function AdminSystemsSection({
 
   return (
     <div className="space-y-10 pb-4">
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-primary/[0.08] via-card/90 to-card/80 p-6 shadow-[0_24px_70px_-40px_rgba(255,106,0,0.35)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/[0.08] via-muted/30 to-card/80 p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -right-24 -top-28 size-[280px] rounded-full bg-primary/[0.12] blur-[90px]" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
               <Sparkles className="size-6" />
             </span>
             <div>
@@ -62,14 +62,14 @@ export default function AdminSystemsSection({
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2 rounded-full border border-white/[0.08] bg-background/60 px-4 py-2 font-mono text-[11px] text-foreground/55 backdrop-blur-sm">
+          <div className="flex shrink-0 items-center gap-2 rounded-full border border-border/70 bg-background/60 px-4 py-2 font-mono text-[11px] text-foreground/55 backdrop-blur-sm">
             <LayoutGrid className="size-4 text-primary/80" />
             {draft.systemsCards.length} tiles
           </div>
         </div>
       </div>
 
-      <div className="rounded-3xl border border-white/[0.06] bg-card/60 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/40">
+      <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ">
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <TextCursorInput className="size-4 text-primary/80" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">Copy</h4>
@@ -151,14 +151,14 @@ export default function AdminSystemsSection({
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           {filteredTiles.length === 0 ? (
-            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+            <p className="col-span-full rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-10 text-center text-sm text-foreground/55 dark:bg-muted/20">
               No tiles match this filter.
             </p>
           ) : null}
           {filteredTiles.map(({ card, index }) => (
             <div
               key={index}
-              className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-b from-card/95 to-card/70 p-5 shadow-[0_20px_60px_-38px_rgba(0,0,0,0.65)] ring-1 ring-black/[0.04] transition hover:border-primary/20 dark:from-card/[0.92] dark:to-card/55 dark:shadow-[0_24px_72px_-36px_rgba(0,0,0,0.85)] sm:p-6"
+              className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-b from-card to-muted/30 p-5 shadow-sm ring-1 ring-black/[0.04] transition hover:border-primary/20   sm:p-6"
             >
               <div className="mb-5 flex items-center justify-between gap-3 border-b border-border/45 pb-4">
                 <div className="flex items-center gap-3">
@@ -175,7 +175,7 @@ export default function AdminSystemsSection({
               <div className="flex flex-col gap-5 md:flex-row md:gap-6">
                 <div className="shrink-0 md:w-[148px]">
                   <span className={cn(labelCls, "mb-2")}>Preview</span>
-                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-background/80 ring-1 ring-black/[0.05] dark:bg-white/[0.03]">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border/70 bg-background/80 ring-1 ring-black/[0.05] ">
                     {card.imageSrc ? (
                       <img src={card.imageSrc} alt="" className="size-full object-cover" />
                     ) : (

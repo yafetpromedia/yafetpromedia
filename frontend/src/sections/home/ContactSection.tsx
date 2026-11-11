@@ -16,6 +16,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const fieldCls =
+  "w-full rounded-2xl border border-border/70 bg-muted/40 px-4 text-sm text-foreground outline-none transition placeholder:text-foreground/40 focus:border-accent/40 focus:bg-background focus:ring-2 focus:ring-accent/10";
+
 export default function ContactSection() {
   const { content } = useSiteContent();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,45 +62,66 @@ export default function ContactSection() {
     setStatus("Could not submit right now. Please try again.");
   };
 
+  const contactLinks = [
+    {
+      href: `mailto:${content.contactEmail}`,
+      icon: Mail,
+      label: content.contactEmail,
+      external: false,
+    },
+    content.contactPhone.trim()
+      ? {
+          href: `tel:${content.contactPhone.replace(/\s+/g, "")}`,
+          icon: PhoneCall,
+          label: content.contactPhone,
+          external: false,
+        }
+      : null,
+    content.whatsappNumber.trim()
+      ? {
+          href: `https://wa.me/${content.whatsappNumber}`,
+          icon: MessageCircle,
+          label: content.contactWhatsappLabel,
+          external: true,
+        }
+      : null,
+  ].filter(Boolean) as {
+    href: string;
+    icon: typeof Mail;
+    label: string;
+    external: boolean;
+  }[];
+
   return (
     <>
       <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
         <DialogContent
           showCloseButton
-          overlayClassName={cn(
-            "bg-foreground/25 backdrop-blur-[8px]",
-            "duration-300 ease-out"
-          )}
+          overlayClassName="bg-foreground/20 backdrop-blur-[4px] duration-300 ease-out"
           className={cn(
-            "gap-0 overflow-hidden rounded-2xl border border-border/60 p-0 sm:max-w-md",
-            "bg-card shadow-2xl shadow-black/25 ring-1 ring-black/[0.04] dark:ring-white/[0.08]",
-            "duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-            "data-open:slide-in-from-bottom-4"
+            "gap-0 overflow-hidden rounded-[1.5rem] border border-border/70 p-0 sm:max-w-md",
+            "bg-card shadow-[0_10px_40px_-18px_rgba(12,12,12,0.25)]",
+            "duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
           )}
         >
           <DialogHeader className="relative px-6 pb-2 pt-8 text-center sm:px-8">
-            <span
-              className={cn(
-                "mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl",
-                "bg-emerald-500/15 text-emerald-600 ring-1 ring-emerald-500/35",
-                "dark:bg-emerald-500/12 dark:text-emerald-400 dark:ring-emerald-400/25",
-                "motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-50 motion-safe:duration-500 motion-safe:[animation-delay:75ms]"
-              )}
-            >
-              <CheckCircle2 className="size-8 stroke-[1.75]" aria-hidden />
+            <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-emerald-500/12 text-emerald-600 ring-1 ring-emerald-500/25 dark:text-emerald-400">
+              <CheckCircle2 className="size-6 stroke-[1.75]" aria-hidden />
             </span>
-            <DialogTitle className="font-display text-xl font-bold tracking-tight text-foreground">
+            <DialogTitle className="font-display text-xl font-semibold tracking-tight text-foreground">
               Message sent
             </DialogTitle>
-            <DialogDescription className="text-base leading-relaxed text-foreground/70">
+            <DialogDescription className="text-sm leading-relaxed text-foreground/65">
               Thanks! Your request has been saved.
             </DialogDescription>
           </DialogHeader>
-          <p className="px-6 pb-6 text-center text-sm text-foreground/50 sm:px-8">{content.contactReplyNote}</p>
+          <p className="px-6 pb-6 text-center text-sm text-foreground/45 sm:px-8">
+            {content.contactReplyNote}
+          </p>
           <div className="border-t border-border/60 bg-muted/30 px-6 py-4">
             <Button
               type="button"
-              className="w-full rounded-xl font-semibold"
+              className="h-11 w-full rounded-full font-semibold"
               onClick={() => setSuccessOpen(false)}
             >
               Got it
@@ -106,115 +130,126 @@ export default function ContactSection() {
         </DialogContent>
       </Dialog>
 
-      <SectionWrapper id="contact" className="bg-background border-t border-border pt-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 text-foreground">
-          <FadeIn>
-            <div>
-              <div className="flex items-center gap-2 mb-6">
-                <div className="h-[1px] w-8 bg-primary" />
-                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-primary">
-                  {content.contactSectionTag}
-                </span>
-              </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-tight mb-6">
-                {content.contactSectionTitle}
-              </h2>
-              <p className="text-foreground/65 text-lg leading-relaxed mb-10 max-w-xl">
-                {content.contactSectionDescription}
-              </p>
+      <SectionWrapper id="contact" className="border-t border-border/60 bg-background">
+        <div className="grid grid-cols-1 items-start gap-10 text-foreground lg:grid-cols-12 lg:gap-12 xl:gap-16">
+          <FadeIn className="lg:col-span-5">
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-accent">
+              {content.contactSectionTag}
+            </p>
+            <h2 className="font-display text-3xl font-semibold leading-tight tracking-tight md:text-4xl xl:text-[2.75rem]">
+              {content.contactSectionTitle}
+            </h2>
+            <p className="mt-4 max-w-md text-base leading-relaxed text-foreground/60 md:text-lg">
+              {content.contactSectionDescription}
+            </p>
 
-              <div className="space-y-4">
-                <Link
-                  href={`mailto:${content.contactEmail}`}
-                  className="flex items-center gap-3 text-foreground/80 hover:text-primary transition-colors"
-                >
-                  <Mail className="size-4" />
-                  {content.contactEmail}
-                </Link>
-                {content.contactPhone.trim() !== "" && (
+            <ul className="mt-8 space-y-3">
+              {contactLinks.map((item) => (
+                <li key={item.href}>
                   <Link
-                    href={`tel:${content.contactPhone.replace(/\s+/g, "")}`}
-                    className="flex items-center gap-3 text-foreground/80 hover:text-primary transition-colors"
+                    href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noreferrer noopener" : undefined}
+                    className="group inline-flex max-w-full items-center gap-3 rounded-2xl border border-border/70 bg-card px-3.5 py-3 text-sm text-foreground/75 shadow-[0_8px_28px_-18px_rgba(12,12,12,0.16)] transition hover:border-accent/30 hover:text-foreground"
                   >
-                    <PhoneCall className="size-4" />
-                    {content.contactPhone}
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/65 transition group-hover:bg-accent/10 group-hover:text-accent">
+                      <item.icon className="size-4" strokeWidth={1.85} />
+                    </span>
+                    <span className="min-w-0 truncate">{item.label}</span>
                   </Link>
-                )}
-                {content.whatsappNumber.trim() !== "" && (
-                  <Link
-                    href={`https://wa.me/${content.whatsappNumber}`}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="flex items-center gap-3 text-foreground/80 hover:text-primary transition-colors"
-                  >
-                    <MessageCircle className="size-4" />
-                    {content.contactWhatsappLabel}
-                  </Link>
-                )}
-              </div>
-            </div>
+                </li>
+              ))}
+            </ul>
           </FadeIn>
 
-          <FadeIn delay={0.1}>
+          <FadeIn delay={0.08} className="w-full min-w-0 lg:col-span-7">
             <form
-              className="rounded-[2rem] border border-border bg-card p-8 md:p-10 space-y-5"
+              className="rounded-[1.5rem] border border-border/80 bg-card p-5 shadow-[0_10px_40px_-18px_rgba(12,12,12,0.18)] sm:p-7 md:p-8 dark:shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)]"
               onSubmit={handleSubmit}
             >
-              <input
-                type="text"
-                required
-                autoComplete="name"
-                placeholder={content.contactNamePlaceholder}
-                value={formData.name}
-                onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, name: event.target.value }))
-                }
-                className="w-full h-12 rounded-xl border border-border bg-background px-4 outline-none focus:border-primary"
-              />
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                placeholder={content.contactEmailPlaceholder}
-                value={formData.email}
-                onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, email: event.target.value }))
-                }
-                className="w-full h-12 rounded-xl border border-border bg-background px-4 outline-none focus:border-primary"
-              />
-              <input
-                type="text"
-                required
-                autoComplete="organization"
-                placeholder={content.contactCompanyPlaceholder}
-                value={formData.company}
-                onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, company: event.target.value }))
-                }
-                className="w-full h-12 rounded-xl border border-border bg-background px-4 outline-none focus:border-primary"
-              />
-              <input
-                type="tel"
-                name="phone"
-                required
-                placeholder={content.contactLeadPhonePlaceholder}
-                value={formData.phone}
-                onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, phone: event.target.value }))
-                }
-                autoComplete="tel"
-                className="w-full h-12 rounded-xl border border-border bg-background px-4 outline-none focus:border-primary"
-              />
-              <textarea
-                required
-                placeholder={content.contactMessagePlaceholder}
-                rows={5}
-                value={formData.message}
-                onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, message: event.target.value }))
-                }
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-primary resize-none"
-              />
+              <div className="grid gap-3.5 sm:grid-cols-2 sm:gap-4">
+                <label className="block sm:col-span-1">
+                  <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/45">
+                    Name
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    autoComplete="name"
+                    placeholder={content.contactNamePlaceholder}
+                    value={formData.name}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, name: event.target.value }))
+                    }
+                    className={cn(fieldCls, "h-12")}
+                  />
+                </label>
+                <label className="block sm:col-span-1">
+                  <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/45">
+                    Email
+                  </span>
+                  <input
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder={content.contactEmailPlaceholder}
+                    value={formData.email}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, email: event.target.value }))
+                    }
+                    className={cn(fieldCls, "h-12")}
+                  />
+                </label>
+                <label className="block sm:col-span-1">
+                  <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/45">
+                    Company
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    autoComplete="organization"
+                    placeholder={content.contactCompanyPlaceholder}
+                    value={formData.company}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, company: event.target.value }))
+                    }
+                    className={cn(fieldCls, "h-12")}
+                  />
+                </label>
+                <label className="block sm:col-span-1">
+                  <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/45">
+                    Phone
+                  </span>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder={content.contactLeadPhonePlaceholder}
+                    value={formData.phone}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, phone: event.target.value }))
+                    }
+                    autoComplete="tel"
+                    className={cn(fieldCls, "h-12")}
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-foreground/45">
+                    Project
+                  </span>
+                  <textarea
+                    required
+                    placeholder={content.contactMessagePlaceholder}
+                    rows={5}
+                    value={formData.message}
+                    onChange={(event) =>
+                      setFormData((prev) => ({ ...prev, message: event.target.value }))
+                    }
+                    className={cn(fieldCls, "min-h-[8.5rem] resize-none py-3")}
+                  />
+                </label>
+              </div>
+
               <input
                 type="text"
                 tabIndex={-1}
@@ -226,16 +261,19 @@ export default function ContactSection() {
                 }
                 className="hidden"
               />
+
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground text-sm font-semibold text-background transition hover:opacity-90 disabled:opacity-55"
               >
                 {isSubmitting ? "Submitting..." : content.contactSubmitLabel}
                 <ArrowRight className="size-4" />
               </button>
-              {status ? <p className="text-sm text-red-600 dark:text-red-400">{status}</p> : null}
-              <p className="text-xs text-foreground/45">{content.contactReplyNote}</p>
+              {status ? <p className="mt-3 text-sm text-red-600 dark:text-red-400">{status}</p> : null}
+              <p className="mt-3 text-center text-xs text-foreground/45 sm:text-left">
+                {content.contactReplyNote}
+              </p>
             </form>
           </FadeIn>
         </div>

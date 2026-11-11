@@ -45,7 +45,7 @@ function TreeConnector({ columnCount }: { columnCount: number }) {
   if (columnCount === 1) {
     return (
       <div className="flex justify-center py-3 md:py-5" aria-hidden>
-        <div className="h-10 w-px bg-gradient-to-b from-primary/55 via-primary/25 to-border md:h-14" />
+        <div className="h-10 w-px bg-gradient-to-b from-foreground/25 via-foreground/10 to-border md:h-14" />
       </div>
     );
   }
@@ -68,7 +68,7 @@ function TreeConnector({ columnCount }: { columnCount: number }) {
   return (
     <div className="relative mx-auto hidden w-full max-w-4xl px-4 py-2 md:block lg:max-w-5xl" aria-hidden>
       <svg
-        className="mx-auto w-full text-primary/30 dark:text-primary/40"
+        className="mx-auto w-full text-foreground/20"
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="xMidYMid meet"
         style={{ height: "2.75rem" }}
@@ -82,7 +82,7 @@ function TreeConnector({ columnCount }: { columnCount: number }) {
 function MobileStackConnector() {
   return (
     <div className="flex justify-center py-2 md:hidden" aria-hidden>
-      <div className="h-8 w-px bg-gradient-to-b from-primary/45 to-border" />
+      <div className="h-8 w-px bg-gradient-to-b from-foreground/25 to-border" />
     </div>
   );
 }
@@ -90,23 +90,15 @@ function MobileStackConnector() {
 function ParentCompanyCard({ label, founderName }: { label: string; founderName: string }) {
   return (
     <div className="relative w-full max-w-[min(100%,22rem)] sm:max-w-md">
-      <div
-        className="pointer-events-none absolute -inset-px rounded-[1.65rem] bg-gradient-to-br from-primary/50 via-primary/15 to-transparent opacity-70 blur-[0.5px]"
-        aria-hidden
-      />
-      <div className="relative overflow-hidden rounded-[1.65rem] border border-primary/30 bg-card/90 px-6 py-6 text-center shadow-[0_20px_70px_-45px_rgba(255,106,0,0.55)] ring-1 ring-primary/15 backdrop-blur-md sm:px-8 sm:py-7">
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(255,106,0,0.12),transparent_70%)]"
-          aria-hidden
-        />
-        <span className="relative mx-auto mb-3 flex size-11 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/25 sm:size-12">
+      <div className="relative overflow-hidden rounded-[1.65rem] border border-border bg-card px-6 py-6 text-center shadow-[0_10px_40px_-18px_rgba(12,12,12,0.18)] sm:px-8 sm:py-7 dark:shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)]">
+        <span className="mx-auto mb-3 flex size-11 items-center justify-center rounded-2xl bg-muted text-foreground/70 sm:size-12">
           <Building2 className="size-5 sm:size-6" />
         </span>
-        <p className="relative font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/90">
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-foreground/45">
           {label}
         </p>
-        <h3 className="relative mt-2 font-display text-xl font-bold text-foreground sm:text-2xl">Awud Digitals</h3>
-        <p className="relative mt-2 text-sm leading-relaxed text-foreground/58">
+        <h3 className="mt-2 font-display text-xl font-bold text-foreground sm:text-2xl">Awud Digitals</h3>
+        <p className="mt-2 text-sm leading-relaxed text-foreground/58">
           Founded by {founderName} · Parent company & product studio
         </p>
       </div>
@@ -118,29 +110,27 @@ function ProductCard({ card, index }: { card: EcosystemProductCard; index: numbe
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card/85 shadow-sm transition duration-500",
-        "hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_60px_-32px_rgba(255,106,0,0.35)]",
-        "supports-[backdrop-filter]:backdrop-blur-sm",
-        card.featured && "ring-1 ring-primary/20"
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_10px_40px_-18px_rgba(12,12,12,0.18)] transition duration-300 dark:shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)]",
+        "hover:border-accent/30",
+        card.featured && "border-accent/25"
       )}
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted/40 sm:aspect-[5/3]">
+      <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-border/50 bg-muted/40 sm:aspect-[5/3]">
         {card.imageSrc.trim() ? (
           <Image
             src={card.imageSrc}
             alt=""
             fill
-            className="object-cover transition duration-700 group-hover:scale-[1.04]"
+            className="object-cover transition duration-700 group-hover:scale-[1.03]"
             unoptimized={shouldUseUnoptimizedImage(card.imageSrc)}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={index === 0}
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
-            <Sparkles className="size-9 text-primary/45 sm:size-10" />
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-accent/10 via-muted/30 to-transparent">
+            <Sparkles className="size-9 text-accent/50 sm:size-10" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/25 to-transparent" />
         <span
           className={cn(
             "absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 sm:left-4 sm:top-4 sm:px-3",
@@ -153,13 +143,13 @@ function ProductCard({ card, index }: { card: EcosystemProductCard; index: numbe
       </div>
 
       <div className="flex flex-1 flex-col p-5 sm:p-6 lg:p-7">
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/85">{card.tagline}</p>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">{card.tagline}</p>
         <h3 className="mt-2 font-display text-xl font-bold text-foreground sm:text-2xl">{card.title}</h3>
         <p className="mt-2.5 flex-1 text-sm leading-relaxed text-foreground/62 sm:mt-3">{card.description}</p>
         {card.href.trim() ? (
           <ProductLink
             href={card.href}
-            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:gap-2.5 sm:mt-5"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent transition hover:gap-2.5 sm:mt-5"
           >
             {card.linkLabel}
             <ArrowUpRight className="size-4 shrink-0" />
@@ -201,7 +191,7 @@ export default function EcosystemSection() {
           <div className="mx-auto max-w-3xl text-center lg:mx-0 lg:max-w-3xl lg:text-left">
             <div className="mb-4 flex items-center justify-center gap-2 lg:justify-start sm:mb-5">
               <div className="h-px w-8 bg-primary" />
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-accent">
                 {content.ecosystemSectionTag}
               </span>
             </div>

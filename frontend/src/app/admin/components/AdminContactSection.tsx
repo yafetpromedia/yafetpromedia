@@ -25,19 +25,19 @@ const labelCls =
 
 const inputCls = cn(
   "w-full rounded-2xl border border-border/85 bg-background/85 px-4 py-2.5 text-[15px] text-foreground outline-none transition",
-  "placeholder:text-foreground/35 focus:border-primary/55 focus:ring-2 focus:ring-primary/15",
-  "dark:border-white/[0.09] dark:bg-white/[0.04]"
+  "placeholder:text-foreground/35 focus:border-accent/45 focus:ring-2 focus:ring-accent/15",
+  ""
 );
 
 const textareaCls = cn(inputCls, "min-h-[92px] resize-none py-3 leading-relaxed");
 
 const reorderBtn = cn(
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card/80 text-foreground/80 transition",
-  "hover:border-primary/35 hover:bg-primary/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/75 bg-card text-foreground/80 transition",
+  "hover:border-accent/35 hover:bg-accent/[0.08] hover:text-foreground disabled:pointer-events-none disabled:opacity-35"
 );
 
 const sectionShell =
-  "rounded-3xl border border-white/[0.06] bg-card/55 p-6 shadow-sm backdrop-blur-sm sm:p-8 dark:bg-card/35";
+  "rounded-3xl border border-border/60 bg-card p-6 shadow-sm backdrop-blur-sm sm:p-8 ";
 
 /** Matches backend `sanitizeSiteContent` cap on social links */
 const SOCIAL_LINKS_MAX = 8;
@@ -89,7 +89,7 @@ export default function AdminContactSection({ draft, setDraft }: Props) {
   return (
     <div className="max-w-5xl space-y-10 pb-6">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-violet-500/[0.11] via-card/92 to-emerald-500/[0.07] p-6 shadow-[0_28px_80px_-44px_rgba(139,92,246,0.25)] sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/35 to-card p-6 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -left-28 top-0 size-[260px] rounded-full bg-violet-400/[0.1] blur-[100px]" />
         <div className="pointer-events-none absolute -right-28 bottom-0 size-[240px] rounded-full bg-emerald-400/[0.09] blur-[92px]" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -110,7 +110,7 @@ export default function AdminContactSection({ draft, setDraft }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 backdrop-blur-sm dark:bg-white/[0.03]">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-background/55 px-4 py-2.5 font-mono text-[11px] text-foreground/55 bg-background">
             <Share2 className="size-3.5 text-violet-600/85 dark:text-violet-400/90" />
             {draft.socialLinks.length} links · {enabledSocial} visible
           </div>
@@ -118,7 +118,7 @@ export default function AdminContactSection({ draft, setDraft }: Props) {
       </div>
 
       {/* Context */}
-      <div className="rounded-2xl border border-violet-500/18 bg-violet-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-violet-500/12 dark:bg-violet-500/[0.08]">
+      <div className="rounded-2xl border border-violet-500/18 bg-violet-500/[0.05] px-4 py-3.5 text-sm leading-relaxed text-foreground/72 ring-1 ring-violet-500/12 ">
         <span className="mr-1 inline-flex items-center gap-1.5 align-middle">
           <PhoneForwarded className="size-3.5 text-violet-600 dark:text-violet-400" />
         </span>
@@ -296,7 +296,7 @@ export default function AdminContactSection({ draft, setDraft }: Props) {
           </p>
         </div>
         {draft.socialLinks.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/15 px-5 py-8 text-center text-sm text-foreground/55 dark:bg-white/[0.03]">
+          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/15 px-5 py-8 text-center text-sm text-foreground/55 ">
             <p className="mb-4">No social links yet.</p>
             <button
               type="button"
@@ -323,14 +323,14 @@ export default function AdminContactSection({ draft, setDraft }: Props) {
             />
             <div className="space-y-4">
               {filteredSocialLinks.length === 0 ? (
-                <p className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-8 text-center text-sm text-foreground/55 dark:bg-white/[0.02]">
+                <p className="rounded-2xl border border-dashed border-border/70 bg-muted/15 px-4 py-8 text-center text-sm text-foreground/55 dark:bg-muted/20">
                   No links match this filter.
                 </p>
               ) : null}
               {filteredSocialLinks.map(({ item, index }) => (
             <div
               key={`social-${index}-${item.url.slice(0, 24)}`}
-              className="rounded-2xl border border-border/70 bg-background/60 p-4 shadow-sm dark:bg-white/[0.03]"
+              className="rounded-2xl border border-border/70 bg-background/60 p-4 shadow-sm "
             >
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/45">
@@ -414,7 +414,7 @@ export default function AdminContactSection({ draft, setDraft }: Props) {
                   <option value="github">GitHub</option>
                   <option value="website">Website</option>
                 </select>
-                <label className="inline-flex min-h-[46px] items-center gap-3 rounded-2xl border border-border/70 bg-background/40 px-4 text-sm text-foreground/75 dark:bg-white/[0.02]">
+                <label className="inline-flex min-h-[46px] items-center gap-3 rounded-2xl border border-border/70 bg-background/40 px-4 text-sm text-foreground/75 dark:bg-muted/20">
                   <input
                     type="checkbox"
                     checked={item.enabled}
