@@ -12,12 +12,13 @@ type Props = {
   priority?: boolean;
 };
 
-const WORDMARK_LIGHT = "/uploads/hero/awud-digitals-wordmark-light.png";
-const WORDMARK_DARK = "/uploads/hero/awud-digitals-wordmark-dark.png";
+/** Official letterforms (A without crossbar, tracked DIGITALS) — committed under /brand. */
+const WORDMARK_LIGHT = "/brand/awud-wordmark-light.png";
+const WORDMARK_DARK = "/brand/awud-wordmark-dark.png";
 
 /**
- * Exact brand wordmark from the AWUD DIGITALS lockup (not a recreated font).
- * Swaps light/dark assets so the original letterforms stay true.
+ * Exact AWUD DIGITALS wordmark artwork from the brand lockup.
+ * Do not recreate with CSS fonts — the custom A and DIGITALS tracking live in this asset.
  */
 export default function AwudWordmark({ className, priority = false }: Props) {
   const { theme } = useTheme();
@@ -28,9 +29,9 @@ export default function AwudWordmark({ className, priority = false }: Props) {
       <Image
         src={src}
         alt="AWUD DIGITALS"
-        width={360}
-        height={108}
-        className="h-full w-auto max-w-[min(56vw,16.5rem)] object-contain object-left drop-shadow-[0_0.5px_0_rgba(0,0,0,0.18)] dark:drop-shadow-none"
+        width={517}
+        height={165}
+        className="h-full w-auto max-w-[min(56vw,16.5rem)] object-contain object-left"
         priority={priority}
         unoptimized={shouldUseUnoptimizedImage(src)}
       />

@@ -259,7 +259,7 @@ export type SiteContent = {
 
 export const defaultSiteContent: SiteContent = {
   exploreArchitecture: defaultExploreArchitectureContent,
-  siteLogoSrc: "/uploads/hero/awud-digitals-mark.png",
+  siteLogoSrc: "/brand/awud-mark.png",
   /** Filled from CMS / admin; kept empty so shipped defaults never override site copy. */
   heroHeadline: "",
   heroHighlight: "",

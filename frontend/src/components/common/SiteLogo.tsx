@@ -16,25 +16,31 @@ type SiteLogoProps = {
 };
 
 const SIZE = {
-  sm: { wrap: "h-10 gap-2.5 sm:h-11", icon: 40, type: "text-[1.28rem] sm:text-[1.4rem]" },
-  md: { wrap: "h-12 gap-3", icon: 48, type: "text-[1.55rem]" },
-  lg: { wrap: "h-14 gap-3.5", icon: 56, type: "text-[1.75rem]" },
+  sm: { wrap: "h-10 gap-2 sm:h-11", icon: 40, type: "text-[1.28rem] sm:text-[1.4rem]" },
+  md: { wrap: "h-12 gap-2.5", icon: 48, type: "text-[1.55rem]" },
+  lg: { wrap: "h-14 gap-3", icon: 56, type: "text-[1.75rem]" },
 } as const;
 
-const DEFAULT_MARK = "/uploads/hero/awud-digitals-mark.png";
+/** Committed brand mark — always available after deploy (unlike /uploads). */
+const DEFAULT_MARK = "/brand/awud-mark.png";
 
 function resolveMarkSrc(src: string) {
   const value = src.trim();
   if (!value) return DEFAULT_MARK;
-  if (value.includes("awud-digitals-logo") && !value.includes("awud-digitals-mark")) {
+  // Full lockup files / legacy uploads path → use the committed mark
+  if (
+    value.includes("awud-digitals-logo") ||
+    value.includes("awud-digitals-mark") ||
+    value === defaultSiteContent.siteLogoSrc ||
+    value.startsWith("/uploads/hero/awud")
+  ) {
     return DEFAULT_MARK;
   }
-  if (value === defaultSiteContent.siteLogoSrc) return value || DEFAULT_MARK;
   return value;
 }
 
 /**
- * Brand lockup: uploaded icon + official AWUD DIGITALS wordmark artwork.
+ * Official lockup: mark + exact wordmark art (includes the vertical rule + custom type).
  */
 export default function SiteLogo({
   src,
