@@ -12,26 +12,30 @@ type Props = {
   priority?: boolean;
 };
 
-/** Official letterforms (A without crossbar, tracked DIGITALS) — committed under /brand. */
+/**
+ * Official lockup type (open A, custom W/U/D, tracked DIGITALS + rule).
+ * Must use the brand asset — web fonts cannot match these letterforms.
+ */
 const WORDMARK_LIGHT = "/brand/awud-wordmark-light.png";
 const WORDMARK_DARK = "/brand/awud-wordmark-dark.png";
 
-/**
- * Exact AWUD DIGITALS wordmark artwork from the brand lockup.
- * Do not recreate with CSS fonts — the custom A and DIGITALS tracking live in this asset.
- */
 export default function AwudWordmark({ className, priority = false }: Props) {
   const { theme } = useTheme();
   const src = theme === "dark" ? WORDMARK_DARK : WORDMARK_LIGHT;
 
   return (
-    <span className={cn("relative inline-flex h-[1.35em] items-center", className)}>
+    <span
+      className={cn(
+        "relative inline-flex h-[1.32em] items-center",
+        className
+      )}
+    >
       <Image
         src={src}
         alt="AWUD DIGITALS"
         width={517}
         height={165}
-        className="h-full w-auto max-w-[min(56vw,16.5rem)] object-contain object-left"
+        className="h-full w-auto max-w-[min(56vw,16.75rem)] object-contain object-left"
         priority={priority}
         unoptimized={shouldUseUnoptimizedImage(src)}
       />

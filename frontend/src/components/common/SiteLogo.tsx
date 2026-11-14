@@ -27,7 +27,6 @@ const DEFAULT_MARK = "/brand/awud-mark.png";
 function resolveMarkSrc(src: string) {
   const value = src.trim();
   if (!value) return DEFAULT_MARK;
-  // Full lockup files / legacy uploads path → use the committed mark
   if (
     value.includes("awud-digitals-logo") ||
     value.includes("awud-digitals-mark") ||
@@ -40,7 +39,7 @@ function resolveMarkSrc(src: string) {
 }
 
 /**
- * Official lockup: mark + exact wordmark art (includes the vertical rule + custom type).
+ * Official lockup: mark + brand wordmark art (same text as the reference lockup).
  */
 export default function SiteLogo({
   src,

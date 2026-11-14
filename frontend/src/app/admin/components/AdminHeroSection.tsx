@@ -133,8 +133,8 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
           </h4>
         </div>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-foreground/55">
-          Upload the icon/mark only — the site builds the stacked AWUD / DIGITALS wordmark in code
-          (like the official lockup). This image also powers the favicon after save. Default mark:{" "}
+          Upload the icon/mark only — AWUD / DIGITALS uses the official brand wordmark asset (exact
+          letterforms). This image also powers the favicon after save. Default mark:{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
             /brand/awud-mark.png
           </code>
