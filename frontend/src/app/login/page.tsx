@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Loader2, Lock, Mail, Shield } from "lucide-react";
@@ -15,8 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import SiteLogo from "@/components/common/SiteLogo";
 import { defaultSiteContent } from "@/lib/site-content.shared";
-import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 
 export default function LoginPage() {
   const { content } = useSiteContent();
@@ -358,24 +357,11 @@ export default function LoginPage() {
                 )}
               >
                 <div className="mb-8 flex flex-col gap-5">
-                  <div className="flex items-center gap-3.5">
-                    <div className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-white p-1.5 shadow-sm dark:border-white/20">
-                      <Image
-                        src={logoSrc}
-                        alt="Awud Digitals"
-                        width={36}
-                        height={36}
-                        className="object-contain"
-                        priority
-                        unoptimized={shouldUseUnoptimizedImage(logoSrc)}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-display text-lg font-semibold tracking-tight">Awud Digitals</p>
-                      <p className="text-[11px] text-foreground/45">
-                        Founded by {content.aboutYafet.pageTitle}
-                      </p>
-                    </div>
+                  <div className="flex flex-col gap-3">
+                    <SiteLogo src={logoSrc} size="md" priority />
+                    <p className="text-[11px] text-foreground/45">
+                      Founded by {content.aboutYafet.pageTitle}
+                    </p>
                   </div>
                   <div>
                     <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[1.65rem]">Sign in</h2>

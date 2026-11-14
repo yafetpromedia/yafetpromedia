@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +10,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import GoogleTranslateWidget from "@/components/i18n/GoogleTranslateWidgetStable";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import SiteLogo from "@/components/common/SiteLogo";
 import { defaultSiteContent } from "@/lib/site-content.shared";
 import { useHydrated } from "@/lib/use-hydrated";
 import { NAV_SECTION_GROUPS, collectHashSectionHrefs } from "@/lib/nav-sections";
@@ -177,6 +176,17 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Soft veil so page copy can’t read through/above the floating pill while scrolling */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none fixed inset-x-0 top-0 z-40 transition-opacity duration-300",
+          "h-[5.5rem] bg-gradient-to-b from-background via-background/85 to-transparent",
+          "supports-[backdrop-filter]:backdrop-blur-md supports-[backdrop-filter]:from-background/90",
+          isScrolled ? "opacity-100" : "opacity-0"
+        )}
+      />
+
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -192,25 +202,12 @@ export default function Navbar() {
             className={cn(
               "flex w-full max-w-7xl items-center justify-between gap-2 rounded-full border transition-all duration-500",
               isScrolled
-                ? "border-border/70 bg-card/95 px-3 py-2 shadow-sm backdrop-blur-xl sm:px-4 sm:py-2.5"
-                : "border-border/50 bg-card/80 px-3 py-2 backdrop-blur-md sm:px-4 sm:py-2.5"
+                ? "border-border/80 bg-background/95 px-3 py-2 shadow-md backdrop-blur-2xl sm:px-4 sm:py-2.5 dark:bg-card/95"
+                : "border-border/50 bg-card/90 px-3 py-2 backdrop-blur-xl sm:px-4 sm:py-2.5"
             )}
           >
-            <Link href="/" className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5">
-              <div className="relative flex size-8 items-center justify-center overflow-hidden rounded-full border border-border bg-white p-1 shadow-sm transition-colors group-hover:border-foreground/20 sm:size-9 dark:border-white/20">
-                <Image
-                  src={logoSrc}
-                  alt="Awud Digitals Logo"
-                  width={32}
-                  height={32}
-                  className="h-full w-full object-contain"
-                  priority
-                  unoptimized={shouldUseUnoptimizedImage(logoSrc)}
-                />
-              </div>
-              <span className="hidden truncate text-base font-semibold tracking-tight text-foreground md:block xl:text-lg">
-                Awud Digitals
-              </span>
+            <Link href="/" className="group min-w-0 shrink-0" aria-label="Awud Digitals home">
+              <SiteLogo src={logoSrc} size="md" priority />
             </Link>
 
             {/* Desktop links only from xl (1280+) — prevents crush at ~1024 */}

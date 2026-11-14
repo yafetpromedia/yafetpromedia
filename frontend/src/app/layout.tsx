@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import { Michroma, Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/common/SmoothScrollProvider";
 import GlobalChrome from "@/components/common/GlobalChrome";
@@ -24,6 +24,13 @@ const plusJakarta = Plus_Jakarta_Sans({
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+});
+
+/** Brand lockup secondary line (DIGITALS) — geometric tech face close to the mark */
+const michroma = Michroma({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-brand",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -70,7 +77,7 @@ export default async function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className={`${plusJakarta.variable} ${outfit.variable} font-sans antialiased`}
+        className={`${plusJakarta.variable} ${outfit.variable} ${michroma.variable} font-sans antialiased`}
       >
         <ThemeProvider defaultTheme="light">
           <LanguageProvider initialLanguage={initialLanguage}>

@@ -129,24 +129,25 @@ export default function AdminHeroSection({ draft, setDraft }: Props) {
         <div className="mb-6 flex items-center gap-2 border-b border-border/50 pb-5">
           <Images className="size-4 text-primary/90" />
           <h4 className="text-sm font-bold uppercase tracking-[0.14em] text-foreground/75">
-            Site logo (navbar, footer, login & favicon)
+            Brand icon (navbar, footer, login & favicon)
           </h4>
         </div>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-foreground/55">
-          Main mark next to the brand name. This same image also powers the browser tab favicon
-          after save. Use a path like{" "}
+          Upload the icon/mark only — the site builds the AWUD DIGITALS wordmark in code so it
+          stays clear in light and dark mode. This image also powers the favicon after save. Path
+          like{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
-            /uploads/hero/your-logo.jpg
+            /uploads/hero/awud-digitals-mark.png
           </code>
-          , an uploaded URL under{" "}
+          , or an uploaded URL under{" "}
           <code className="rounded-md bg-muted/50 px-1.5 py-0.5 font-mono text-[12px] text-foreground/80">
             /uploads/...
           </code>
           , or an HTTPS image URL.
         </p>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="flex aspect-square w-full max-w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm dark:border-white/20 lg:w-40">
-            <img src={draft.siteLogoSrc} alt="" className="max-h-full max-w-full object-contain p-3" />
+          <div className="flex aspect-square w-full max-w-[120px] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-muted/40 p-3 shadow-sm">
+            <img src={draft.siteLogoSrc} alt="" className="max-h-full max-w-full object-contain" />
           </div>
           <div className="min-w-0 flex-1 space-y-4">
             <label className="block">

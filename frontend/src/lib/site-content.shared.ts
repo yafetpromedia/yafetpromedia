@@ -200,6 +200,13 @@ export type SiteContent = {
   caseStudiesSectionDescription: string;
   caseStudiesSectionCtaLabel: string;
   caseStudiesCards: CaseStudyCard[];
+  pricingSectionTag: string;
+  pricingSectionTitle: string;
+  pricingSectionDescription: string;
+  pricingPackages: PricingPackage[];
+  /** External booking / Calendly URL for #book-a-call */
+  bookingUrl: string;
+  bookingBlurb: string;
   publicationsSectionTag: string;
   publicationsSectionTitle: string;
   publicationsSectionDescription: string;
@@ -252,7 +259,7 @@ export type SiteContent = {
 
 export const defaultSiteContent: SiteContent = {
   exploreArchitecture: defaultExploreArchitectureContent,
-  siteLogoSrc: "/uploads/hero/ModernLuxuriousLogoDesignElevateYourBran-1784749041698-wm2dps.jpg",
+  siteLogoSrc: "/uploads/hero/awud-digitals-mark.png",
   /** Filled from CMS / admin; kept empty so shipped defaults never override site copy. */
   heroHeadline: "",
   heroHighlight: "",
@@ -389,7 +396,7 @@ export const defaultSiteContent: SiteContent = {
   ecosystemSectionTag: "Company Platform",
   ecosystemSectionTitle: "Awud Digitals — the parent company.",
   ecosystemSectionDescription:
-    "Founded by Yafet Tesfaye, Awud Digitals is the holding company and delivery studio. Mr.Software, CampusOne, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
+    "Founded by Yafet Tesfaye, Awud Digitals is the holding company and delivery studio. Mr.Software, Chora, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
   ecosystemParentLabel: "Awud Digitals · Founded by Yafet Tesfaye",
   ecosystemCards: [
     {
@@ -404,7 +411,7 @@ export const defaultSiteContent: SiteContent = {
       featured: true,
     },
     {
-      title: "CampusOne",
+      title: "Chora",
       tagline: "Student ecosystem",
       description:
         "An integrated platform for campuses—student life, administration, and digital services connected in one ecosystem built for Ethiopian institutions.",
@@ -486,7 +493,7 @@ export const defaultSiteContent: SiteContent = {
     {
       name: "Custom",
       priceLabel: "Let's scope it",
-      description: "Mr.Software, CampusOne-style platforms, or multi-system programs.",
+      description: "Mr.Software, Chora-style platforms, or multi-system programs.",
       features: [
         "Discovery workshop and architecture map",
         "Custom product / ops platform build",
@@ -560,7 +567,7 @@ export const defaultSiteContent: SiteContent = {
       "Founded Awud Digitals while still a student, transforming a passion for technology into a growing software and product company.",
       "Created Mr.Software, a software business ecosystem designed to help developers, startups, and organizations build, deploy, manage, and monetize digital products.",
       "Represented a startup initiative during a national innovation event attended by the Ethiopian Prime Minister, gaining exposure to Ethiopia's growing technology ecosystem.",
-      "Launched CampusOne, an education-focused platform built to modernize digital experiences for schools, colleges, and universities.",
+      "Launched Chora, an education-focused platform built to modernize digital experiences for schools, colleges, and universities.",
       "Continuing to expand the Awud Digitals ecosystem through AI-powered products, digital infrastructure, and future technology ventures.",
     ],
     projectsHighlight:
@@ -573,7 +580,7 @@ export const defaultSiteContent: SiteContent = {
           "Build, deploy, publish, manage, and monetize software products from a single ecosystem designed for modern founders and growing organizations.",
       },
       {
-        title: "CampusOne",
+        title: "Chora",
         tagline: "The future of connected education.",
         description:
           "A digital ecosystem that brings students, educators, administrators, and campus services together through one intelligent platform.",

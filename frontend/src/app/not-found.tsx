@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
-import { SITE_NAME, buildPageMetadata } from "@/lib/seo";
+import { DEFAULT_TITLE, SITE_NAME, buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
   title: `Page not found | ${SITE_NAME}`,

@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/app", destination: "/", permanent: false }];
   },
+  async rewrites() {
+    // Browsers still request /favicon.ico by default; serve the CMS-driven /icon.
+    return [{ source: "/favicon.ico", destination: "/icon" }];
+  },
   turbopack: {
     /** Workspace: lockfile lives at monorepo root; include `frontend/`, `backend/`, `db/` in resolution. */
     root: monorepoRoot,

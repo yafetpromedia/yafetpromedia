@@ -124,7 +124,7 @@ export default function AdminEcosystemSection({ draft, setDraft }: Props) {
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-foreground/50">Product cards</p>
-              <p className="mt-1 text-sm text-foreground/55">Mr.Software, CampusOne, and other ecosystem products.</p>
+              <p className="mt-1 text-sm text-foreground/55">Mr.Software, Chora, and other ecosystem products.</p>
             </div>
             <AdminListFilter
               value={filter}

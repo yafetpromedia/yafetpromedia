@@ -13,12 +13,19 @@ import ProcessAndFaq from "@/sections/home/ProcessAndFaq";
 import BookCallSection from "@/sections/home/BookCallSection";
 import ContactSection from "@/sections/home/ContactSection";
 import {
+  CONTACT_CITY,
+  CONTACT_COUNTRY,
+  CONTACT_EMAIL,
+  CONTACT_PHONE_E164,
   DEFAULT_DESCRIPTION,
   DEFAULT_TITLE,
+  FOUNDER_NAME,
   SITE_NAME,
+  SITE_SLOGAN,
   buildPageMetadata,
   faqJsonLd,
   siteUrl,
+  toE164Phone,
 } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,14 +34,9 @@ export async function generateMetadata(): Promise<Metadata> {
     .filter(Boolean)
     .join(" ")
     .trim();
-  const description =
-    content.heroBadge?.trim() ||
-    content.aboutYafet.heroTagline?.trim() ||
-    DEFAULT_DESCRIPTION;
-
   return buildPageMetadata({
     title: headline ? `${headline} | ${SITE_NAME}` : DEFAULT_TITLE,
-    description,
+    description: DEFAULT_DESCRIPTION,
     path: "/",
   });
 }
@@ -46,6 +48,40 @@ export default async function Home() {
   const sameAs = content.socialLinks
     ?.filter((link) => link.enabled && link.url.startsWith("http"))
     .map((link) => link.url);
+
+  const phone = toE164Phone(content.contactPhone) || CONTACT_PHONE_E164;
+  const email = content.contactEmail?.trim() || CONTACT_EMAIL;
+  const founderName = content.aboutYafet.pageTitle?.trim() || FOUNDER_NAME;
+
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${origin}/#founder`,
+    name: founderName,
+    alternateName: ["Yafet", "Yafet Tesfaye"],
+    jobTitle: content.aboutYafet.pageSubtitle || `Founder of ${SITE_NAME}`,
+    description: content.aboutYafet.heroTagline || DEFAULT_DESCRIPTION,
+    url: siteUrl("/about/yafet"),
+    email,
+    telephone: phone,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: CONTACT_CITY,
+      addressCountry: "ET",
+    },
+    nationality: "Ethiopian",
+    worksFor: { "@id": `${origin}/#organization` },
+    founder: { "@id": `${origin}/#organization` },
+    sameAs,
+    knowsAbout: [
+      "Software Development",
+      "Entrepreneurship",
+      "Digital Transformation",
+      "Mr.Software",
+      "Chora",
+      SITE_NAME,
+    ],
+  };
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -62,30 +98,35 @@ export default async function Home() {
     },
     image: siteUrl("/opengraph-image"),
     description: DEFAULT_DESCRIPTION,
-    email: content.contactEmail,
-    telephone: content.contactPhone || undefined,
+    slogan: SITE_SLOGAN,
+    email,
+    telephone: phone,
     sameAs,
     foundingLocation: {
       "@type": "Place",
-      name: "Addis Ababa, Ethiopia",
+      name: `${CONTACT_CITY}, ${CONTACT_COUNTRY}`,
     },
     contactPoint: [
       {
         "@type": "ContactPoint",
+        contactType: "customer service",
+        email,
+        telephone: phone,
+        areaServed: ["ET", "Africa", "Worldwide"],
+        availableLanguage: ["English", "Amharic"],
+      },
+      {
+        "@type": "ContactPoint",
         contactType: "sales",
-        email: content.contactEmail,
-        telephone: content.contactPhone || undefined,
+        email,
+        telephone: phone,
         areaServed: ["ET", "Africa", "Worldwide"],
         availableLanguage: ["English", "Amharic"],
       },
     ],
-    founder: {
-      "@type": "Person",
-      name: content.aboutYafet.pageTitle,
-      jobTitle: content.aboutYafet.pageSubtitle,
-      url: siteUrl("/about/yafet"),
-    },
-    areaServed: ["Ethiopia", "Africa", "Worldwide"],
+    founder: { "@id": `${origin}/#founder` },
+    employee: { "@id": `${origin}/#founder` },
+    areaServed: [CONTACT_COUNTRY, "Africa", "Worldwide"],
     knowsAbout: [
       "Software Development",
       "Web Development",
@@ -95,6 +136,10 @@ export default async function Home() {
       "UI/UX Design",
       "Branding",
       "Digital Transformation",
+      "Mr.Software",
+      "Chora",
+      "Best digital agency Ethiopia",
+      "Enterprise software",
     ],
   };
 
@@ -107,6 +152,7 @@ export default async function Home() {
     description: DEFAULT_DESCRIPTION,
     inLanguage: "en-US",
     publisher: { "@id": `${origin}/#organization` },
+    author: { "@id": `${origin}/#founder` },
   };
 
   const localBusinessJsonLd = {
@@ -116,12 +162,12 @@ export default async function Home() {
     name: SITE_NAME,
     url: origin,
     description: DEFAULT_DESCRIPTION,
-    email: content.contactEmail,
-    telephone: content.contactPhone || undefined,
+    email,
+    telephone: phone,
     image: siteUrl("/opengraph-image"),
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Addis Ababa",
+      addressLocality: CONTACT_CITY,
       addressCountry: "ET",
     },
     geo: {
@@ -137,6 +183,9 @@ export default async function Home() {
       closes: "18:00",
     },
     parentOrganization: { "@id": `${origin}/#organization` },
+    founder: { "@id": `${origin}/#founder` },
+    slogan: SITE_SLOGAN,
+    areaServed: [CONTACT_COUNTRY, "Africa", "Worldwide"],
   };
 
   const serviceListJsonLd = {
@@ -164,6 +213,7 @@ export default async function Home() {
   );
 
   const jsonLd = [
+    personJsonLd,
     organizationJsonLd,
     websiteJsonLd,
     localBusinessJsonLd,

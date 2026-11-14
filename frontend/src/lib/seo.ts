@@ -2,16 +2,43 @@ import type { Metadata } from "next";
 
 export const SITE_NAME = "Awud Digitals";
 export const SITE_TAGLINE = "Building the Future, Digitally.";
-export const DEFAULT_TITLE = `${SITE_NAME} | ${SITE_TAGLINE}`;
+export const SITE_SLOGAN =
+  "Ethiopia's leading digital technology company — best software, websites, and growth systems.";
+export const FOUNDER_NAME = "Yafet Tesfaye";
+/** Display phone (Ethiopia local 0991185321 → international) */
+export const CONTACT_PHONE_DISPLAY = "+251 991 185 321";
+/** E.164 for schema / tel: links */
+export const CONTACT_PHONE_E164 = "+251991185321";
+export const CONTACT_EMAIL = "hello@awuddigitals.com";
+export const CONTACT_CITY = "Addis Ababa";
+export const CONTACT_COUNTRY = "Ethiopia";
+
+export const DEFAULT_TITLE = `${SITE_NAME} | Best Digital Technology Company in Ethiopia`;
 export const DEFAULT_DESCRIPTION =
-  "Awud Digitals is a technology company founded and owned by Yafet Tesfaye, focused on building modern digital solutions for businesses, schools, startups, and organizations. We specialize in software development, artificial intelligence, cloud solutions, web and mobile applications, UI/UX design, branding, and digital transformation.";
+  `Awud Digitals is one of the best technology companies in ${CONTACT_CITY}, ${CONTACT_COUNTRY} — a leading digital agency founded by ${FOUNDER_NAME}. We deliver world-class software development, website design, mobile apps, AI, cloud, UI/UX, branding, and digital transformation for businesses, schools, startups, and organizations across Africa. Call ${CONTACT_PHONE_DISPLAY} or email ${CONTACT_EMAIL}.`;
 
 export const DEFAULT_KEYWORDS = [
   "Awud Digitals",
+  "best digital company Ethiopia",
+  "best software company Ethiopia",
+  "best tech company Addis Ababa",
+  "leading digital agency Ethiopia",
+  "top software company Africa",
+  "best website design Ethiopia",
+  "best web development Addis Ababa",
+  "number one digital agency Ethiopia",
   "Yafet Tesfaye",
+  "Yafet",
+  "Yafet Tesfaye Awud Digitals",
+  "Awud Digitals founder",
+  "0991185321",
+  "+251991185321",
+  "+251 991 185 321",
+  "hello@awuddigitals.com",
   "digital agency Ethiopia",
   "web development Addis Ababa",
   "website design Ethiopia",
+  "software company Addis Ababa",
   "Mr.Software",
   "Chora",
   "business automation",
@@ -22,6 +49,10 @@ export const DEFAULT_KEYWORDS = [
   "growth marketing",
   "software company Ethiopia",
   "AI solutions Africa",
+  "Ethiopian tech founder",
+  "best IT company Ethiopia",
+  "trusted digital partner Africa",
+  "world-class digital solutions",
 ];
 
 const DEFAULT_OG_IMAGE_PATH = "/opengraph-image";
@@ -103,8 +134,11 @@ export function buildPageMetadata({
     title: { absolute: pageTitle },
     description,
     keywords,
-    authors: authors?.map((name) => ({ name })) ?? [{ name: SITE_NAME }],
-    creator: SITE_NAME,
+    authors: authors?.map((name) => ({ name })) ?? [
+      { name: FOUNDER_NAME, url: siteUrl("/about/yafet") },
+      { name: SITE_NAME, url: siteUrl() },
+    ],
+    creator: FOUNDER_NAME,
     publisher: SITE_NAME,
     metadataBase: new URL(siteUrl()),
     alternates: {
@@ -209,7 +243,7 @@ export const rootMetadata: Metadata = {
   },
   applicationName: SITE_NAME,
   referrer: "origin-when-cross-origin",
-  formatDetection: { email: false, address: false, telephone: false },
+  formatDetection: { email: true, address: true, telephone: true },
   appleWebApp: {
     capable: true,
     title: SITE_NAME,
@@ -226,8 +260,30 @@ export const rootMetadata: Metadata = {
   manifest: "/manifest.webmanifest",
   other: {
     "geo.region": "ET-AA",
-    "geo.placename": "Addis Ababa",
+    "geo.placename": CONTACT_CITY,
     "geo.position": "9.03;38.74",
     ICBM: "9.03, 38.74",
+    "og:phone_number": CONTACT_PHONE_E164,
+    "og:email": CONTACT_EMAIL,
+    "contact:phone_number": CONTACT_PHONE_E164,
+    "contact:email": CONTACT_EMAIL,
+    "contact:country_name": CONTACT_COUNTRY,
+    author: FOUNDER_NAME,
+    "business:contact_data:street_address": CONTACT_CITY,
+    "business:contact_data:locality": CONTACT_CITY,
+    "business:contact_data:country_name": CONTACT_COUNTRY,
+    "business:contact_data:email": CONTACT_EMAIL,
+    "business:contact_data:phone_number": CONTACT_PHONE_E164,
   },
 };
+
+/** Normalize CMS / local phone strings to E.164 when possible. */
+export function toE164Phone(raw?: string | null): string {
+  const digits = (raw ?? "").replace(/\D/g, "");
+  if (!digits) return CONTACT_PHONE_E164;
+  if (digits.startsWith("251") && digits.length >= 12) return `+${digits}`;
+  if (digits.startsWith("0") && digits.length === 10) return `+251${digits.slice(1)}`;
+  if (digits.length === 9) return `+251${digits}`;
+  if ((raw ?? "").trim().startsWith("+")) return `+${digits}`;
+  return CONTACT_PHONE_E164;
+}

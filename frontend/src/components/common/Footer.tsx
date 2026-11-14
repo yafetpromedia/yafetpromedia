@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowUpRight,
   AtSign,
@@ -14,8 +13,8 @@ import {
   Phone,
 } from "lucide-react";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
+import SiteLogo from "@/components/common/SiteLogo";
 import { defaultSiteContent } from "@/lib/site-content.shared";
-import { shouldUseUnoptimizedImage } from "@/lib/image-src";
 import { useHydrated } from "@/lib/use-hydrated";
 
 function digitsToDisplayPhone(digits: string): string {
@@ -73,20 +72,8 @@ export default function Footer() {
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-10 xl:gap-12">
           {/* Brand + contact */}
           <div className={trioSpan}>
-            <Link href="/" className="group mb-7 inline-flex items-center gap-3">
-              <div className="relative flex size-11 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm transition-colors group-hover:border-accent/35 dark:border-white/20">
-                <Image
-                  src={logoSrc}
-                  alt="Awud Digitals Logo"
-                  width={30}
-                  height={30}
-                  className="size-full object-contain"
-                  unoptimized={shouldUseUnoptimizedImage(logoSrc)}
-                />
-              </div>
-              <span className="text-xl font-semibold tracking-tight text-foreground md:text-[1.35rem]">
-                Awud Digitals
-              </span>
+            <Link href="/" className="group mb-7 inline-flex" aria-label="Awud Digitals home">
+              <SiteLogo src={logoSrc} size="md" />
             </Link>
 
             <p className="mb-8 max-w-[26rem] text-[15px] leading-relaxed text-foreground/58 md:text-base">

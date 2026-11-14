@@ -45,6 +45,10 @@ async function loadLogoBytes(src: string): Promise<{ data: Buffer; contentType: 
   return null;
 }
 
+const ICON_HEADERS = {
+  "Cache-Control": "public, max-age=0, must-revalidate",
+};
+
 function letterFallback(size: number, radius: number) {
   return new ImageResponse(
     (
@@ -65,7 +69,7 @@ function letterFallback(size: number, radius: number) {
         A
       </div>
     ),
-    { width: size, height: size }
+    { width: size, height: size, headers: ICON_HEADERS }
   );
 }
 
@@ -107,7 +111,7 @@ export async function brandIconResponse(size: number, radius: number): Promise<R
             />
           </div>
         ),
-        { width: size, height: size }
+        { width: size, height: size, headers: ICON_HEADERS }
       );
     }
   } catch {
