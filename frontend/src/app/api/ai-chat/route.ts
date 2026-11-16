@@ -157,80 +157,16 @@ export async function POST(request: Request) {
 
     let providerError: string | null = null;
 
-    const freeModel = resolveFreeModelConfig();
-    if (freeModel) {
-      try {
-        if (wantsStream) {
-          const upstream = await requestChatCompletionStream({
-            baseUrl: freeModel.baseUrl,
-            apiKey: freeModel.apiKey,
-            model: freeModel.model,
-            systemPrompt,
-            history,
-            userMessage,
-          });
-          return streamOpenAiCompatibleReply(upstream, userMessage);
-        }
-
-        const reply = await requestChatCompletion({
-          baseUrl: freeModel.baseUrl,
-          apiKey: freeModel.apiKey,
-          model: freeModel.model,
-          systemPrompt,
-          history,
-          userMessage,
-        });
-        await logChat(userMessage, reply);
-        return Response.json({ reply, provider: "FreeModel" });
-      } catch (error) {
-        providerError = error instanceof Error ? error.message : "FreeModel request failed";
-        console.error("FreeModel request failed", {
-          model: freeModel.model,
-          baseUrl: freeModel.baseUrl,
-          reason: providerError,
-        });
-      }
-    }
-
-    const openAiKey = process.env.OPENAI_API_KEY?.trim();
-    if (openAiKey) {
-      const model = process.env.OPENAI_MODEL ?? "gpt-4.1-mini";
-      try {
-        if (wantsStream) {
-          const upstream = await requestChatCompletionStream({
-            baseUrl: "https://api.openai.com/v1",
-            apiKey: openAiKey,
-            model,
-            systemPrompt,
-            history,
-            userMessage,
-          });
-          return streamOpenAiCompatibleReply(upstream, userMessage);
-        }
-
-        const reply = await requestChatCompletion({
-          baseUrl: "https://api.openai.com/v1",
-          apiKey: openAiKey,
-          model,
-          systemPrompt,
-          history,
-          userMessage,
-        });
-        await logChat(userMessage, reply);
-        return Response.json({ reply, provider: "OpenAI" });
-      } catch (error) {
-        providerError = error instanceof Error ? error.message : "OpenAI request failed";
-        console.error("OpenAI request failed", { model, reason: providerError });
-      }
-    }
-
+    // Prefer Gemini when configured — FreeModel often fails first and hid real Gemini replies.
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
     if (geminiKey) {
-      const preferredGeminiModel = process.env.GEMINI_MODEL ?? "gemini-1.5-flash-latest";
+      const preferredGeminiModel = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
       const geminiModels = [
         preferredGeminiModel,
-        "gemini-1.5-flash-latest",
+        "gemini-2.5-flash",
         "gemini-2.0-flash",
+        "gemini-flash-latest",
+        "gemini-1.5-flash",
       ].filter((model, index, all) => model && all.indexOf(model) === index);
 
       for (const geminiModel of geminiModels) {
@@ -266,13 +202,85 @@ export async function POST(request: Request) {
             throw new Error(data.error?.message ?? "Gemini did not return a candidate");
           }
 
-          const reply = data.candidates[0]?.content?.parts?.[0]?.text?.trim() ?? fallbackReply;
+          const reply =
+            data.candidates[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim() ||
+            fallbackReply;
+          if (!reply) {
+            throw new Error("Gemini returned an empty reply");
+          }
           await logChat(userMessage, reply);
-          return Response.json({ reply, provider: "Gemini" });
+          return Response.json({ reply, provider: "Gemini", model: geminiModel });
         } catch (error) {
           providerError = error instanceof Error ? error.message : "Gemini request failed";
           console.error("Gemini request failed", { model: geminiModel, reason: providerError });
         }
+      }
+    }
+
+    const openAiKey = process.env.OPENAI_API_KEY?.trim();
+    if (openAiKey) {
+      const model = process.env.OPENAI_MODEL ?? "gpt-4.1-mini";
+      try {
+        if (wantsStream) {
+          const upstream = await requestChatCompletionStream({
+            baseUrl: "https://api.openai.com/v1",
+            apiKey: openAiKey,
+            model,
+            systemPrompt,
+            history,
+            userMessage,
+          });
+          return streamOpenAiCompatibleReply(upstream, userMessage);
+        }
+
+        const reply = await requestChatCompletion({
+          baseUrl: "https://api.openai.com/v1",
+          apiKey: openAiKey,
+          model,
+          systemPrompt,
+          history,
+          userMessage,
+        });
+        await logChat(userMessage, reply);
+        return Response.json({ reply, provider: "OpenAI" });
+      } catch (error) {
+        providerError = error instanceof Error ? error.message : "OpenAI request failed";
+        console.error("OpenAI request failed", { model, reason: providerError });
+      }
+    }
+
+    const freeModel = resolveFreeModelConfig();
+    if (freeModel) {
+      try {
+        if (wantsStream) {
+          const upstream = await requestChatCompletionStream({
+            baseUrl: freeModel.baseUrl,
+            apiKey: freeModel.apiKey,
+            model: freeModel.model,
+            systemPrompt,
+            history,
+            userMessage,
+          });
+          return streamOpenAiCompatibleReply(upstream, userMessage);
+        }
+
+        const reply = await requestChatCompletion({
+          baseUrl: freeModel.baseUrl,
+          apiKey: freeModel.apiKey,
+          model: freeModel.model,
+          systemPrompt,
+          history,
+          userMessage,
+        });
+        await logChat(userMessage, reply);
+        return Response.json({ reply, provider: "FreeModel" });
+      } catch (error) {
+        providerError = error instanceof Error ? error.message : "FreeModel request failed";
+        console.error("FreeModel request failed", {
+          model: freeModel.model,
+          baseUrl: freeModel.baseUrl,
+          reason: providerError,
+        });
       }
     }
 

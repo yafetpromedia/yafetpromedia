@@ -184,9 +184,10 @@ export function resolveActiveAiProvider():
   | "Gemini"
   | "OpenAI"
   | "Fallback" {
-  if (resolveFreeModelConfig()) return "FreeModel";
+  // Match /api/ai-chat try order: Gemini → OpenAI → FreeModel → offline
   if (process.env.GEMINI_API_KEY?.trim()) return "Gemini";
   if (process.env.OPENAI_API_KEY?.trim()) return "OpenAI";
+  if (resolveFreeModelConfig()) return "FreeModel";
   return "Fallback";
 }
 
