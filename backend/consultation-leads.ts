@@ -19,6 +19,8 @@ function buildLeadMessage(input: ConsultationLeadInput): string {
     "",
     `Project: ${session.projectType || "TBD"}`,
     `Industry: ${session.industry || "General"}`,
+    `Need: ${session.requirements.need || "Not specified"}`,
+    `Expectations: ${session.requirements.expectations || "Not specified"}`,
     `Products: ${session.requirements.products || "Not specified"}`,
     `Payments: ${payments}`,
     `Budget: ${session.budget || "TBD"}`,

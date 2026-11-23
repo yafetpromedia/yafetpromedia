@@ -32,8 +32,8 @@ function inferPhase(row: {
   if (row.client_email.trim()) return "contact";
   if (row.timeline.trim()) return "contact";
   if (row.budget.trim()) return "timeline";
-  if (row.industry.trim()) return "budget";
-  if (row.project_type.trim()) return "industry";
+  if (row.industry.trim()) return "expectations";
+  if (row.project_type.trim()) return "need";
   return "welcome";
 }
 

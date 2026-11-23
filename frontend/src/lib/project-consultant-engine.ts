@@ -45,10 +45,62 @@ function inferProjectType(text: string): string {
     return "Ecommerce Website";
   if (lower.includes("school") || lower.includes("campus") || lower.includes("education"))
     return "School / Education Platform";
-  if (lower.includes("saas") || lower.includes("software")) return "SaaS Platform";
+  if (lower.includes("saas") || lower.includes("software") || lower.includes("platform"))
+    return "SaaS Platform";
   if (lower.includes("mobile") || lower.includes("app")) return "Mobile Application";
-  if (lower.includes("brand") || lower.includes("website")) return "Business Website";
-  return text.trim().slice(0, 120) || "Custom Digital Project";
+  if (lower.includes("brand") || lower.includes("website") || lower.includes("landing"))
+    return "Business Website";
+  const clipped = text.trim().slice(0, 80);
+  return clipped || "Custom Digital Project";
+}
+
+function mapPaymentMethods(text: string, selections?: string[]): string[] {
+  if (selections?.length) return selections;
+  const lower = text.toLowerCase();
+  const found = PAYMENT_OPTIONS.filter((opt) => lower.includes(opt.toLowerCase()));
+  if (found.length) return [...found];
+  if (!text.trim()) return [];
+  return text
+    .split(/[,;/|]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function mapBudget(text: string, selection?: string): string {
+  if (selection && (BUDGET_OPTIONS as readonly string[]).includes(selection)) return selection;
+  const lower = text.toLowerCase();
+  if (lower.includes("enterprise") || lower.includes("15,000") || lower.includes("15000")) {
+    return "Enterprise";
+  }
+  if (
+    lower.includes("2,000") ||
+    lower.includes("2000") ||
+    lower.includes("10,000") ||
+    lower.includes("10000") ||
+    lower.includes("mid")
+  ) {
+    return "$2,000–$10,000";
+  }
+  if (lower.includes("500") || lower.includes("1,000") || lower.includes("1000") || lower.includes("small")) {
+    return "$500–$2,000";
+  }
+  if (lower.includes("under") || lower.includes("cheap") || lower.includes("low")) {
+    return "Under $500";
+  }
+  const exact = (BUDGET_OPTIONS as readonly string[]).find((o) => o.toLowerCase() === lower.trim());
+  return exact || text.trim().slice(0, 80) || "Flexible";
+}
+
+function mapTimeline(text: string, selection?: string): string {
+  if (selection && (TIMELINE_OPTIONS as readonly string[]).includes(selection)) return selection;
+  const lower = text.toLowerCase();
+  if (lower.includes("asap") || lower.includes("urgent") || lower.includes("immediately")) return "ASAP";
+  if (lower.includes("1 month") || lower.includes("one month") || lower.includes("4 week")) return "1 Month";
+  if (lower.includes("3 month") || lower.includes("three month") || lower.includes("quarter")) return "3 Months";
+  if (lower.includes("flex") || lower.includes("no rush") || lower.includes("whenever")) return "Flexible";
+  const exact = (TIMELINE_OPTIONS as readonly string[]).find((o) => o.toLowerCase() === lower.trim());
+  return exact || text.trim().slice(0, 80) || "Flexible";
 }
 
 function recommendFeatures(projectType: string, industry: string): string[] {
@@ -137,43 +189,205 @@ export function leadScoreLabel(score: number): string {
   return "Early Stage";
 }
 
+function buildClientBriefMarkdown(input: {
+  projectType: string;
+  industry: string;
+  products: string;
+  need: string;
+  expectations: string;
+  payments: string[];
+  timeline: string;
+  budget: string;
+  recommendedFeatures: string[];
+  estimatedTimeline: string;
+  estimatedCost: string;
+  clientSummary: string;
+}): string {
+  const paymentLine = input.payments.length
+    ? input.payments.join(", ")
+    : "To be decided together";
+
+  return [
+    "# Your Project Brief",
+    "",
+    "## In plain terms",
+    "",
+    input.clientSummary,
+    "",
+    "## What you need",
+    "",
+    input.need,
+    "",
+    "## What success looks like",
+    "",
+    input.expectations,
+    "",
+    "## What you told us",
+    "",
+    `* **What you’re building:** ${input.projectType || "To be confirmed"}`,
+    `* **Who it’s for:** ${input.industry || "General audience"}`,
+    `* **What it should do:** ${input.products}`,
+    `* **Payments:** ${paymentLine}`,
+    `* **When you want it:** ${input.timeline || "Flexible"}`,
+    `* **Budget range:** ${input.budget || "To be discussed"}`,
+    "",
+    "## What we’ll include",
+    "",
+    "These are the building blocks we recommend so the product is useful from day one:",
+    "",
+    ...input.recommendedFeatures.map((f) => `✅ ${f}`),
+    "",
+    "## Timeline & investment",
+    "",
+    `* **Suggested delivery window:** ${input.estimatedTimeline}`,
+    `* **Estimated investment:** ${input.estimatedCost}`,
+    "",
+    "These are planning estimates based on what you shared. A short discovery call locks the final scope and quote.",
+    "",
+    "## Next steps",
+    "",
+    "1. Review this brief and note anything missing or unclear.",
+    "2. Reply or book a consultation so we can refine priorities.",
+    "3. We’ll turn this into a clear proposal and build plan.",
+  ].join("\n");
+}
+
+function buildTeamBriefMarkdown(input: {
+  session: ConsultationSession;
+  products: string;
+  payments: string[];
+  complexity: "Low" | "Medium" | "High";
+  recommendedFeatures: string[];
+  estimatedTimeline: string;
+  estimatedCost: string;
+  leadScore: number;
+  leadLabel: string;
+}): string {
+  const { session } = input;
+  const history = session.requirements.conversationHistory ?? [];
+  const highlights = history
+    .filter((m) => m.role === "user")
+    .slice(-6)
+    .map((m) => `- ${m.content.slice(0, 220)}`)
+    .join("\n");
+
+  const need = session.requirements.need?.trim() || "Not captured";
+  const expectations = session.requirements.expectations?.trim() || "Not captured";
+
+  return [
+    "# Internal Consultation Brief",
+    "",
+    "## Opportunity snapshot",
+    "",
+    `* **Lead label:** ${input.leadLabel} (score ${input.leadScore}/100)`,
+    `* **Project type:** ${session.projectType || "TBD"}`,
+    `* **Industry / audience:** ${session.industry || "General"}`,
+    `* **Complexity:** ${input.complexity}`,
+    `* **Est. delivery:** ${input.estimatedTimeline}`,
+    `* **Est. cost band:** ${input.estimatedCost}`,
+    `* **Stated budget:** ${session.budget || "Unknown"}`,
+    `* **Desired timeline:** ${session.timeline || "Unknown"}`,
+    "",
+    "## Core need (why now)",
+    "",
+    need,
+    "",
+    "## Final expectations (definition of done)",
+    "",
+    expectations,
+    "",
+    "## Requirements (structured)",
+    "",
+    `* **Scope / products:** ${input.products}`,
+    `* **Payments:** ${input.payments.length ? input.payments.join(", ") : "None specified"}`,
+    `* **Contact:** ${session.clientName || "—"} <${session.clientEmail || "no email"}>`,
+    "",
+    "## Recommended feature set",
+    "",
+    ...input.recommendedFeatures.map((f) => `- ${f}`),
+    "",
+    "## Fit & delivery notes",
+    "",
+    `* Match to Awud capabilities for a ${input.complexity.toLowerCase()}-complexity ${session.projectType || "digital"} build.`,
+    `* Align proposal phases to their ${session.timeline || "flexible"} timeline and ${session.budget || "open"} budget.`,
+    "* Validate that recommended features map to the stated need and final expectations.",
+    "* Confirm integrations, content ownership, and go-live owners on the discovery call.",
+    "",
+    "## Conversation signals",
+    "",
+    highlights || "- (No free-text history captured — selections only.)",
+    "",
+    "## Open questions / risks",
+    "",
+    "- Confirm must-have vs nice-to-have features before quoting.",
+    "- Re-state success criteria on the call and get explicit sign-off.",
+    "- Validate payment providers and compliance needs for their market.",
+    "- Check content readiness (copy, brand assets, product data).",
+    "",
+    "## Recommended next actions",
+    "",
+    "1. Send / confirm they received the client brief.",
+    "2. Book a discovery call; walk need → expectations → scope against this brief.",
+    "3. Prepare a phased proposal with clear milestones and payment schedule.",
+  ].join("\n");
+}
+
 export function buildProjectBrief(session: ConsultationSession): ProjectBrief {
   const payments = session.requirements.paymentMethods ?? [];
   const products = session.requirements.products?.trim() || "Not specified";
+  const need =
+    session.requirements.need?.trim() ||
+    session.requirements.notes?.trim() ||
+    "We’ll clarify the core problem on the discovery call.";
+  const expectations =
+    session.requirements.expectations?.trim() ||
+    "A working product that matches the scope above and is ready for real users.";
   const complexity = estimateComplexity(session.projectType, session.budget);
   const recommendedFeatures = recommendFeatures(session.projectType, session.industry);
   const estimatedTimeline = estimateDuration(session.timeline, complexity);
   const estimatedCost = estimateCost(session.budget, complexity);
-  const leadLabel = leadScoreLabel(computeLeadScore(session));
+  const leadScore = computeLeadScore(session);
+  const leadLabel = leadScoreLabel(leadScore);
+  const industry = session.industry || "General";
+  const projectType = session.projectType || "Digital project";
 
-  const markdown = [
-    "# Project Brief",
-    "",
-    "### Client Requirements",
-    "",
-    `* Project Type: ${session.projectType || "TBD"}`,
-    `* Industry: ${session.industry || "General"}`,
-    `* Products: ${products}`,
-    `* Payments: ${payments.length ? payments.join(", ") : "TBD"}`,
-    `* Timeline: ${session.timeline || "TBD"}`,
-    `* Budget: ${session.budget || "TBD"}`,
-    "",
-    "### Recommended Features",
-    "",
-    ...recommendedFeatures.map((f) => `✅ ${f}`),
-    "",
-    "### Estimated Timeline",
-    "",
+  const clientSummary = [
+    `You’re looking at a ${projectType.toLowerCase()} for ${industry}.`,
+    `Core need: ${need.length > 120 ? `${need.slice(0, 117)}…` : need}`,
+    `Success looks like: ${expectations.length > 120 ? `${expectations.slice(0, 117)}…` : expectations}`,
+    `Planning estimate: ${estimatedTimeline} for about ${estimatedCost}.`,
+  ].join(" ");
+
+  const markdown = buildClientBriefMarkdown({
+    projectType: session.projectType,
+    industry,
+    products,
+    need,
+    expectations,
+    payments,
+    timeline: session.timeline,
+    budget: session.budget,
+    recommendedFeatures,
     estimatedTimeline,
-    "",
-    "### Estimated Cost",
-    "",
     estimatedCost,
-  ].join("\n");
+    clientSummary,
+  });
+
+  const teamMarkdown = buildTeamBriefMarkdown({
+    session,
+    products,
+    payments,
+    complexity,
+    recommendedFeatures,
+    estimatedTimeline,
+    estimatedCost,
+    leadScore,
+    leadLabel,
+  });
 
   return {
     projectType: session.projectType,
-    industry: session.industry || "General",
+    industry,
     products,
     payments,
     timeline: session.timeline,
@@ -183,7 +397,9 @@ export function buildProjectBrief(session: ConsultationSession): ProjectBrief {
     estimatedCost,
     complexity,
     leadLabel,
+    clientSummary,
     markdown,
+    teamMarkdown,
   };
 }
 
@@ -206,7 +422,8 @@ export function advanceConsultation(input: StepInput): {
     return {
       session,
       response: {
-        reply: "Hello! I'm your AI Project Consultant. What would you like to build today?",
+        reply:
+          "Hi — I'm your Awud project consultant. Tell me in your own words what you want to build, and I'll shape a clear brief with you.",
         phase: "intent",
       },
     };
@@ -214,27 +431,58 @@ export function advanceConsultation(input: StepInput): {
 
   if (session.phase === "intent") {
     session.projectType = inferProjectType(text);
-    session.requirements.products = text;
+    session.requirements.notes = text.slice(0, 500);
+    session.requirements.products = text.slice(0, 220);
+    session.phase = "need";
+    return {
+      session,
+      response: {
+        reply: `Got it — sounds like a ${session.projectType.toLowerCase()}. What’s the real need behind this — what problem or opportunity are you trying to fix, and why now?`,
+        phase: "need",
+      },
+    };
+  }
+
+  if (session.phase === "need") {
+    session.requirements.need = text.slice(0, 500) || session.requirements.notes || "";
+    if (text.length > 12) {
+      session.requirements.notes = [session.requirements.notes, text].filter(Boolean).join(" | ").slice(0, 800);
+    }
     session.phase = "industry";
     return {
       session,
       response: {
-        reply: `Great — a ${session.projectType.toLowerCase()} sounds like a strong fit. What industry or niche is this for, and what will you sell or offer?`,
+        reply:
+          "That context helps. Who is this for (industry or audience), and what should those people be able to do once it’s live?",
         phase: "industry",
       },
     };
   }
 
   if (session.phase === "industry") {
-    session.industry = text.slice(0, 120) || "General";
-    if (!session.requirements.products || session.requirements.products === session.projectType) {
-      session.requirements.products = text;
+    session.industry = text.slice(0, 160) || "General";
+    if (text.length > 12) {
+      session.requirements.products = text.slice(0, 280);
     }
+    session.phase = "expectations";
+    return {
+      session,
+      response: {
+        reply:
+          "Clear. When this project is finished, what does success look like for you — the final result you’d expect to see?",
+        phase: "expectations",
+      },
+    };
+  }
+
+  if (session.phase === "expectations") {
+    session.requirements.expectations = text.slice(0, 500) || "Working product ready for real users";
     session.phase = "payments";
     return {
       session,
       response: {
-        reply: "Which payment methods do you need?",
+        reply:
+          "Understood — that’s our definition of done. How should people pay (if at all)? You can type something like “Chapa and Telebirr”, or tap a few options below.",
         phase: "payments",
         choices: choicesFrom(PAYMENT_OPTIONS),
         multiSelect: true,
@@ -243,17 +491,13 @@ export function advanceConsultation(input: StepInput): {
   }
 
   if (session.phase === "payments") {
-    session.requirements.paymentMethods = input.selections?.length
-      ? input.selections
-      : text
-          .split(/[,;]+/)
-          .map((s) => s.trim())
-          .filter(Boolean);
+    session.requirements.paymentMethods = mapPaymentMethods(text, input.selections);
     session.phase = "budget";
     return {
       session,
       response: {
-        reply: "What is your estimated budget?",
+        reply:
+          "Noted. Roughly what budget range feels realistic for this build? Type a number/range, or pick a tier below.",
         phase: "budget",
         choices: choicesFrom(BUDGET_OPTIONS),
       },
@@ -261,12 +505,13 @@ export function advanceConsultation(input: StepInput): {
   }
 
   if (session.phase === "budget") {
-    session.budget = input.selections?.[0] ?? text;
+    session.budget = mapBudget(text, input.selections?.[0]);
     session.phase = "timeline";
     return {
       session,
       response: {
-        reply: "When do you need the project completed?",
+        reply:
+          "When do you want this live? You can say “ASAP”, “about 3 months”, or tap a timeline below.",
         phase: "timeline",
         choices: choicesFrom(TIMELINE_OPTIONS),
       },
@@ -274,13 +519,13 @@ export function advanceConsultation(input: StepInput): {
   }
 
   if (session.phase === "timeline") {
-    session.timeline = input.selections?.[0] ?? text;
+    session.timeline = mapTimeline(text, input.selections?.[0]);
     session.phase = "contact";
     return {
       session,
       response: {
         reply:
-          "Almost done — share your name and email so our team can follow up (e.g. Yafet, hello@company.com). Or tap Skip to see your brief now.",
+          "Perfect — I have enough to draft your brief. Share your name and email so we can send it and follow up (e.g. Yafet, hello@company.com). Or skip to preview the brief now.",
         phase: "contact",
       },
     };
@@ -299,7 +544,8 @@ export function advanceConsultation(input: StepInput): {
     return {
       session,
       response: {
-        reply: "Here's your personalized project brief. Our team can turn this into a formal proposal.",
+        reply:
+          "Here’s your project brief — written in plain language for you, with the detail our team needs to prepare a formal proposal.",
         phase: "complete",
         complete: true,
         brief,

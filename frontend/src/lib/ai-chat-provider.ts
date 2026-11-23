@@ -57,7 +57,7 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     "- If you do not know something outside this brief, say so and offer contact details.",
     "",
     "Project Planner (Plan tab in this same AI panel):",
-    "- A guided wizard that asks about project type, industry, payment methods, budget, and timeline — then generates a downloadable project brief with feature recommendations and cost/timeline estimates.",
+    "- A guided Plan chat that digs into what they want to build, the real need, audience, final success expectations, payments, budget, and timeline — then generates a client-friendly brief plus an internal structured brief.",
     "- Recommend it when the user wants to start a project, get a quote, scope a build, plan a website/app, or needs a formal proposal.",
     `- When you recommend the Plan tab, end your reply with exactly ${AI_PLAN_ACTION_MARKER} on its own line. The app shows an Open Plan button — never mention this token in your visible text.`,
     "",

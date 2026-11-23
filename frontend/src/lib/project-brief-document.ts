@@ -1,5 +1,5 @@
 import {
-  stripInternalBriefSections,
+  clientFacingBriefMarkdown,
   type ProjectBrief,
 } from "@/lib/project-consultant.shared";
 
@@ -27,7 +27,7 @@ export function brandLogoUrl(env?: Record<string, string | undefined>): string {
 
 /** Client-facing markdown for downloads (no internal sales notes). */
 export function clientBriefMarkdown(brief: ProjectBrief): string {
-  return stripInternalBriefSections(brief.markdown);
+  return clientFacingBriefMarkdown(brief);
 }
 
 export function buildClientBriefEmailContent(input: {
@@ -43,11 +43,13 @@ export function buildClientBriefEmailContent(input: {
 
   const subject = `Your Awud Digitals project brief — ${brief.projectType || "Project"}`.slice(0, 180);
 
+  const summary = brief.clientSummary?.trim();
   const text = [
     `Hi ${name},`,
     "",
-    "Thank you for planning with Awud Digitals. Here is your personalized project brief.",
+    "Thank you for planning with Awud Digitals. Here is your personalized project brief — written so it’s easy to share with your team.",
     "",
+    ...(summary ? [summary, ""] : []),
     `Project: ${brief.projectType}`,
     `Industry: ${brief.industry}`,
     `Scope: ${brief.products}`,
@@ -55,7 +57,7 @@ export function buildClientBriefEmailContent(input: {
     `Preferred timeline: ${brief.timeline}`,
     `Budget range: ${brief.budget}`,
     "",
-    "Recommended features:",
+    "What we’ll include:",
     features || "• Discovery workshop",
     "",
     `Estimated delivery: ${brief.estimatedTimeline}`,
@@ -87,7 +89,12 @@ export function buildClientBriefEmailContent(input: {
           <h1 style="margin:8px 0 0;font-size:24px;line-height:1.25;color:#fafafa;font-weight:600;">Your project brief</h1>
         </td></tr>
         <tr><td style="padding:28px;">
-          <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#444;">Hi ${escapeHtml(name)}, thanks for planning with us. Here is a clear summary of what we captured.</p>
+          <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#444;">Hi ${escapeHtml(name)}, thanks for planning with us. Here is a clear summary written for you and your stakeholders.</p>
+          ${
+            summary
+              ? `<p style="margin:0 0 20px;padding:14px 16px;border-radius:14px;background:#f7f5f1;border:1px solid #ebe6df;font-size:14px;line-height:1.6;color:#333;">${escapeHtml(summary)}</p>`
+              : ""
+          }
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.55;">
             <tr><td style="padding:6px 0;color:#888;width:130px;">Project</td><td style="padding:6px 0;font-weight:600;">${escapeHtml(brief.projectType)}</td></tr>
             <tr><td style="padding:6px 0;color:#888;">Industry</td><td style="padding:6px 0;">${escapeHtml(brief.industry)}</td></tr>

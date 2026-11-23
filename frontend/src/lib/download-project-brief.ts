@@ -61,6 +61,16 @@ export function downloadBriefPdf(brief: ProjectBrief) {
   doc.text(titleLines, margin, y);
   y += titleLines.length * 24 + 10;
 
+  if (brief.clientSummary?.trim()) {
+    ensureSpace(40);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(70, 70, 70);
+    const summaryLines = doc.splitTextToSize(brief.clientSummary.trim(), maxW);
+    doc.text(summaryLines, margin, y);
+    y += summaryLines.length * 14 + 18;
+  }
+
   const rows: [string, string][] = [
     ["Industry", brief.industry],
     ["Scope", brief.products],

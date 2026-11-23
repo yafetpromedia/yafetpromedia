@@ -13,9 +13,10 @@ import {
   createSession,
   type ConsultationSession,
 } from "@/lib/project-consultant-engine";
-import { briefMarkdownForTeam, stripInternalBriefSections } from "@/lib/project-consultant.shared";
+import { briefMarkdownForTeam } from "@/lib/project-consultant.shared";
 import {
   generateConsultantBrief,
+  generateConsultantStepReply,
   isConsultantLlmAvailable,
 } from "@/lib/project-consultant-llm";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
@@ -118,6 +119,17 @@ export async function POST(request: Request) {
   const llmEnabled = isConsultantLlmAvailable();
   let briefLlmUsed = false;
 
+  // Natural chat replies for gathering steps (paraphrase + one next question).
+  if (llmEnabled && !response.complete && response.reply?.trim()) {
+    const natural = await generateConsultantStepReply(
+      workingSession,
+      userTurn,
+      response.phase,
+      response.reply
+    );
+    response = { ...response, reply: natural };
+  }
+
   if (llmEnabled && response.complete && response.brief) {
     const enhanced = await generateConsultantBrief(workingSession, response.brief);
     response = { ...response, brief: enhanced };
@@ -169,7 +181,7 @@ export async function POST(request: Request) {
             [workingSession.projectType, workingSession.industry].filter(Boolean).join(" — ") ||
             "AI Consultation",
           phone: "",
-          message: stripInternalBriefSections(response.brief.markdown).slice(0, 4000),
+          message: teamBriefMarkdown.slice(0, 4000),
           inquiryType: "sales",
         }).catch(() => undefined);
 

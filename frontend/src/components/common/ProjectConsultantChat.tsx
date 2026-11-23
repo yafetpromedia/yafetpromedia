@@ -52,7 +52,7 @@ function BriefCard({ brief, leadScore }: { brief: ProjectBrief; leadScore?: numb
     { label: "Payments", value: brief.payments.join(", ") || "—" },
     { label: "Timeline", value: brief.timeline },
     { label: "Budget", value: brief.budget },
-  ];
+  ].filter((row) => row.value.trim());
 
   return (
     <div className="mt-3 overflow-hidden rounded-[1.25rem] border border-border/80 bg-card shadow-[0_12px_40px_-28px_rgba(12,12,12,0.35)]">
@@ -61,6 +61,9 @@ function BriefCard({ brief, leadScore }: { brief: ProjectBrief; leadScore?: numb
           Project brief
         </p>
         <h4 className="mt-1 font-display text-lg font-semibold tracking-tight">{brief.projectType}</h4>
+        {brief.clientSummary ? (
+          <p className="mt-2 text-[13px] leading-relaxed text-white/70">{brief.clientSummary}</p>
+        ) : null}
       </div>
       <div className="space-y-3 px-4 py-4 text-sm">
         <dl className="space-y-2.5">
@@ -378,82 +381,95 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
             )}
           </div>
 
-          {choices && choices.length > 0 && !brief && (
-            <div className="border-t border-border/60 px-4 py-3">
-              <div className="flex flex-wrap gap-2">
-                {choices.map((c) => {
-                  const active = picked.includes(c.id);
-                  return (
+          {!brief && (
+            <div className="border-t border-border/70 p-3">
+              {choices && choices.length > 0 ? (
+                <div className="mb-3">
+                  <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-foreground/40">
+                    Suggestions — or type your own
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {choices.map((c) => {
+                      const activeChoice = picked.includes(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => handleChoiceClick(c.id, activeChoice)}
+                          className={cn(
+                            "rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                            activeChoice
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border text-foreground/75 hover:border-primary/40"
+                          )}
+                        >
+                          {c.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {multiSelect && picked.length > 0 ? (
                     <button
-                      key={c.id}
                       type="button"
-                      disabled={loading}
-                      onClick={() => handleChoiceClick(c.id, active)}
-                      className={cn(
-                        "rounded-full border px-3 py-1.5 text-xs font-medium transition",
-                        active
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border text-foreground/75 hover:border-primary/40"
-                      )}
+                      disabled={!picked.length || loading}
+                      onClick={() => void confirmSelections(picked)}
+                      className="mt-3 w-full rounded-xl bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40"
                     >
-                      {c.label}
+                      Continue with selected
                     </button>
-                  );
-                })}
-              </div>
-              {multiSelect && picked.length > 0 && (
+                  ) : null}
+                </div>
+              ) : null}
+
+              {phase === "contact" ? (
                 <button
                   type="button"
-                  disabled={!picked.length || loading}
-                  onClick={() => void confirmSelections(picked)}
-                  className="mt-3 w-full rounded-xl bg-primary py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40"
-                >
-                  Continue
-                </button>
-              )}
-            </div>
-          )}
-
-          {!brief && phase === "contact" && (
-            <div className="border-t border-border/60 px-4 py-2">
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => void sendAction({ action: "skip_contact" })}
-                className="text-xs font-medium text-foreground/50 hover:text-primary"
-              >
-                Skip — show my brief
-              </button>
-            </div>
-          )}
-
-          {!brief && (!choices || choices.length === 0) && (
-            <form onSubmit={handleSubmit} className="border-t border-border/70 p-3">
-              <div className="flex items-end gap-2 rounded-2xl border border-border/80 bg-card/50 p-2">
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  rows={1}
-                  placeholder="Type your answer…"
                   disabled={loading}
-                  className="max-h-24 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void handleSubmit();
-                    }
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={loading || !input.trim()}
-                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40"
+                  onClick={() => void sendAction({ action: "skip_contact" })}
+                  className="mb-2 text-xs font-medium text-foreground/50 hover:text-primary"
                 >
-                  <SendHorizontal className="size-4" />
+                  Skip — show my brief
                 </button>
-              </div>
-              {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
-            </form>
+              ) : null}
+
+              <form onSubmit={handleSubmit}>
+                <div className="flex items-end gap-2 rounded-2xl border border-border/80 bg-card/50 p-2">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    rows={1}
+                    placeholder={
+                      phase === "contact"
+                        ? "Name and email…"
+                        : phase === "need"
+                          ? "Describe the real problem or opportunity…"
+                          : phase === "expectations"
+                            ? "What does success look like when it’s done…"
+                            : phase === "payments"
+                              ? "Type payments, or tap suggestions…"
+                              : "Chat with me about your project…"
+                    }
+                    disabled={loading}
+                    className="max-h-24 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        void handleSubmit();
+                      }
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading || !input.trim()}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40"
+                  >
+                    <SendHorizontal className="size-4" />
+                  </button>
+                </div>
+                {error ? <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p> : null}
+              </form>
+            </div>
           )}
     </>
   );
