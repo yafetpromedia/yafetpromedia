@@ -6,6 +6,8 @@
     "dev": "node scripts/run-in-frontend.mjs dev",
     "build": "node scripts/run-in-frontend.mjs build",
     "start": "node scripts/run-in-frontend.mjs start",
-    "lint": "node scripts/run-in-frontend.mjs lint"
+    "lint": "node scripts/run-in-frontend.mjs lint",
+    "test": "npm run test --workspace frontend",
+    "typecheck": "npm run typecheck --workspace frontend"
   }
 }

@@ -1,59 +1,10 @@
 import { appendLeadToFile } from "@backend/leads-file";
 import { query } from "@db";
-import nodemailer from "nodemailer";
+import { sendLeadNotificationEmail } from "@/lib/lead-notify-mail";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
 import { csrfGuard } from "@/lib/request-security";
 
 export const runtime = "nodejs";
-
-async function sendLeadNotificationEmail(lead: {
-  name: string;
-  email: string;
-  company: string;
-  phone: string;
-  message: string;
-}) {
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT ?? "587");
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const from = process.env.SMTP_FROM ?? user;
-  const to = process.env.LEADS_NOTIFY_TO ?? process.env.ADMIN_EMAIL;
-
-  if (!host || !user || !pass || !from || !to) {
-    return;
-  }
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
-  });
-
-  const subject = `New lead from ${lead.name} (${lead.company})`;
-  const text = [
-    "A new contact message was submitted.",
-    "",
-    `Name: ${lead.name}`,
-    `Email: ${lead.email}`,
-    `Company: ${lead.company}`,
-    lead.phone ? `Phone: ${lead.phone}` : "",
-    "",
-    "Message:",
-    lead.message,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  await transporter.sendMail({
-    from,
-    to,
-    replyTo: lead.email,
-    subject,
-    text,
-  });
-}
 
 export async function POST(request: Request) {
   try {
@@ -76,6 +27,11 @@ export async function POST(request: Request) {
       phone?: string;
       message?: string;
       website?: string;
+      inquiryType?: unknown;
+      /** Rejected — recipients are server-resolved only. */
+      to?: unknown;
+      notifyTo?: unknown;
+      recipient?: unknown;
     };
 
     const website = String(body.website ?? "").trim();
@@ -89,6 +45,7 @@ export async function POST(request: Request) {
     const company = String(body.company ?? "").trim().slice(0, 160);
     const phone = String(body.phone ?? "").trim().slice(0, 80);
     const message = String(body.message ?? "").trim().slice(0, 4000);
+    const inquiryType = body.inquiryType;
 
     if (!name || !email || !company || !phone || !message) {
       return Response.json(
@@ -115,8 +72,20 @@ export async function POST(request: Request) {
       }
     }
 
-    sendLeadNotificationEmail({ name, email, company, phone, message }).catch(() => {
-      // Lead is already saved in DB; notification failure should not fail the form submit.
+    // Persistence already succeeded — SMTP must not flip this into HTTP 500.
+    // Response does not claim email delivery; only that the lead was accepted.
+    void sendLeadNotificationEmail({
+      name,
+      email,
+      company,
+      phone,
+      message,
+      inquiryType,
+    }).catch((err) => {
+      console.error(
+        "[leads] unexpected notify error after persist:",
+        err instanceof Error ? err.message : "unknown"
+      );
     });
 
     return Response.json({ ok: true });

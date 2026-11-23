@@ -7,18 +7,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Bot,
   Calendar,
+  Check,
   Download,
+  FileText,
   Layers,
   RotateCcw,
   SendHorizontal,
-  Sparkles,
   X,
 } from "lucide-react";
 import {
-  stripInternalBriefSections,
   type ConsultantApiResponse,
   type ProjectBrief,
 } from "@/lib/project-consultant.shared";
+import { downloadBriefMarkdown, downloadBriefPdf } from "@/lib/download-project-brief";
 import type { ConsultationSession } from "@/lib/project-consultant-engine";
 import { cn } from "@/lib/utils";
 
@@ -45,37 +46,66 @@ function PlanTypingIndicator({ label }: { label?: string }) {
 }
 
 function BriefCard({ brief, leadScore }: { brief: ProjectBrief; leadScore?: number }) {
+  const facts: { label: string; value: string }[] = [
+    { label: "Industry", value: brief.industry },
+    { label: "Scope", value: brief.products },
+    { label: "Payments", value: brief.payments.join(", ") || "—" },
+    { label: "Timeline", value: brief.timeline },
+    { label: "Budget", value: brief.budget },
+  ];
+
   return (
-    <div className="mt-3 rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/[0.08] to-card p-4 text-sm">
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">Project Brief</p>
-      <h4 className="mt-2 font-display text-lg font-bold">{brief.projectType}</h4>
-      <ul className="mt-3 space-y-1.5 text-foreground/72">
-        <li>Industry: {brief.industry}</li>
-        <li>Products: {brief.products}</li>
-        <li>Payments: {brief.payments.join(", ") || "—"}</li>
-        <li>Timeline: {brief.timeline}</li>
-        <li>Budget: {brief.budget}</li>
-      </ul>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-foreground/45">Recommended</p>
-      <ul className="mt-2 space-y-1">
-        {brief.recommendedFeatures.map((f) => (
-          <li key={f} className="text-foreground/75">✅ {f}</li>
-        ))}
-      </ul>
-      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-xl border border-border/70 bg-background/60 p-2.5">
-          <p className="text-foreground/45">Timeline</p>
-          <p className="font-semibold">{brief.estimatedTimeline}</p>
-        </div>
-        <div className="rounded-xl border border-border/70 bg-background/60 p-2.5">
-          <p className="text-foreground/45">Est. cost</p>
-          <p className="font-semibold">{brief.estimatedCost}</p>
-        </div>
+    <div className="mt-3 overflow-hidden rounded-[1.25rem] border border-border/80 bg-card shadow-[0_12px_40px_-28px_rgba(12,12,12,0.35)]">
+      <div className="border-b border-border/60 bg-gradient-to-r from-[#0c0c0c] to-[#1a1a1a] px-4 py-3.5 text-white">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#ff7d22]">
+          Project brief
+        </p>
+        <h4 className="mt-1 font-display text-lg font-semibold tracking-tight">{brief.projectType}</h4>
       </div>
-      <p className="mt-3 text-sm font-semibold text-primary">
-        {brief.leadLabel}
-        {leadScore != null ? ` · Score ${leadScore}` : ""}
-      </p>
+      <div className="space-y-3 px-4 py-4 text-sm">
+        <dl className="space-y-2.5">
+          {facts.map((row) => (
+            <div key={row.label} className="grid grid-cols-[88px_1fr] gap-2">
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-foreground/40">
+                {row.label}
+              </dt>
+              <dd className="text-[13px] leading-relaxed text-foreground/80">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/40">
+            Recommended
+          </p>
+          <ul className="space-y-1.5">
+            {brief.recommendedFeatures.map((f) => (
+              <li key={f} className="flex items-start gap-2 text-[13px] text-foreground/80">
+                <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                  <Check className="size-3 stroke-[2.5]" aria-hidden />
+                </span>
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-2xl bg-muted/50 px-3 py-3">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-foreground/40">Timeline</p>
+            <p className="mt-1 text-sm font-semibold">{brief.estimatedTimeline}</p>
+          </div>
+          <div className="rounded-2xl bg-muted/50 px-3 py-3">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-foreground/40">Est. cost</p>
+            <p className="mt-1 text-sm font-semibold">{brief.estimatedCost}</p>
+          </div>
+        </div>
+
+        <p className="text-xs font-medium text-[#ff6a00]">
+          {brief.leadLabel}
+          {leadScore != null ? ` · Score ${leadScore}` : ""}
+        </p>
+      </div>
     </div>
   );
 }
@@ -102,6 +132,8 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
   const [brief, setBrief] = useState<ProjectBrief | null>(null);
   const [leadScore, setLeadScore] = useState<number | null>(null);
   const [phase, setPhase] = useState<string>("welcome");
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+  const [briefEmailed, setBriefEmailed] = useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
@@ -115,19 +147,30 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
     if (node) node.scrollTop = node.scrollHeight;
   }, [messages, choices, brief, open, active]);
 
-  const applyResponse = useCallback((data: ConsultantApiResponse & { session?: ConsultationSession }) => {
-    if (data.sessionId) setSessionId(data.sessionId);
-    if (data.session) setSession(data.session);
-    setPhase(data.phase);
-    setChoices(data.choices ?? []);
-    setMultiSelect(Boolean(data.multiSelect));
-    setPicked([]);
-    if (data.brief) setBrief(data.brief);
-    if (data.leadScore != null) setLeadScore(data.leadScore);
-    if (data.reply) {
-      setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: data.reply }]);
-    }
-  }, []);
+  const applyResponse = useCallback(
+    (
+      data: ConsultantApiResponse & {
+        session?: ConsultationSession;
+        clientBriefEmailed?: boolean;
+      }
+    ) => {
+      if (data.sessionId) setSessionId(data.sessionId);
+      if (data.session) setSession(data.session);
+      setPhase(data.phase);
+      setChoices(data.choices ?? []);
+      setMultiSelect(Boolean(data.multiSelect));
+      setPicked([]);
+      if (data.brief) setBrief(data.brief);
+      if (data.leadScore != null) setLeadScore(data.leadScore);
+      if (typeof data.clientBriefEmailed === "boolean") {
+        setBriefEmailed(data.clientBriefEmailed);
+      }
+      if (data.reply) {
+        setMessages((prev) => [...prev, { id: uid(), role: "assistant", content: data.reply }]);
+      }
+    },
+    []
+  );
 
   const sendAction = useCallback(
     async (payload: {
@@ -206,22 +249,13 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
     setChoices([]);
     setBrief(null);
     setLeadScore(null);
+    setBriefEmailed(false);
+    setDownloadMenuOpen(false);
     setPhase("welcome");
     setInput("");
     setError("");
     startedRef.current = true;
     void sendAction({ action: "start" });
-  };
-
-  const downloadBrief = () => {
-    if (!brief) return;
-    const blob = new Blob([stripInternalBriefSections(brief.markdown)], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "awuddigitals-project-brief.md";
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   if (!mounted) return null;
@@ -279,15 +313,61 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
 
             {brief && <BriefCard brief={brief} leadScore={leadScore ?? undefined} />}
 
+            {brief && briefEmailed ? (
+              <p className="mt-3 text-xs leading-relaxed text-foreground/55">
+                We also emailed this brief to you with Awud Digitals branding. Check your inbox (and spam) shortly.
+              </p>
+            ) : null}
+
             {brief && (
               <div className="mt-4 grid gap-2">
-                <button type="button" onClick={downloadBrief} className="flex items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm font-medium hover:border-primary/40">
-                  <Download className="size-4" /> Download proposal
-                </button>
-                <Link href="/#contact" onClick={onClose} className="flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setDownloadMenuOpen((v) => !v)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background py-2.5 text-sm font-medium transition hover:border-[#ff6a00]/40"
+                  >
+                    <Download className="size-4" /> Download proposal
+                  </button>
+                  {downloadMenuOpen ? (
+                    <div className="absolute inset-x-0 bottom-[calc(100%+0.4rem)] z-10 overflow-hidden rounded-xl border border-border/80 bg-card shadow-lg">
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm hover:bg-muted/60"
+                        onClick={() => {
+                          downloadBriefPdf(brief);
+                          setDownloadMenuOpen(false);
+                        }}
+                      >
+                        <FileText className="size-4 text-[#ff6a00]" />
+                        PDF — modern proposal
+                      </button>
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 border-t border-border/60 px-3.5 py-2.5 text-left text-sm hover:bg-muted/60"
+                        onClick={() => {
+                          downloadBriefMarkdown(brief);
+                          setDownloadMenuOpen(false);
+                        }}
+                      >
+                        <FileText className="size-4 text-foreground/50" />
+                        Markdown (.md)
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+                <Link
+                  href="/#contact"
+                  onClick={onClose}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background"
+                >
                   <Calendar className="size-4" /> Book consultation
                 </Link>
-                <Link href="/#ecosystem" onClick={onClose} className="flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/[0.08] py-2.5 text-sm font-semibold text-primary">
+                <Link
+                  href="/#ecosystem"
+                  onClick={onClose}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/40 py-2.5 text-sm font-semibold text-foreground"
+                >
                   <Layers className="size-4" /> Deploy through Mr.Software
                 </Link>
               </div>

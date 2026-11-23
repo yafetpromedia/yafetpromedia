@@ -6,12 +6,14 @@ import {
   markConsultationLeadLinked,
   upsertConsultationDraft,
 } from "@backend/project-consultations";
+import { sendClientProjectBriefEmail } from "@/lib/consultation-brief-mail";
+import { sendLeadNotificationEmail } from "@/lib/lead-notify-mail";
 import {
   advanceConsultation,
   createSession,
   type ConsultationSession,
 } from "@/lib/project-consultant-engine";
-import { briefMarkdownForTeam } from "@/lib/project-consultant.shared";
+import { briefMarkdownForTeam, stripInternalBriefSections } from "@/lib/project-consultant.shared";
 import {
   generateConsultantBrief,
   isConsultantLlmAvailable,
@@ -138,6 +140,7 @@ export async function POST(request: Request) {
       });
 
       let leadId: number | null = null;
+      let clientBriefEmailed = false;
       if (workingSession.clientEmail.trim()) {
         leadId = await createLeadFromConsultation({
           session: workingSession,
@@ -157,6 +160,26 @@ export async function POST(request: Request) {
             },
           };
         }
+
+        // Internal sales notify (best-effort; must not fail the response)
+        void sendLeadNotificationEmail({
+          name: workingSession.clientName.trim() || "Consultation lead",
+          email: workingSession.clientEmail.trim(),
+          company:
+            [workingSession.projectType, workingSession.industry].filter(Boolean).join(" — ") ||
+            "AI Consultation",
+          phone: "",
+          message: stripInternalBriefSections(response.brief.markdown).slice(0, 4000),
+          inquiryType: "sales",
+        }).catch(() => undefined);
+
+        // Client-facing branded brief email (best-effort)
+        const mailResult = await sendClientProjectBriefEmail({
+          clientName: workingSession.clientName,
+          clientEmail: workingSession.clientEmail,
+          brief: response.brief,
+        });
+        clientBriefEmailed = mailResult.delivered;
       }
 
       return Response.json({
@@ -165,6 +188,7 @@ export async function POST(request: Request) {
         session: workingSession,
         consultationId,
         leadId,
+        clientBriefEmailed,
         llmPowered: briefLlmUsed,
       });
     }

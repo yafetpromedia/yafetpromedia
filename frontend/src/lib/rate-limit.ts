@@ -9,6 +9,11 @@ function now() {
   return Date.now();
 }
 
+/** Test helper — clears in-memory rate-limit buckets. */
+export function resetRateLimitBucketsForTests() {
+  buckets.clear();
+}
+
 export function hitRateLimit(
   key: string,
   opts?: { limit?: number; windowMs?: number }

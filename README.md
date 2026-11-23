@@ -12,6 +12,18 @@ This runs Next.js with the **working directory set to `frontend/`** (via `script
 
 Put **`.env.local` at the repository root** (same folder as `frontend/`, `backend/`, `db/`). If anything still misses env vars, copy it into `frontend/` as well.
 
+### Lead email (AletCloud SMTP)
+
+Homepage contact leads can notify business mailboxes over AletCloud. Configure **server-only** variables (never commit passwords):
+
+- `SMTP_HOST=mx1.aletcloud.com`
+- `SMTP_PORT=465` (SSL/TLS; Nodemailer uses `secure` when port is 465)
+- `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` (typically `contact@awuddigitals.com`)
+- `LEADS_NOTIFY_TO` (legacy contact fallback)
+- Optional: `LEADS_NOTIFY_CONTACT_TO`, `LEADS_NOTIFY_INFO_TO`, `LEADS_NOTIFY_SALES_TO`, `LEADS_NOTIFY_SUPPORT_TO`
+
+See `docs/ALETCLOUD_EMAIL.md` for routing details and production checklist.
+
 If the app won’t start or you see a blank/old error page, **free port 3000**: Task Manager → end stray **Node.js** processes, or run `netstat -ano | findstr ":3000"` and end that PID, then run `npm run dev` again.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
