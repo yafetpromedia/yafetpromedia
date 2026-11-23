@@ -21,6 +21,7 @@ import {
 } from "@/lib/project-consultant.shared";
 import { downloadBriefMarkdown, downloadBriefPdf } from "@/lib/download-project-brief";
 import type { ConsultationSession } from "@/lib/project-consultant-engine";
+import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 
 type Message = { id: string; role: "user" | "assistant"; content: string };
@@ -126,7 +127,7 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
   const [sessionId, setSessionId] = useState("");
   const [session, setSession] = useState<ConsultationSession | null>(null);
   const [choices, setChoices] = useState<ConsultantApiResponse["choices"]>([]);
@@ -140,8 +141,6 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
 
   const listRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!open) return;

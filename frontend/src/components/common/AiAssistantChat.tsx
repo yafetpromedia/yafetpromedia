@@ -20,6 +20,7 @@ import {
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import { stripPlanActionMarker } from "@/lib/ai-hub.shared";
+import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 
 type Message = { id: string; role: "user" | "assistant"; content: string; suggestPlan?: boolean };
@@ -89,7 +90,7 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
   const [isListening, setIsListening] = useState(false);
   const [voiceReply, setVoiceReply] = useState(false);
   const [error, setError] = useState("");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -119,10 +120,6 @@ export default function AiAssistantChat({ open, onClose, className, embedded, ac
     setError("");
     setInput("");
   }, [assistantName, onOpenPlan, t]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (open && (active ?? true) && messages.length === 0) seedGreeting();

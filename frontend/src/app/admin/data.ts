@@ -294,7 +294,7 @@ export async function getAdminPageData(initialSection: AdminSection) {
     activeProvider: resolveActiveAiProvider(),
     freeModel: process.env.AI_MODEL?.trim() || "claude-t0",
     freeModelBaseUrl: process.env.AI_BASE_URL?.trim() || "https://api.freemodel.dev/v1",
-    geminiModel: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+    geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite",
     openAIModel: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
   };
 

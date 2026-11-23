@@ -8,6 +8,7 @@ import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
 import AiAssistantChat from "@/components/common/AiAssistantChat";
 import ProjectConsultantChat from "@/components/common/ProjectConsultantChat";
+import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 
 export type AiHubTab = "chat" | "plan";
@@ -24,9 +25,7 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
   const { content } = useSiteContent();
   const assistantName = content.aiName.trim() || "Awud AI";
   const [tab, setTab] = useState<AiHubTab>(initialTab);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
 
   useEffect(() => {
     if (open) setTab(initialTab);

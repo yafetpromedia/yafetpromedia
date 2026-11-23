@@ -160,60 +160,50 @@ export async function POST(request: Request) {
     // Prefer Gemini when configured — FreeModel often fails first and hid real Gemini replies.
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
     if (geminiKey) {
-      const preferredGeminiModel = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
-      const geminiModels = [
-        preferredGeminiModel,
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-flash-latest",
-        "gemini-1.5-flash",
-      ].filter((model, index, all) => model && all.indexOf(model) === index);
-
-      for (const geminiModel of geminiModels) {
-        try {
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": geminiKey,
-              },
-              body: JSON.stringify({
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                contents: [
-                  ...(history.slice(-10).map((item) => ({
-                    role: item.role === "assistant" ? "model" : "user",
-                    parts: [{ text: item.content }],
-                  })) as Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>),
-                  { role: "user", parts: [{ text: userMessage }] },
-                ],
-                generationConfig: { temperature: 0.55 },
-              }),
-            }
-          );
-
-          const data = (await response.json()) as {
-            error?: { message?: string };
-            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-          };
-
-          if (!response.ok || !data.candidates?.length) {
-            throw new Error(data.error?.message ?? "Gemini did not return a candidate");
+      const geminiModel = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite";
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": geminiKey,
+            },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [
+                ...(history.slice(-10).map((item) => ({
+                  role: item.role === "assistant" ? "model" : "user",
+                  parts: [{ text: item.content }],
+                })) as Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>),
+                { role: "user", parts: [{ text: userMessage }] },
+              ],
+              generationConfig: { temperature: 0.55 },
+            }),
           }
+        );
 
-          const reply =
-            data.candidates[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim() ||
-            fallbackReply;
-          if (!reply) {
-            throw new Error("Gemini returned an empty reply");
-          }
-          await logChat(userMessage, reply);
-          return Response.json({ reply, provider: "Gemini", model: geminiModel });
-        } catch (error) {
-          providerError = error instanceof Error ? error.message : "Gemini request failed";
-          console.error("Gemini request failed", { model: geminiModel, reason: providerError });
+        const data = (await response.json()) as {
+          error?: { message?: string };
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        };
+
+        if (!response.ok || !data.candidates?.length) {
+          throw new Error(data.error?.message ?? "Gemini did not return a candidate");
         }
+
+        const reply =
+          data.candidates[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim() ||
+          fallbackReply;
+        if (!reply) {
+          throw new Error("Gemini returned an empty reply");
+        }
+        await logChat(userMessage, reply);
+        return Response.json({ reply, provider: "Gemini", model: geminiModel });
+      } catch (error) {
+        providerError = error instanceof Error ? error.message : "Gemini request failed";
+        console.error("Gemini request failed", { model: geminiModel, reason: providerError });
       }
     }
 
