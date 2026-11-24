@@ -89,7 +89,7 @@ export function buildClientBriefEmailContent(input: {
           <h1 style="margin:8px 0 0;font-size:24px;line-height:1.25;color:#fafafa;font-weight:600;">Your project brief</h1>
         </td></tr>
         <tr><td style="padding:28px;">
-          <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#444;">Hi ${escapeHtml(name)}, thanks for planning with us. Here is a clear summary written for you and your stakeholders.</p>
+          <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#444;">Hi ${escapeHtml(name)}, thanks for planning with us. Here is a clear summary written for you and your stakeholders.${brief.preliminary ? " This copy is marked preliminary until remaining details are confirmed." : ""}</p>
           ${
             summary
               ? `<p style="margin:0 0 20px;padding:14px 16px;border-radius:14px;background:#f7f5f1;border:1px solid #ebe6df;font-size:14px;line-height:1.6;color:#333;">${escapeHtml(summary)}</p>`
