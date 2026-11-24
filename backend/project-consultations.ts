@@ -29,12 +29,10 @@ function inferPhase(row: {
   client_email: string;
 }): ConsultationPhase {
   if (row.status === "completed") return "complete";
-  if (row.client_email.trim()) return "contact";
-  if (row.timeline.trim()) return "contact";
-  if (row.budget.trim()) return "timeline";
-  if (row.industry.trim()) return "expectations";
-  if (row.project_type.trim()) return "need";
-  return "welcome";
+  if (row.client_email.trim()) return "refining";
+  if (row.timeline.trim() || row.budget.trim()) return "refining";
+  if (row.industry.trim() || row.project_type.trim()) return "scoping";
+  return "exploring";
 }
 
 export function sessionFromDbRow(row: {

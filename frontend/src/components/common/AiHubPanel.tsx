@@ -6,8 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bot, ClipboardList, MessageCircle, X } from "lucide-react";
 import { useLanguage } from "@/components/i18n/LanguageProvider";
 import { useSiteContent } from "@/components/common/SiteContentProvider";
-import AiAssistantChat from "@/components/common/AiAssistantChat";
-import ProjectConsultantChat from "@/components/common/ProjectConsultantChat";
+import {
+  ConsultantSessionProvider,
+} from "@/components/consultant/ConsultantSessionContext";
+import ConsultantTalkPane from "@/components/consultant/ConsultantTalkPane";
+import ConsultantPlanWorkspace from "@/components/consultant/ConsultantPlanWorkspace";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 
@@ -20,16 +23,21 @@ type Props = {
   className?: string;
 };
 
-export default function AiHubPanel({ open, onClose, initialTab = "chat", className }: Props) {
+function HubInner({
+  open,
+  onClose,
+  initialTab,
+  className,
+  assistantName,
+}: {
+  open: boolean;
+  onClose: () => void;
+  initialTab: AiHubTab;
+  className?: string;
+  assistantName: string;
+}) {
   const { t } = useLanguage();
-  const { content } = useSiteContent();
-  const assistantName = content.aiName.trim() || "Awud AI";
   const [tab, setTab] = useState<AiHubTab>(initialTab);
-  const mounted = useHydrated();
-
-  useEffect(() => {
-    if (open) setTab(initialTab);
-  }, [open, initialTab]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,9 +53,7 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
     };
   }, [open, onClose]);
 
-  if (!mounted) return null;
-
-  const panel = (
+  return (
     <AnimatePresence>
       {open ? (
         <>
@@ -76,10 +82,8 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
             className={cn(
               "fixed z-[80] flex flex-col overflow-hidden bg-card text-card-foreground",
               "border border-border/70 shadow-lg",
-              // Mobile: almost full-height bottom sheet
               "inset-x-0 bottom-0 top-[max(0.75rem,env(safe-area-inset-top))] rounded-t-[1.5rem]",
-              // Desktop: floating panel
-              "sm:inset-auto sm:right-6 sm:bottom-6 sm:top-auto sm:h-[min(680px,calc(100dvh-3rem))] sm:w-[min(420px,calc(100vw-3rem))] sm:rounded-[1.5rem]",
+              "sm:inset-auto sm:right-6 sm:bottom-6 sm:top-auto sm:h-[min(720px,calc(100dvh-3rem))] sm:w-[min(440px,calc(100vw-3rem))] sm:rounded-[1.5rem]",
               className
             )}
           >
@@ -95,7 +99,9 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
                     <p className="truncate font-display text-[15px] font-semibold leading-tight text-foreground">
                       {assistantName}
                     </p>
-                    <p className="truncate text-[11px] text-muted-foreground">Chat or plan your project</p>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      Talk, plan, and brief — one project
+                    </p>
                   </div>
                 </div>
                 <button
@@ -117,6 +123,8 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
                   type="button"
                   role="tab"
                   aria-selected={tab === "chat"}
+                  aria-controls="awud-talk-panel"
+                  id="awud-talk-tab"
                   onClick={() => setTab("chat")}
                   className={cn(
                     "inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition",
@@ -132,6 +140,8 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
                   type="button"
                   role="tab"
                   aria-selected={tab === "plan"}
+                  aria-controls="awud-plan-panel"
+                  id="awud-plan-tab"
                   onClick={() => setTab("plan")}
                   className={cn(
                     "inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition",
@@ -147,23 +157,51 @@ export default function AiHubPanel({ open, onClose, initialTab = "chat", classNa
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col">
-              <div className={cn("flex min-h-0 flex-1 flex-col", tab !== "chat" && "hidden")}>
-                <AiAssistantChat
-                  embedded
-                  open={open}
-                  active={tab === "chat"}
-                  onClose={onClose}
-                  onOpenPlan={() => setTab("plan")}
-                />
+              <div
+                id="awud-talk-panel"
+                role="tabpanel"
+                aria-labelledby="awud-talk-tab"
+                aria-hidden={tab !== "chat"}
+                className={cn("flex min-h-0 flex-1 flex-col", tab !== "chat" && "hidden")}
+              >
+                <ConsultantTalkPane active={tab === "chat"} onOpenPlan={() => setTab("plan")} />
               </div>
-              <div className={cn("flex min-h-0 flex-1 flex-col", tab !== "plan" && "hidden")}>
-                <ProjectConsultantChat embedded open={open} active={tab === "plan"} onClose={onClose} />
+              <div
+                id="awud-plan-panel"
+                role="tabpanel"
+                aria-labelledby="awud-plan-tab"
+                aria-hidden={tab !== "plan"}
+                className={cn("flex min-h-0 flex-1 flex-col", tab !== "plan" && "hidden")}
+              >
+                <ConsultantPlanWorkspace active={tab === "plan"} onOpenTalk={() => setTab("chat")} />
               </div>
             </div>
           </motion.div>
         </>
       ) : null}
     </AnimatePresence>
+  );
+}
+
+export default function AiHubPanel({ open, onClose, initialTab = "chat", className }: Props) {
+  const { content } = useSiteContent();
+  const assistantName = content.aiName.trim() || "Awud AI";
+  const mounted = useHydrated();
+
+  if (!mounted) return null;
+
+  // Provider stays mounted while panel can reopen — session persists across close via sessionStorage + DB draft.
+  const panel = (
+    <ConsultantSessionProvider>
+      <HubInner
+        key={open ? `open-${initialTab}` : "closed"}
+        open={open}
+        onClose={onClose}
+        initialTab={initialTab}
+        className={className}
+        assistantName={assistantName}
+      />
+    </ConsultantSessionProvider>
   );
 
   return createPortal(panel, document.body);

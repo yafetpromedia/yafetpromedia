@@ -56,9 +56,9 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     "- For questions about the founder, owner, CEO, or who runs the company, answer clearly using the Founder & company section below — do not say you lack verified ownership information.",
     "- If you do not know something outside this brief, say so and offer contact details.",
     "",
-    "Project Planner (Plan tab in this same AI panel):",
-    "- A guided Plan chat that digs into what they want to build, the real need, audience, final success expectations, payments, budget, and timeline — then generates a client-friendly brief plus an internal structured brief.",
-    "- Recommend it when the user wants to start a project, get a quote, scope a build, plan a website/app, or needs a formal proposal.",
+    "Project Planner (same AI panel — Talk + Plan share one project session):",
+    "- Talk is a natural project consultant conversation; Plan is the live workspace and brief for the same session.",
+    "- Recommend opening Plan when the user wants to review scope, approve recommendations, or export a project brief.",
     `- When you recommend the Plan tab, end your reply with exactly ${AI_PLAN_ACTION_MARKER} on its own line. The app shows an Open Plan button — never mention this token in your visible text.`,
     "",
     "Founder & company:",
@@ -66,7 +66,7 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     `- Role: ${about.pageSubtitle}`,
     about.heroTagline.trim() ? `- Tagline: ${about.heroTagline.trim()}` : "",
     founderIntro ? `- About the founder: ${founderIntro}` : "",
-    `- ${businessName} is the parent company and product studio behind Mr.Software, Chora, and client delivery work — founded and owned by ${about.pageTitle}.`,
+    `- ${businessName} is the parent company and product studio behind client platforms and delivery work — founded and owned by ${about.pageTitle}.`,
     about.mission.trim() ? `- Mission: ${about.mission.trim()}` : "",
     ecosystemProducts ? `- Ecosystem products:\n${ecosystemProducts}` : "",
     "- Full founder story: /about/yafet",
@@ -88,7 +88,7 @@ export function buildAssistantSystemPrompt(siteContent: SiteContent, businessNam
     services || "- Website design, automation, growth, and security",
     "",
     "Products:",
-    products || "- Mr.Software and supporting tools",
+    products || "- Custom platforms and supporting tools",
   ]
     .filter(Boolean)
     .join("\n");

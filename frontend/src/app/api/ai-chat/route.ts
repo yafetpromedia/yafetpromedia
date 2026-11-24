@@ -32,7 +32,7 @@ function offlineReply(userMessage: string, businessName: string, siteContent?: A
   const lower = userMessage.toLowerCase().trim();
   const assistantName = siteContent?.aiName?.trim() || "Awud AI";
   if (/^(hi|hello|hey|good morning|good afternoon|good evening|selam)\b/.test(lower)) {
-    return `Hi! I'm ${assistantName} from ${businessName}. Ask about our services, pricing, timelines, or Mr.Software — or switch to the Plan tab for a guided project brief.`;
+    return `Hi! I'm ${assistantName} from ${businessName}. Ask about our services, pricing, or timelines — or switch to the Plan tab for a guided project brief.`;
   }
   const about = siteContent?.aboutYafet;
   if (
@@ -50,7 +50,7 @@ function offlineReply(userMessage: string, businessName: string, siteContent?: A
     return `Pricing depends on scope — websites, automation, and branding bundles are quoted after a short discovery call. For a tailored estimate, open the Plan tab in this chat panel — it walks you through scope and generates a project brief.\n${AI_PLAN_ACTION_MARKER}`;
   }
   if (lower.includes("time") || lower.includes("timeline") || lower.includes("how long")) {
-    return "Most website and brand projects land in 3–8 weeks. Larger systems with integrations or Mr.Software rollout can take longer — we map milestones in discovery.";
+    return "Most website and brand projects land in 3–8 weeks. Larger systems with integrations or custom platform builds can take longer — we map milestones in discovery.";
   }
   if (
     lower.includes("project") ||
@@ -64,8 +64,8 @@ function offlineReply(userMessage: string, businessName: string, siteContent?: A
   ) {
     return `Great — the Plan tab in this panel is built for that. It asks a few quick questions and generates a project brief with features, timeline, and cost range.\n${AI_PLAN_ACTION_MARKER}`;
   }
-  if (lower.includes("service") || lower.includes("what do you do") || lower.includes("mr.software")) {
-    return "We design and build full digital systems: websites, automation workflows, brand and media pipelines, and our Mr.Software platform for operations. What are you trying to launch or fix first?";
+  if (lower.includes("service") || lower.includes("what do you do") || lower.includes("product")) {
+    return "We design and build full digital systems: websites, automation workflows, brand and media pipelines, and custom platforms for operations. What are you trying to launch or fix first?";
   }
   return `Thanks for reaching ${businessName}. Tell me your goals, timeline, and budget range — I’ll point you to the right package or book a call with the team.`;
 }

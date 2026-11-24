@@ -77,8 +77,9 @@ export default async function AboutYafetPage() {
       "Software entrepreneurship",
       "Digital transformation",
       "Product design",
-      "Mr.Software",
+      "Custom platforms",
       "Chora",
+      "School management software",
       SITE_NAME,
     ],
   };

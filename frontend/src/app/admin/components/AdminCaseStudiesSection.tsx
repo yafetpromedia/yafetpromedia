@@ -44,6 +44,7 @@ const CASE_STUDY_MAX = 16;
 function emptyCaseStudyCard(): CaseStudyCard {
   return {
     title: "New project",
+    slug: "",
     category: "Category",
     problem: "",
     solution: "",

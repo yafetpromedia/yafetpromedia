@@ -2,6 +2,7 @@ import { query } from "@db";
 import { appendTestimonialSubmissionToFile } from "@backend/testimonial-submissions-file";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
 import { csrfGuard } from "@/lib/request-security";
+import { sendVisitorThanksEmail } from "@/lib/visitor-thanks-mail";
 
 export const runtime = "nodejs";
 
@@ -71,20 +72,35 @@ export async function POST(request: Request) {
     }
 
     const payload = { quote, author, role, email, rating };
+    let stored: "database" | "file" = "database";
 
     try {
       await query(
         "INSERT INTO testimonial_submissions (quote, author, role, email, rating) VALUES ($1, $2, $3, $4, $5)",
         [quote, author, role, email, rating]
       );
-      return Response.json({ ok: true, stored: "database" as const });
     } catch (dbErr) {
       if (process.env.NODE_ENV === "development") {
         console.error("[testimonials] database insert failed, using file fallback:", dbErr);
       }
       await appendTestimonialSubmissionToFile(payload);
-      return Response.json({ ok: true, stored: "file" as const });
+      stored = "file";
     }
+
+    if (email) {
+      void sendVisitorThanksEmail({
+        kind: "testimonial",
+        name: author,
+        email,
+      }).catch((err) => {
+        console.error(
+          "[testimonials] unexpected visitor thanks error after persist:",
+          err instanceof Error ? err.message : "unknown"
+        );
+      });
+    }
+
+    return Response.json({ ok: true, stored });
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       console.error("[testimonials] save failed:", err);

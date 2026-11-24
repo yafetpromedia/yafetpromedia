@@ -1,31 +1,24 @@
 import {
-  BUDGET_OPTIONS,
   CONSULTANT_SYSTEM_PROMPT,
-  PAYMENT_OPTIONS,
-  TIMELINE_OPTIONS,
-  stripInternalBriefSections,
-  type ConsultationPhase,
   type ProjectBrief,
 } from "@/lib/project-consultant.shared";
-import type { ConsultationSession } from "@/lib/project-consultant-engine";
+import type { ConsultationSession, OrchestratorTurnResult } from "@/lib/project-consultant-engine";
+import { getProjectModel } from "@/lib/project-consultant-engine";
+import {
+  hasClientSubstance,
+  isGreetingOnly,
+  type ExtractedUpdate,
+  type OpenQuestion,
+  type RecommendationItem,
+} from "@/lib/project-model";
 import { requestChatCompletion, resolveFreeModelConfig } from "@/lib/ai-chat-provider";
 
-type LlmStepResult = { reply: string };
-
-type LlmBriefResult = {
-  /** Plain-language client brief markdown. */
-  markdown: string;
-  /** Short 2–4 sentence client summary. */
-  clientSummary?: string;
-  /** Detailed structured internal brief for Awud. */
-  teamMarkdown?: string;
-  /** Short extras; merged into team storage if needed. */
-  salesNotes?: string;
-  recommendedFeatures: string[];
-  estimatedTimeline: string;
-  estimatedCost: string;
-  complexity: "Low" | "Medium" | "High";
-  leadLabel: string;
+type LlmOrchestratorJson = {
+  reply?: string;
+  extractedUpdates?: ExtractedUpdate[];
+  openQuestions?: OpenQuestion[];
+  recommendations?: RecommendationItem[];
+  canOfferPreliminaryBrief?: boolean;
 };
 
 function extractJson<T>(raw: string): T | null {
@@ -46,60 +39,44 @@ function extractJson<T>(raw: string): T | null {
   }
 }
 
-function phaseGoal(phase: ConsultationPhase): string {
-  switch (phase) {
-    case "intent":
-      return "Welcome them warmly and invite them to describe what they want to build in their own words.";
-    case "need":
-      return "Paraphrase the idea briefly, then dig into the real need: what problem, pain, or opportunity makes this necessary now? Ask for concrete detail.";
-    case "industry":
-      return "Acknowledge the need, then ask who this is for (audience/industry) and what those people must be able to do.";
-    case "expectations":
-      return "Confirm audience/scope, then ask what success looks like when the project is finished — their final expectation in plain terms (outcomes, not tech features).";
-    case "payments":
-      return "Acknowledge their success criteria, then ask how payments should work (if at all). Invite free typing or suggestion chips — do not dump every payment brand.";
-    case "budget":
-      return "Acknowledge payments (or that none are needed), then ask for a realistic budget range in conversational language.";
-    case "timeline":
-      return "Acknowledge budget, then ask when they want to launch — conversational, not form-like.";
-    case "contact":
-      return "Acknowledge timeline, then ask for name + email so Awud can send the brief, and mention they can skip to preview it.";
-    case "complete":
-      return "Celebrate briefly and introduce the personalized project brief without sounding like a template.";
-    default:
-      return "Welcome them and ask what they would like to build.";
+async function callGemini(system: string, user: string): Promise<string | null> {
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  if (!geminiKey) return null;
+  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite";
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": geminiKey,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: user }] }],
+          generationConfig: { temperature: 0.55 },
+        }),
+      }
+    );
+    const data = (await response.json()) as {
+      error?: { message?: string };
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    if (!response.ok || !data.candidates?.length) {
+      throw new Error(data.error?.message ?? "Gemini did not return a candidate");
+    }
+    const text = data.candidates[0]?.content?.parts?.map((p) => p.text ?? "").join("").trim();
+    return text || null;
+  } catch (err) {
+    console.error("[consultant-llm] Gemini failed:", err instanceof Error ? err.message : err);
+    return null;
   }
-}
-
-function sessionSnapshot(session: ConsultationSession) {
-  return {
-    projectType: session.projectType || null,
-    industry: session.industry || null,
-    products: session.requirements.products || null,
-    need: session.requirements.need || null,
-    expectations: session.requirements.expectations || null,
-    paymentMethods: session.requirements.paymentMethods ?? [],
-    budget: session.budget || null,
-    timeline: session.timeline || null,
-    clientName: session.clientName || null,
-    clientEmail: session.clientEmail || null,
-  };
 }
 
 async function callConsultantLlm(system: string, user: string): Promise<string | null> {
-  const freeModel = resolveFreeModelConfig();
-  if (freeModel) {
-    try {
-      return await requestChatCompletion({
-        ...freeModel,
-        systemPrompt: system,
-        history: [],
-        userMessage: user,
-      });
-    } catch (err) {
-      console.error("[consultant-llm] FreeModel failed:", err);
-    }
-  }
+  const gemini = await callGemini(system, user);
+  if (gemini) return gemini;
 
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
   if (openAiKey) {
@@ -117,62 +94,55 @@ async function callConsultantLlm(system: string, user: string): Promise<string |
     }
   }
 
+  const freeModel = resolveFreeModelConfig();
+  if (freeModel) {
+    try {
+      return await requestChatCompletion({
+        ...freeModel,
+        systemPrompt: system,
+        history: [],
+        userMessage: user,
+      });
+    } catch (err) {
+      console.error("[consultant-llm] FreeModel failed:", err);
+    }
+  }
+
   return null;
 }
 
-/** Natural follow-up question or acknowledgment for the current step. */
-export async function generateConsultantStepReply(
-  session: ConsultationSession,
-  userInput: string,
-  nextPhase: ConsultationPhase,
-  fallbackReply: string
-): Promise<string> {
-  const history = session.requirements.conversationHistory ?? [];
-  const recent = history
-    .slice(-8)
-    .map((m) => `${m.role === "user" ? "Client" : "Consultant"}: ${m.content}`)
-    .join("\n");
-
-  const prompt = [
-    "Return valid JSON only: { \"reply\": \"...\" }",
-    "",
-    `Next phase: ${nextPhase}`,
-    `Goal: ${phaseGoal(nextPhase)}`,
-    "",
-    "Rules:",
-    "- Sound like a real consultant chatting — not a survey form.",
-    "- First paraphrase or acknowledge what they just said in plain language.",
-    "- Then ask exactly ONE next question that deepens understanding of need or final expectations when relevant.",
-    "- If their answer is vague, gently ask for a concrete example — still only one question.",
-    "- 1–3 short sentences max. No markdown headers or bullet dumps.",
-    "- Optional suggestion chips exist in the UI; invite typing freely.",
-    "- Do not answer unrelated questions — redirect to the project.",
-    "",
-    `Collected: ${JSON.stringify(sessionSnapshot(session))}`,
-    recent ? `Recent conversation:\n${recent}` : "",
-    userInput ? `Client just said: ${userInput}` : "Conversation is starting.",
-    "",
-    `If stuck, use this fallback tone: ${fallbackReply}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  const raw = await callConsultantLlm(CONSULTANT_SYSTEM_PROMPT, prompt);
-  if (!raw) return fallbackReply;
-
-  const parsed = extractJson<LlmStepResult>(raw);
-  const reply = parsed?.reply?.trim();
-  return reply && reply.length <= 500 ? reply : fallbackReply;
+export function isConsultantLlmAvailable(): boolean {
+  return Boolean(
+    process.env.GEMINI_API_KEY?.trim() ||
+      process.env.OPENAI_API_KEY?.trim() ||
+      resolveFreeModelConfig()
+  );
 }
 
-/** Dual briefs: plain-language client + structured internal team. */
-export async function generateConsultantBrief(
+function sanitizeUpdates(raw: ExtractedUpdate[] | undefined): ExtractedUpdate[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((u) => u && typeof u.path === "string" && u.value != null)
+    .map((u) => ({
+      path: String(u.path).slice(0, 80),
+      value: u.value,
+      status: u.status,
+      confidence: typeof u.confidence === "number" ? u.confidence : undefined,
+    }))
+    .slice(0, 12);
+}
+
+/** Main conversational turn — LLM owns reasoning; app validates merges. */
+export async function orchestrateConsultantTurn(
   session: ConsultationSession,
-  fallback: ProjectBrief
-): Promise<ProjectBrief> {
-  const payments = session.requirements.paymentMethods ?? [];
-  const history = session.requirements.conversationHistory ?? [];
-  const recentChat = history
+  userMessage: string
+): Promise<OrchestratorTurnResult> {
+  if (isGreetingOnly(userMessage)) {
+    return { reply: "Hey! What are you thinking about building?" };
+  }
+
+  const model = getProjectModel(session);
+  const history = (session.requirements.conversationHistory ?? [])
     .slice(-12)
     .map((m) => `${m.role === "user" ? "Client" : "Consultant"}: ${m.content}`)
     .join("\n");
@@ -180,83 +150,112 @@ export async function generateConsultantBrief(
   const prompt = [
     "Return valid JSON only with this shape:",
     "{",
-    '  "clientSummary": "2–4 plain sentences the client instantly understands",',
-    '  "markdown": "# Your Project Brief\\n...",',
-    '  "teamMarkdown": "# Internal Consultation Brief\\n...",',
-    '  "salesNotes": "Optional short extras for sales",',
-    '  "recommendedFeatures": ["..."],',
-    '  "estimatedTimeline": "4–6 Weeks",',
-    '  "estimatedCost": "$3,500–$5,000",',
-    '  "complexity": "Low" | "Medium" | "High",',
-    '  "leadLabel": "High Potential Client"',
+    '  "reply": "natural conversational response",',
+    '  "extractedUpdates": [{ "path": "identity.projectType", "value": "...", "status": "client_provided", "confidence": 0.8 }],',
+    '  "openQuestions": [{ "id": "q1", "question": "...", "area": "users|need|budget|timeline|payments|features|tech", "priority": "high" }],',
+    '  "recommendations": [{ "id": "r1", "category": "feature", "title": "...", "detail": "...", "status": "ai_suggested" }],',
+    '  "canOfferPreliminaryBrief": false',
     "}",
     "",
-    "=== CLIENT BRIEF (markdown + clientSummary) ===",
-    "Audience: non-technical founders/managers. Modern, clear, warm — never sales-jargon heavy.",
-    "clientSummary: 2–4 short sentences covering the need AND what success looks like.",
-    "markdown MUST use these sections (## headings):",
-    "  In plain terms | What you need | What success looks like | What you told us | What we’ll include | Timeline & investment | Next steps",
-    "Ground ‘What you need’ and ‘What success looks like’ in what the client said — do not invent.",
-    "Use everyday language. Explain features as benefits, not tech buzzwords.",
-    "Do NOT include lead score, complexity labels, upsell tactics, or internal notes in markdown.",
+    "Allowed update paths only:",
+    "identity.name|projectType|industry|shortDescription|vision|problem|opportunity",
+    "stakeholders.clientName|organization|clientEmail|intendedUsers",
+    "scope.objectives|products|deliverables|exclusions|platforms|integrations",
+    "technical.architecture|stack|hosting|security",
+    "commercial.clientBudget|estimatedCost|currency|paymentMethods",
+    "timeline.clientTimeline|estimatedDuration|phases",
     "",
-    "=== TEAM BRIEF (teamMarkdown) ===",
-    "Audience: Awud Digitals sales/ops. Detailed and structured for handoff.",
-    "teamMarkdown MUST use these sections (## headings):",
-    "  Opportunity snapshot | Core need (why now) | Final expectations (definition of done) | Requirements (structured) | Recommended feature set | Fit & delivery notes | Conversation signals | Open questions / risks | Recommended next actions",
-    "Include lead label, complexity, budget/timeline fit, risks, and concrete next actions.",
-    "Never put teamMarkdown content into the client markdown.",
+    "Critical anti-hallucination rules:",
+    "- Only extract facts the client actually stated or clearly confirmed.",
+    "- Never invent budget, deadline, integrations, client name, or features.",
+    "- commercial.clientBudget and timeline.clientTimeline must be client_provided only.",
+    "- estimatedCost / estimatedDuration may be ai_suggested only when you have real scope — label them as estimates in reply if mentioned.",
+    "- If the message is vague, ask one clarifying question; leave extractedUpdates empty or minimal.",
+    "- Do not re-ask facts already present in Current project model.",
     "",
-    "Base estimates on scope and budget — realistic for Ethiopia/Africa + international clients.",
-    "",
-    `Project data: ${JSON.stringify({
-      ...sessionSnapshot(session),
-      payments,
-      products: session.requirements.products || "Not specified",
-    })}`,
-    recentChat ? `Conversation:\n${recentChat}` : "",
-    "",
-    `Budget options reference: ${BUDGET_OPTIONS.join(", ")}`,
-    `Timeline options reference: ${TIMELINE_OPTIONS.join(", ")}`,
-    `Payment options reference: ${PAYMENT_OPTIONS.join(", ")}`,
+    `Current project model: ${JSON.stringify(model)}`,
+    history ? `Recent conversation:\n${history}` : "",
+    `Client just said: ${userMessage}`,
   ]
     .filter(Boolean)
     .join("\n");
 
-  const raw = await callConsultantLlm(
-    `${CONSULTANT_SYSTEM_PROMPT}\n\nYou produce TWO briefs in one JSON: a client-friendly proposal and a detailed internal consultation brief.`,
-    prompt
-  );
-  if (!raw) return fallback;
+  if (!isConsultantLlmAvailable()) {
+    return {
+      reply:
+        "I’m having trouble reaching the AI service right now. Please try again in a moment — I won’t invent project details while offline.",
+      providerFailed: true,
+    };
+  }
 
-  const parsed = extractJson<LlmBriefResult>(raw);
-  if (!parsed?.markdown?.trim()) return fallback;
+  const raw = await callConsultantLlm(CONSULTANT_SYSTEM_PROMPT, prompt);
+  if (!raw) {
+    return {
+      reply:
+        "I couldn’t get a response from the AI service. Please retry — your previous details are still saved in the plan.",
+      providerFailed: true,
+    };
+  }
 
-  const complexity =
-    parsed.complexity === "Low" || parsed.complexity === "Medium" || parsed.complexity === "High"
-      ? parsed.complexity
-      : fallback.complexity;
+  const parsed = extractJson<LlmOrchestratorJson>(raw);
+  if (!parsed?.reply?.trim()) {
+    return {
+      reply:
+        "I received an unusable AI response. Please try sending that again — I won’t guess your requirements.",
+      providerFailed: true,
+    };
+  }
+
+  const reply = parsed.reply.trim().slice(0, 800);
+  const updates = sanitizeUpdates(parsed.extractedUpdates);
+  const openQuestions = Array.isArray(parsed.openQuestions)
+    ? parsed.openQuestions.slice(0, 8).map((q, i) => ({
+        id: String(q.id || `q-${i}`).slice(0, 40),
+        question: String(q.question || "").slice(0, 280),
+        area: String(q.area || "general").slice(0, 40),
+        priority: (q.priority === "high" || q.priority === "low" ? q.priority : "medium") as
+          | "high"
+          | "medium"
+          | "low",
+      }))
+    : [];
+  const recommendations = Array.isArray(parsed.recommendations)
+    ? parsed.recommendations.slice(0, 8).map((r, i) => ({
+        id: String(r.id || `r-${i}`).slice(0, 40),
+        category: (r.category || "other") as RecommendationItem["category"],
+        title: String(r.title || "").slice(0, 120),
+        detail: String(r.detail || "").slice(0, 500),
+        status: "ai_suggested" as const,
+      }))
+    : [];
 
   return {
-    projectType: session.projectType || fallback.projectType,
-    industry: session.industry || fallback.industry,
-    products: session.requirements.products?.trim() || fallback.products,
-    payments,
-    timeline: session.timeline || fallback.timeline,
-    budget: session.budget || fallback.budget,
-    recommendedFeatures:
-      parsed.recommendedFeatures?.length ? parsed.recommendedFeatures.slice(0, 12) : fallback.recommendedFeatures,
-    estimatedTimeline: parsed.estimatedTimeline?.trim() || fallback.estimatedTimeline,
-    estimatedCost: parsed.estimatedCost?.trim() || fallback.estimatedCost,
-    complexity,
-    leadLabel: parsed.leadLabel?.trim() || fallback.leadLabel,
-    clientSummary: parsed.clientSummary?.trim() || fallback.clientSummary,
-    markdown: stripInternalBriefSections(parsed.markdown.trim()),
-    teamMarkdown: parsed.teamMarkdown?.trim() || fallback.teamMarkdown,
-    salesNotes: parsed.salesNotes?.trim() || undefined,
+    reply,
+    extractedUpdates: updates,
+    openQuestions,
+    recommendations,
+    offerBrief: Boolean(parsed.canOfferPreliminaryBrief) && hasClientSubstance(model),
   };
 }
 
-export function isConsultantLlmAvailable(): boolean {
-  return Boolean(resolveFreeModelConfig() || process.env.OPENAI_API_KEY?.trim());
+/** @deprecated Prefer orchestrateConsultantTurn — kept for transitional imports. */
+export async function generateConsultantStepReply(
+  session: ConsultationSession,
+  userInput: string,
+  _nextPhase: string,
+  fallbackReply: string
+): Promise<string> {
+  const result = await orchestrateConsultantTurn(session, userInput || "continue");
+  return result.reply || fallbackReply;
 }
+
+/** Brief is built from the model; optional light wording polish only (not new facts). */
+export async function generateConsultantBrief(
+  session: ConsultationSession,
+  fallback: ProjectBrief
+): Promise<ProjectBrief> {
+  // Grounded brief is authoritative — do not let LLM invent sections.
+  return fallback;
+}
+
+export { hasClientSubstance };

@@ -30,10 +30,12 @@ Missing or invalid values → `contact`. Clients cannot supply an arbitrary reci
 ## Behavior notes
 
 - Lead rows are saved even if SMTP fails; the API still returns `{ ok: true }` after a successful save (it does **not** claim mail was delivered).
-- Visitor email is set as `Reply-To`.
+- Visitor email is set as `Reply-To` on the **internal** notify message.
+- After a successful contact submit, the visitor also gets a branded **thanks for reaching out** auto-reply (`visitor-thanks-mail`). Failures are logged and do not undo the lead.
+- After a successful testimonial submit **with an email**, the visitor gets a branded thank-you auto-reply. Submissions without email skip the auto-reply.
 - Homepage contact form does not send `inquiryType` yet; it uses the **contact** route by default.
 - AI project consultant: when a visitor completes Plan with a valid email, the app emails them a branded HTML project brief and notifies `sales@` (via `inquiryType=sales`). Failures are logged and do not undo lead persistence.
-- Optional `NEXT_PUBLIC_SITE_URL` / `SITE_URL` / `WEB_APP_URL` — absolute site origin for logo links in client brief emails (defaults to `https://awuddigitals.com`).
+- Optional `NEXT_PUBLIC_SITE_URL` / `SITE_URL` / `WEB_APP_URL` — absolute site origin for logo links in client brief / thanks emails (defaults to `https://awuddigitals.com`).
 
 ## Production checklist
 

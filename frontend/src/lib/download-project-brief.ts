@@ -1,9 +1,7 @@
 "use client";
 
 import { jsPDF } from "jspdf";
-import {
-  clientBriefMarkdown,
-} from "@/lib/project-brief-document";
+import { clientBriefMarkdown } from "@/lib/project-brief-document";
 import type { ProjectBrief } from "@/lib/project-consultant.shared";
 
 function safeFileSlug(value: string): string {
@@ -27,42 +25,59 @@ export function downloadBriefMarkdown(brief: ProjectBrief) {
   URL.revokeObjectURL(url);
 }
 
-/** Branded, print-clean PDF proposal for the visitor. */
+/** Multi-page branded PDF from grounded brief fields — no invented content. */
 export function downloadBriefPdf(brief: ProjectBrief) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
   const margin = 48;
   const maxW = pageW - margin * 2;
   let y = 56;
+  let page = 1;
+
+  const footer = () => {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(140, 140, 140);
+    doc.text("Awud Digitals · Confidential", margin, pageH - 28);
+    doc.text(`Page ${page}`, pageW - margin, pageH - 28, { align: "right" });
+  };
 
   const ensureSpace = (needed: number) => {
-    if (y + needed > doc.internal.pageSize.getHeight() - 48) {
+    if (y + needed > pageH - 56) {
+      footer();
       doc.addPage();
+      page += 1;
       y = 56;
     }
   };
 
-  // Brand bar
+  // Cover bar
   doc.setFillColor(12, 12, 12);
-  doc.rect(0, 0, pageW, 72, "F");
+  doc.rect(0, 0, pageW, 88, "F");
   doc.setTextColor(255, 106, 0);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text("AWUD DIGITALS", margin, 32);
+  doc.text("AWUD DIGITALS", margin, 36);
   doc.setTextColor(250, 250, 250);
-  doc.setFontSize(18);
-  doc.text("Project Brief", margin, 54);
-  y = 100;
+  doc.setFontSize(20);
+  doc.text("Project Brief", margin, 62);
+  if (brief.preliminary) {
+    doc.setFontSize(9);
+    doc.setTextColor(255, 180, 120);
+    doc.text("PRELIMINARY — SUBJECT TO CLIENT CONFIRMATION", margin, 78);
+  }
+  y = 112;
 
   doc.setTextColor(26, 26, 26);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
+  doc.setFontSize(22);
   const titleLines = doc.splitTextToSize(brief.projectType || "Project", maxW);
   doc.text(titleLines, margin, y);
-  y += titleLines.length * 24 + 10;
+  y += titleLines.length * 26 + 8;
 
   if (brief.clientSummary?.trim()) {
-    ensureSpace(40);
+    ensureSpace(48);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.setTextColor(70, 70, 70);
@@ -71,45 +86,62 @@ export function downloadBriefPdf(brief: ProjectBrief) {
     y += summaryLines.length * 14 + 18;
   }
 
+  const addHeading = (label: string) => {
+    ensureSpace(36);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(255, 106, 0);
+    doc.text(label.toUpperCase(), margin, y);
+    y += 16;
+    doc.setDrawColor(235, 230, 223);
+    doc.line(margin, y - 10, pageW - margin, y - 10);
+  };
+
+  const addBody = (text: string) => {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(26, 26, 26);
+    const lines = doc.splitTextToSize(text, maxW);
+    for (const line of lines) {
+      ensureSpace(16);
+      doc.text(line, margin, y);
+      y += 14;
+    }
+    y += 8;
+  };
+
   const rows: [string, string][] = [
     ["Industry", brief.industry],
     ["Scope", brief.products],
-    ["Payments", brief.payments.join(", ") || "—"],
+    ["Payments", brief.payments.join(", ") || "Not provided"],
     ["Preferred timeline", brief.timeline],
-    ["Budget", brief.budget],
+    ["Stated budget", brief.budget],
   ];
 
-  doc.setFontSize(11);
+  addHeading("What you told us");
   for (const [label, value] of rows) {
-    ensureSpace(36);
+    ensureSpace(32);
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
     doc.setTextColor(120, 120, 120);
     doc.text(label.toUpperCase(), margin, y);
-    y += 14;
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(26, 26, 26);
-    const lines = doc.splitTextToSize(value || "—", maxW);
-    doc.text(lines, margin, y);
-    y += lines.length * 14 + 12;
+    y += 12;
+    addBody(value || "Not provided");
   }
 
-  ensureSpace(28);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(255, 106, 0);
-  doc.setFontSize(12);
-  doc.text("RECOMMENDED FEATURES", margin, y);
-  y += 18;
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(26, 26, 26);
-  doc.setFontSize(11);
+  addHeading("Recommended features");
   for (const feature of brief.recommendedFeatures) {
     ensureSpace(18);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(26, 26, 26);
     const lines = doc.splitTextToSize(`•  ${feature}`, maxW);
     doc.text(lines, margin, y);
     y += lines.length * 14 + 4;
   }
+  y += 10;
 
-  y += 16;
+  addHeading("Timeline & investment");
   ensureSpace(70);
   const boxW = (maxW - 12) / 2;
   doc.setFillColor(247, 245, 241);
@@ -117,20 +149,22 @@ export function downloadBriefPdf(brief: ProjectBrief) {
   doc.roundedRect(margin + boxW + 12, y, boxW, 56, 8, 8, "F");
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
-  doc.text("TIMELINE", margin + 14, y + 18);
+  doc.text("EST. TIMELINE", margin + 14, y + 18);
   doc.text("EST. COST", margin + boxW + 26, y + 18);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(26, 26, 26);
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.text(brief.estimatedTimeline, margin + 14, y + 38);
   doc.text(brief.estimatedCost, margin + boxW + 26, y + 38);
+  y += 72;
 
-  y += 80;
-  ensureSpace(40);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  doc.text("Prepared by Awud Digitals · awuddigitals.com", margin, y);
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+  addBody(
+    "Estimates are suggestions only. Confirmed commercial terms require discovery. Unknown items remain “Not provided”."
+  );
 
+  footer();
   doc.save(`awuddigitals-${safeFileSlug(brief.projectType)}-brief.pdf`);
 }

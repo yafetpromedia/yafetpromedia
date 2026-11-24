@@ -11,14 +11,11 @@ import { sendLeadNotificationEmail } from "@/lib/lead-notify-mail";
 import {
   advanceConsultation,
   createSession,
+  getProjectModel,
   type ConsultationSession,
 } from "@/lib/project-consultant-engine";
 import { briefMarkdownForTeam } from "@/lib/project-consultant.shared";
-import {
-  generateConsultantBrief,
-  generateConsultantStepReply,
-  isConsultantLlmAvailable,
-} from "@/lib/project-consultant-llm";
+import { orchestrateConsultantTurn } from "@/lib/project-consultant-llm";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
 import { csrfGuard } from "@/lib/request-security";
 
@@ -28,7 +25,16 @@ type RequestBody = {
   sessionId?: string;
   message?: string;
   selections?: string[];
-  action?: "start" | "message" | "select" | "skip_contact";
+  recommendationId?: string;
+  action?:
+    | "start"
+    | "message"
+    | "select"
+    | "skip_contact"
+    | "request_brief"
+    | "approve_recommendation"
+    | "reject_recommendation"
+    | "resume";
 };
 
 const MAX_MESSAGE_LEN = 2000;
@@ -47,7 +53,7 @@ function appendHistory(
     ...session,
     requirements: {
       ...session.requirements,
-      conversationHistory: history.slice(-24),
+      conversationHistory: history.slice(-40),
     },
   };
 }
@@ -55,7 +61,10 @@ function appendHistory(
 function userTurnLabel(body: RequestBody): string {
   if (body.selections?.length) return body.selections.join(", ");
   if (body.action === "skip_contact") return "Skip contact";
-  if (body.action === "start") return "";
+  if (body.action === "request_brief") return "Generate brief";
+  if (body.action === "approve_recommendation") return `Approve: ${body.recommendationId ?? ""}`;
+  if (body.action === "reject_recommendation") return `Reject: ${body.recommendationId ?? ""}`;
+  if (body.action === "start" || body.action === "resume") return "";
   return (body.message ?? "").trim();
 }
 
@@ -91,50 +100,55 @@ export async function POST(request: Request) {
   let session =
     (await loadConsultationSession(sessionId).catch(() => null)) ?? createSession(sessionId);
 
-  if (session.phase === "complete") {
+  if (body.action === "resume") {
+    const history = session.requirements.conversationHistory ?? [];
+    const lastAssistant = [...history].reverse().find((m) => m.role === "assistant");
     return Response.json({
-      reply: "This consultation is already complete. Start a new session to plan another project.",
+      reply: lastAssistant?.content || "Welcome back — we can continue where you left off.",
+      phase: session.phase,
+      sessionId,
+      session,
+      project: getProjectModel(session),
+      complete: session.phase === "complete",
+    });
+  }
+
+  if (session.phase === "complete" && body.action !== "request_brief") {
+    return Response.json({
+      reply: "This consultation already has a brief. Reset the session to start a new project plan.",
       phase: "complete",
       complete: true,
       sessionId,
       session,
+      project: getProjectModel(session),
     });
   }
+
+  const action =
+    body.action ??
+    (body.message ? "message" : body.selections?.length ? "select" : "start");
 
   const userTurn = userTurnLabel(body);
   if (userTurn) {
     session = appendHistory(session, "user", userTurn);
   }
 
+  let orchestrator = null;
+  if (action === "message" && message) {
+    orchestrator = await orchestrateConsultantTurn(session, message);
+  }
+
   const { session: nextSession, response: baseResponse } = advanceConsultation({
     session,
     message: body.message,
     selections: body.selections,
-    action: body.action ?? (body.message ? "message" : "start"),
+    action,
+    recommendationId: body.recommendationId,
+    orchestrator,
   });
 
   let response = { ...baseResponse };
   let workingSession = nextSession;
-
-  const llmEnabled = isConsultantLlmAvailable();
-  let briefLlmUsed = false;
-
-  // Natural chat replies for gathering steps (paraphrase + one next question).
-  if (llmEnabled && !response.complete && response.reply?.trim()) {
-    const natural = await generateConsultantStepReply(
-      workingSession,
-      userTurn,
-      response.phase,
-      response.reply
-    );
-    response = { ...response, reply: natural };
-  }
-
-  if (llmEnabled && response.complete && response.brief) {
-    const enhanced = await generateConsultantBrief(workingSession, response.brief);
-    response = { ...response, brief: enhanced };
-    briefLlmUsed = true;
-  }
 
   if (response.reply?.trim()) {
     workingSession = appendHistory(workingSession, "assistant", response.reply);
@@ -173,7 +187,6 @@ export async function POST(request: Request) {
           };
         }
 
-        // Internal sales notify (best-effort; must not fail the response)
         void sendLeadNotificationEmail({
           name: workingSession.clientName.trim() || "Consultation lead",
           email: workingSession.clientEmail.trim(),
@@ -185,7 +198,6 @@ export async function POST(request: Request) {
           inquiryType: "sales",
         }).catch(() => undefined);
 
-        // Client-facing branded brief email (best-effort)
         const mailResult = await sendClientProjectBriefEmail({
           clientName: workingSession.clientName,
           clientEmail: workingSession.clientEmail,
@@ -201,7 +213,7 @@ export async function POST(request: Request) {
         consultationId,
         leadId,
         clientBriefEmailed,
-        llmPowered: briefLlmUsed,
+        project: getProjectModel(workingSession),
       });
     }
 
@@ -210,15 +222,19 @@ export async function POST(request: Request) {
       ...response,
       sessionId,
       session: workingSession,
-      llmPowered: false,
+      project: getProjectModel(workingSession),
     });
   } catch (err) {
     console.error("[project-consultant] persistence failed:", err);
-    return Response.json({
-      ...response,
-      sessionId,
-      session: workingSession,
-      llmPowered: briefLlmUsed,
-    });
+    return Response.json(
+      {
+        ...response,
+        sessionId,
+        session: workingSession,
+        project: getProjectModel(workingSession),
+        error: "Saved locally for this request, but persistence failed. Please retry shortly.",
+      },
+      { status: 500 }
+    );
   }
 }

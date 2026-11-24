@@ -26,7 +26,12 @@ const fallbackPath = path.join(getRepoRoot(), ".data", "site-content.fallback.js
 /** Minimum one card; homepage grid supports up to this many tiles. */
 const SERVICE_CARDS_MAX = 8;
 
-const RETIRED_ECOSYSTEM_TITLE = "ድር";
+function normalizeProductTitle(title: unknown): string {
+  return String(title ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
 
 function stripRetiredEcosystemCopy(text: string): string {
   let s = text;
@@ -34,6 +39,10 @@ function stripRetiredEcosystemCopy(text: string): string {
   s = s.replace(/,?\s*ድር\s+for\s+web\s+infrastructure/gi, "");
   s = s.replace(/,?\s*and\s+ድር\b/gi, "");
   s = s.replace(/,?\s*ድር,?\s*/g, " ");
+  // Retired brands only (Chora stays — live product at chora.awuddigitals.com)
+  s = s.replace(/\bMr\.?\s*Software(?:\s+Core)?\b/gi, "custom platforms");
+  s = s.replace(/\bCampus\s*One\b/gi, "Chora");
+  s = s.replace(/\bCampusOne\b/gi, "Chora");
   s = s.replace(/\s{2,}/g, " ");
   s = s.replace(/,\s+,/g, ",");
   s = s.replace(/,\s+and\s+/g, " and ");
@@ -41,7 +50,25 @@ function stripRetiredEcosystemCopy(text: string): string {
 }
 
 function isRetiredEcosystemCard(card: { title?: unknown }): boolean {
-  return String(card.title ?? "").trim() === RETIRED_ECOSYSTEM_TITLE;
+  const title = normalizeProductTitle(card.title);
+  if (!title) return false;
+  if (title.includes("ድር")) return true;
+  if (/\bmr\.?\s*software\b/.test(title)) return true;
+  if (/\bcampus\s*one\b/.test(title) || /\bcampusone\b/.test(title)) return true;
+  return false;
+}
+
+function replaceRetiredProductCard<T extends { title?: unknown }>(
+  card: T,
+  fallback: T
+): T {
+  if (isRetiredEcosystemCard(card)) return fallback;
+  const title = normalizeProductTitle(card.title);
+  // Prior scrub may have left generic "Education systems" — restore live Chora card
+  if (title === "education systems" || title === "education system") {
+    if (normalizeProductTitle(fallback.title) === "chora") return fallback;
+  }
+  return card;
 }
 
 function sanitizeServicesCards(raw: unknown): SiteContent["servicesCards"] {
@@ -238,26 +265,30 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     servicesCards: sanitizeServicesCards((input as Partial<SiteContent>).servicesCards),
     productsSectionTag: String(input.productsSectionTag ?? defaultSiteContent.productsSectionTag).slice(0, 120),
     productsSectionTitle: String(input.productsSectionTitle ?? defaultSiteContent.productsSectionTitle).slice(0, 180),
-    productsSectionDescription: String(
-      input.productsSectionDescription ?? defaultSiteContent.productsSectionDescription
+    productsSectionDescription: stripRetiredEcosystemCopy(
+      String(input.productsSectionDescription ?? defaultSiteContent.productsSectionDescription)
     ).slice(0, 400),
     productsCatalogCtaLabel: String(
       input.productsCatalogCtaLabel ?? defaultSiteContent.productsCatalogCtaLabel
     ).slice(0, 80),
-    productsCards: productCards.slice(0, 16).map((card, index) => {
-      const def = defaultSiteContent.productsCards[Math.min(index, defaultSiteContent.productsCards.length - 1)]!;
-      const p = card as Partial<ProductCard>;
-      return {
-        title: String(card?.title ?? def?.title ?? "").slice(0, 120),
-        description: String(card?.description ?? def?.description ?? "").slice(0, 600),
-        label: String(card?.label ?? def?.label ?? "").slice(0, 40),
-        imageSrc: sanitizeOptionalImageUrl(p.imageSrc ?? def?.imageSrc),
-        href: sanitizeProductHref(p.href ?? def?.href),
-        linkLabel: String(p.linkLabel ?? def?.linkLabel ?? "Learn more").slice(0, 48),
-        featured: Boolean(p.featured ?? def?.featured),
-        learnMore: String(p.learnMore ?? def?.learnMore ?? "").slice(0, 2500),
-      };
-    }),
+    productsCards: productCards
+      .slice(0, 16)
+      .map((card, index) => {
+        const def = defaultSiteContent.productsCards[Math.min(index, defaultSiteContent.productsCards.length - 1)]!;
+        const source = replaceRetiredProductCard(card as ProductCard, def);
+        const p = source as Partial<ProductCard>;
+        return {
+          title: String(p.title ?? def?.title ?? "").slice(0, 120),
+          description: stripRetiredEcosystemCopy(String(p.description ?? def?.description ?? "")).slice(0, 600),
+          label: String(p.label ?? def?.label ?? "").slice(0, 40),
+          imageSrc: sanitizeOptionalImageUrl(p.imageSrc ?? def?.imageSrc),
+          href: sanitizeProductHref(p.href ?? def?.href),
+          linkLabel: String(p.linkLabel ?? def?.linkLabel ?? "Learn more").slice(0, 48),
+          featured: Boolean(p.featured ?? def?.featured),
+          learnMore: stripRetiredEcosystemCopy(String(p.learnMore ?? def?.learnMore ?? "")).slice(0, 2500),
+        };
+      })
+      .filter((card) => !isRetiredEcosystemCard(card)),
     ecosystemSectionTag: String(input.ecosystemSectionTag ?? defaultSiteContent.ecosystemSectionTag).slice(0, 120),
     ecosystemSectionTitle: String(input.ecosystemSectionTitle ?? defaultSiteContent.ecosystemSectionTitle).slice(0, 180),
     ecosystemSectionDescription: stripRetiredEcosystemCopy(
@@ -265,25 +296,26 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
     ).slice(0, 500),
     ecosystemParentLabel: String(input.ecosystemParentLabel ?? defaultSiteContent.ecosystemParentLabel).slice(0, 120),
     ecosystemCards: (Array.isArray(input.ecosystemCards) ? input.ecosystemCards : defaultSiteContent.ecosystemCards)
-      .filter((card) => !isRetiredEcosystemCard(card as { title?: unknown }))
-      .slice(0, 12)
       .map((card, index) => {
         const def =
           defaultSiteContent.ecosystemCards[Math.min(index, defaultSiteContent.ecosystemCards.length - 1)]!;
-        const p = card as Partial<EcosystemProductCard>;
+        const source = replaceRetiredProductCard(card as EcosystemProductCard, def);
+        const p = source as Partial<EcosystemProductCard>;
         const statusRaw = String(p.status ?? def.status ?? "planned");
         const status = statusRaw === "live" || statusRaw === "building" || statusRaw === "planned" ? statusRaw : "planned";
         return {
           title: String(p.title ?? def.title ?? "").slice(0, 80),
-          tagline: String(p.tagline ?? def.tagline ?? "").slice(0, 120),
-          description: String(p.description ?? def.description ?? "").slice(0, 600),
+          tagline: stripRetiredEcosystemCopy(String(p.tagline ?? def.tagline ?? "")).slice(0, 120),
+          description: stripRetiredEcosystemCopy(String(p.description ?? def.description ?? "")).slice(0, 600),
           imageSrc: sanitizeOptionalImageUrl(p.imageSrc ?? def.imageSrc),
           href: sanitizeProductHref(p.href ?? def.href),
-          linkLabel: String(p.linkLabel ?? def.linkLabel ?? "Learn more").slice(0, 48),
+          linkLabel: stripRetiredEcosystemCopy(String(p.linkLabel ?? def.linkLabel ?? "Learn more")).slice(0, 48),
           status,
           featured: Boolean(p.featured ?? def.featured),
         };
-      }),
+      })
+      .filter((card) => !isRetiredEcosystemCard(card))
+      .slice(0, 12),
     caseStudiesSectionTag: String(
       input.caseStudiesSectionTag ?? defaultSiteContent.caseStudiesSectionTag
     ).slice(0, 120),
@@ -350,7 +382,7 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
         return {
           name: String(p.name ?? def.name).slice(0, 80),
           priceLabel: String(p.priceLabel ?? def.priceLabel).slice(0, 80),
-          description: String(p.description ?? def.description).slice(0, 280),
+          description: stripRetiredEcosystemCopy(String(p.description ?? def.description)).slice(0, 280),
           features,
           ctaLabel: String(p.ctaLabel ?? def.ctaLabel).slice(0, 80),
           highlighted: Boolean(p.highlighted ?? def.highlighted),
@@ -396,7 +428,7 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
         ? raw.achievements.map((a) => stripRetiredEcosystemCopy(String(a ?? "").trim())).filter(Boolean)
         : def.achievements
       )
-        .filter((a) => !a.includes(RETIRED_ECOSYSTEM_TITLE))
+        .filter((a) => !/\b(ድር|CampusOne|Campus\s*One|Mr\.?\s*Software)\b/i.test(a))
         .slice(0, 12);
       return {
         pageTitle: String(raw.pageTitle ?? def.pageTitle).slice(0, 120),
@@ -415,16 +447,21 @@ export function sanitizeSiteContent(input: Partial<SiteContent>): SiteContent {
           2000
         ),
         ecosystemProducts: (Array.isArray(raw.ecosystemProducts) ? raw.ecosystemProducts : def.ecosystemProducts)
-          .slice(0, 6)
           .map((item, index) => {
-            const p = item as Partial<AboutYafetContent["ecosystemProducts"][number]>;
             const fallback = def.ecosystemProducts[Math.min(index, def.ecosystemProducts.length - 1)]!;
+            const source = replaceRetiredProductCard(
+              item as AboutYafetContent["ecosystemProducts"][number],
+              fallback
+            );
+            const p = source as Partial<AboutYafetContent["ecosystemProducts"][number]>;
             return {
               title: String(p.title ?? fallback.title).slice(0, 80),
-              tagline: String(p.tagline ?? fallback.tagline).slice(0, 160),
+              tagline: stripRetiredEcosystemCopy(String(p.tagline ?? fallback.tagline)).slice(0, 160),
               description: stripRetiredEcosystemCopy(String(p.description ?? fallback.description)).slice(0, 600),
             };
-          }),
+          })
+          .filter((item) => !isRetiredEcosystemCard(item))
+          .slice(0, 6),
         closingTitle: String(raw.closingTitle ?? def.closingTitle).slice(0, 120),
         closingBody: stripRetiredEcosystemCopy(String(raw.closingBody ?? def.closingBody)).slice(0, 4000),
         closingTagline: String(raw.closingTagline ?? def.closingTagline).slice(0, 200),

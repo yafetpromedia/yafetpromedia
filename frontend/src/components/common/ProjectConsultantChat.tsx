@@ -370,7 +370,7 @@ export default function ProjectConsultantChat({ open, onClose, className, embedd
                   onClick={onClose}
                   className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/40 py-2.5 text-sm font-semibold text-foreground"
                 >
-                  <Layers className="size-4" /> Deploy through Mr.Software
+                  <Layers className="size-4" /> Explore our platforms
                 </Link>
               </div>
             )}
