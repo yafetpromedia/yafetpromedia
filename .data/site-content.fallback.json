@@ -330,18 +330,28 @@
   ],
   "productsSectionTag": "Flagship Systems",
   "productsSectionTitle": "Products built for operations at scale.",
-  "productsSectionDescription": "From our signature Mr.Software platform to supporting tools for analytics, security, and automation—built for teams that outgrow spreadsheets.",
+  "productsSectionDescription": "From Chora for schools to custom operations platforms, analytics, security, and automation—built for teams that outgrow spreadsheets.",
   "productsCatalogCtaLabel": "EXPLORE ALL PRODUCTS",
   "productsCards": [
     {
-      "title": "Mr.Software Core",
+      "title": "Chora",
+      "description": "School management for admins, teachers, and parents—attendance, yearly report cards, fees, payroll, and family updates in one campus system, with iOS & Android apps.",
+      "label": "EDUCATION",
+      "imageSrc": "",
+      "href": "https://chora.awuddigitals.com/",
+      "linkLabel": "Open Chora",
+      "featured": true,
+      "learnMore": "Chora runs the campus in one place so schools are not stuck in spreadsheets and chat groups.\\n\\nAdmins handle enrollment, HR and payroll, academics setup, and school-wide reports. Teachers mark attendance, review concerns, enter grades, and manage classwork. Students get a campus ID, term and yearly results, assignments, fees, and a digital library. Parents see attendance, yearly report cards, fee payments, and notices—with the same login on web and mobile.\\n\\nModules are optional after a size-band base: attendance, results, parent portal, timetable, finance, classroom, worksheets, e-library, and HR & payroll. Schools can trial, import students by CSV, and invite teachers and families the same week."
+    },
+    {
+      "title": "Operations Platform",
       "description": "Centralized operating dashboard for internal teams and business workflows.",
       "label": "OPERATIONS",
       "imageSrc": "/uploads/products/photo_2026-04-27_22-11-09-1777317167318-kqvfms.jpg",
       "href": "#contact",
       "linkLabel": "Request a walkthrough",
-      "featured": true,
-      "learnMore": "Mr.Software is built for leaders who need one honest picture of operations—not another siloed tool. Dashboards surface the metrics and tasks that matter by role, with permissions that match how your org actually works.\n\nWorkflows connect handoffs, approvals, and notifications so teams spend less time chasing status and more time delivering. We prioritize fast load times, readable layouts, and predictable behavior on mobile and desktop.\n\nImplementation is collaborative: we align on your processes first, then configure Mr.Software to match—so adoption feels natural, not forced. Ask for a walkthrough to see how it could map to your teams."
+      "featured": false,
+      "learnMore": "Operations Platform is built for leaders who need one honest picture of operations—not another siloed tool. Dashboards surface the metrics and tasks that matter by role, with permissions that match how your org actually works.\n\nWorkflows connect handoffs, approvals, and notifications so teams spend less time chasing status and more time delivering. We prioritize fast load times, readable layouts, and predictable behavior on mobile and desktop.\n\nImplementation is collaborative: we align on your processes first, then configure Operations Platform to match—so adoption feels natural, not forced. Ask for a walkthrough to see how it could map to your teams."
     },
     {
       "title": "Performance Monitor",
@@ -546,5 +556,31 @@
     }
   ],
   "aiName": "Yafet AI",
-  "whatsappNumber": "251991185321"
+  "whatsappNumber": "251991185321",
+  "ecosystemSectionTag": "Company Platform",
+  "ecosystemSectionTitle": "Awud Digitals — the parent company.",
+  "ecosystemSectionDescription": "Founded by Yafet Tesfaye, Awud Digitals is the holding company and delivery studio.",
+  "ecosystemParentLabel": "Awud Digitals · Founded by Yafet Tesfaye",
+  "ecosystemCards": [
+    {
+      "title": "Custom platforms",
+      "tagline": "Built for your operations",
+      "description": "Dashboards, workflows, and team alignment tailored to how your organization works—from growing teams to multi-site programs.",
+      "imageSrc": "",
+      "href": "#products",
+      "linkLabel": "Explore products",
+      "status": "live",
+      "featured": true
+    },
+    {
+      "title": "Chora",
+      "tagline": "School management for admins, teachers & parents",
+      "description": "Run the campus in one place—attendance, yearly report cards, fees, payroll, and parent updates—with portals for admin, teachers, students, and families, plus iOS & Android apps.",
+      "imageSrc": "",
+      "href": "https://chora.awuddigitals.com/",
+      "linkLabel": "Open Chora",
+      "status": "live",
+      "featured": true
+    }
+  ]
 }

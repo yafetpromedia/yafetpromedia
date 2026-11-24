@@ -44,7 +44,7 @@ const QUICK_PROMPT_KEYS = [
   "aiPromptPricing",
   "aiPromptTimeline",
   "aiPromptPlan",
-  "aiPromptMrSoftware",
+  "aiPromptProducts",
 ] as const;
 
 function uid() {

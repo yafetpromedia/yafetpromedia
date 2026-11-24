@@ -29,7 +29,7 @@ export type ProductCard = {
   href: string;
   /** CTA text (e.g. Visit site, Get access) */
   linkLabel: string;
-  /** Spotlight card — e.g. Mr.Software flagship (single featured row) */
+  /** Spotlight card — flagship product (single featured row) */
   featured: boolean;
   /** Longer copy for Learn more dialog; blank lines between paragraphs */
   learnMore: string;
@@ -344,20 +344,32 @@ export const defaultSiteContent: SiteContent = {
   productsSectionTag: "Flagship Systems",
   productsSectionTitle: "Software products that power serious operations.",
   productsSectionDescription:
-    "From our signature Mr.Software platform to supporting tools for analytics, security, and automation—built for teams that outgrow spreadsheets.",
+    "From Chora for schools to custom operations platforms, analytics, security, and automation—built for teams that outgrow spreadsheets.",
   productsCatalogCtaLabel: "EXPLORE ALL PRODUCTS",
   productsCards: [
     {
-      title: "Mr.Software",
+      title: "Chora",
       description:
-        "Our flagship: a centralized operating system for your business—dashboards, workflows, and team alignment in one place. Built to scale from growing teams to multi-site orgs, with a focus on clarity, speed, and day-to-day usability.",
+        "School management for admins, teachers, and parents—attendance, yearly report cards, fees, payroll, and family updates in one campus system, with iOS & Android apps.",
+      label: "EDUCATION",
+      imageSrc: "",
+      href: "https://chora.awuddigitals.com/",
+      linkLabel: "Open Chora",
+      featured: true,
+      learnMore:
+        "Chora runs the campus in one place so schools are not stuck in spreadsheets and chat groups.\n\nAdmins handle enrollment, HR and payroll, academics setup, and school-wide reports. Teachers mark attendance, review concerns, enter grades, and manage classwork. Students get a campus ID, term and yearly results, assignments, fees, and a digital library. Parents see attendance, yearly report cards, fee payments, and notices—with the same login on web and mobile.\n\nModules are optional after a size-band base: attendance, results, parent portal, timetable, finance, classroom, worksheets, e-library, and HR & payroll. Schools can trial, import students by CSV, and invite teachers and families the same week.",
+    },
+    {
+      title: "Operations Platform",
+      description:
+        "Our flagship-style build: a centralized operating system for your business—dashboards, workflows, and team alignment in one place. Built to scale from growing teams to multi-site orgs, with a focus on clarity, speed, and day-to-day usability.",
       label: "FLAGSHIP",
       imageSrc: "/uploads/products/Screenshot2026-06-24at21-42-18HomeSPOONH-1782326558864-7e5wjv.png",
       href: "#contact",
       linkLabel: "Request a walkthrough",
-      featured: true,
+      featured: false,
       learnMore:
-        "Mr.Software is built for leaders who need one honest picture of operations—not another siloed tool. Dashboards surface the metrics and tasks that matter by role, with permissions that match how your org actually works.\n\nWorkflows connect handoffs, approvals, and notifications so teams spend less time chasing status and more time delivering. We prioritize fast load times, readable layouts, and predictable behavior on mobile and desktop.\n\nImplementation is collaborative: we align on your processes first, then configure Mr.Software to match—so adoption feels natural, not forced. Ask for a walkthrough to see how it could map to your teams.",
+        "We build operations platforms for leaders who need one honest picture of work—not another siloed tool. Dashboards surface the metrics and tasks that matter by role, with permissions that match how your org actually works.\n\nWorkflows connect handoffs, approvals, and notifications so teams spend less time chasing status and more time delivering. We prioritize fast load times, readable layouts, and predictable behavior on mobile and desktop.\n\nImplementation is collaborative: we align on your processes first, then configure the platform to match—so adoption feels natural, not forced. Ask for a walkthrough to see how it could map to your teams.",
     },
     {
       title: "Performance Monitor",
@@ -396,30 +408,30 @@ export const defaultSiteContent: SiteContent = {
   ecosystemSectionTag: "Company Platform",
   ecosystemSectionTitle: "Awud Digitals — the parent company.",
   ecosystemSectionDescription:
-    "Founded by Yafet Tesfaye, Awud Digitals is the holding company and delivery studio. Mr.Software, Chora, and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
+    "Founded by Yafet Tesfaye, Awud Digitals is the holding company and delivery studio. Client platforms and future products are built under this ecosystem—not separate freelancers, but a founder-led software company.",
   ecosystemParentLabel: "Awud Digitals · Founded by Yafet Tesfaye",
   ecosystemCards: [
     {
-      title: "Mr.Software",
-      tagline: "Software publishing platform",
+      title: "Custom platforms",
+      tagline: "Built for your operations",
       description:
-        "Our flagship operating system for business—dashboards, workflows, and team alignment in one place. Built to scale from growing teams to multi-site organizations.",
+        "Dashboards, workflows, and team alignment tailored to how your organization works—from growing teams to multi-site programs.",
       imageSrc: "/uploads/products/Screenshot2026-06-24at21-42-18HomeSPOONH-1782326558864-7e5wjv.png",
       href: "#products",
-      linkLabel: "Explore Mr.Software",
+      linkLabel: "Explore products",
       status: "live",
       featured: true,
     },
     {
       title: "Chora",
-      tagline: "Student ecosystem",
+      tagline: "School management for admins, teachers & parents",
       description:
-        "An integrated platform for campuses—student life, administration, and digital services connected in one ecosystem built for Ethiopian institutions.",
+        "Run the campus in one place—attendance, yearly report cards, fees, payroll, and parent updates—with portals for admin, teachers, students, and families, plus iOS & Android apps.",
       imageSrc: "",
-      href: "#contact",
-      linkLabel: "Learn more",
-      status: "building",
-      featured: false,
+      href: "https://chora.awuddigitals.com/",
+      linkLabel: "Open Chora",
+      status: "live",
+      featured: true,
     },
   ],
   caseStudiesSectionTag: "Portfolio",
@@ -493,7 +505,7 @@ export const defaultSiteContent: SiteContent = {
     {
       name: "Custom",
       priceLabel: "Let's scope it",
-      description: "Mr.Software, Chora-style platforms, or multi-system programs.",
+      description: "Custom platforms, Chora for schools, or multi-system programs.",
       features: [
         "Discovery workshop and architecture map",
         "Custom product / ops platform build",
@@ -565,25 +577,25 @@ export const defaultSiteContent: SiteContent = {
       "To become one of Africa's leading technology companies, recognized globally for creating world-class digital products and experiences.",
     achievements: [
       "Founded Awud Digitals while still a student, transforming a passion for technology into a growing software and product company.",
-      "Created Mr.Software, a software business ecosystem designed to help developers, startups, and organizations build, deploy, manage, and monetize digital products.",
+      "Built custom software platforms designed to help startups and organizations deploy, manage, and grow digital products.",
       "Represented a startup initiative during a national innovation event attended by the Ethiopian Prime Minister, gaining exposure to Ethiopia's growing technology ecosystem.",
-      "Launched Chora, an education-focused platform built to modernize digital experiences for schools, colleges, and universities.",
+      "Building Chora (ጮራ)—school management for admins, teachers, and parents covering attendance, yearly report cards, fees, payroll, and mobile family updates.",
       "Continuing to expand the Awud Digitals ecosystem through AI-powered products, digital infrastructure, and future technology ventures.",
     ],
     projectsHighlight:
       "Everything begins with Awud Digitals.\n\nAwud Digitals serves as the parent company and innovation hub behind every platform we build. Rather than creating isolated projects, we focus on developing connected ecosystems that solve meaningful problems and create lasting impact.",
     ecosystemProducts: [
       {
-        title: "Mr.Software",
-        tagline: "The platform where African developers turn software into businesses.",
+        title: "Custom platforms",
+        tagline: "Software built around how your organization actually works.",
         description:
-          "Build, deploy, publish, manage, and monetize software products from a single ecosystem designed for modern founders and growing organizations.",
+          "From operations dashboards to publishing workflows—platforms designed for modern founders and growing organizations.",
       },
       {
         title: "Chora",
-        tagline: "The future of connected education.",
+        tagline: "School management for admins, teachers & parents.",
         description:
-          "A digital ecosystem that brings students, educators, administrators, and campus services together through one intelligent platform.",
+          "Attendance, yearly report cards, fees, HR & payroll, and family updates in one campus system—with role portals and mobile apps for parents and students.",
       },
     ],
     closingTitle: "Beyond the Products",
