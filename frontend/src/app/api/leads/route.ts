@@ -3,6 +3,7 @@ import { query } from "@db";
 import { sendLeadNotificationEmail } from "@/lib/lead-notify-mail";
 import { clientIpFromRequest, hitRateLimit } from "@/lib/rate-limit";
 import { csrfGuard } from "@/lib/request-security";
+import { sendVisitorThanksEmail } from "@/lib/visitor-thanks-mail";
 
 export const runtime = "nodejs";
 
@@ -84,6 +85,13 @@ export async function POST(request: Request) {
     }).catch((err) => {
       console.error(
         "[leads] unexpected notify error after persist:",
+        err instanceof Error ? err.message : "unknown"
+      );
+    });
+
+    void sendVisitorThanksEmail({ kind: "contact", name, email }).catch((err) => {
+      console.error(
+        "[leads] unexpected visitor thanks error after persist:",
         err instanceof Error ? err.message : "unknown"
       );
     });
